@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Outscrape", "Outscrape.csproj", "{DE1F60D1-532B-4BEE-9FB0-111244B3109F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CefSharpController", "CefSharpController.csproj", "{DE1F60D1-532B-4BEE-9FB0-111244B3109F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CliverRoutines", "..\..\..\CLIVER\CliverBot\CliverRoutines\CliverRoutines.csproj", "{ACA94788-BED1-4B8E-94EF-E54293E8D139}"
 EndProject

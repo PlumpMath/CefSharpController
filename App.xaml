@@ -1,7 +1,7 @@
-﻿<Application x:Class="Cliver.Outscrape.App"
+﻿<Application x:Class="Cliver.CefSharpController.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:Cliver.Outscrape"
+             xmlns:local="clr-namespace:Cliver.CefSharpController"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
          

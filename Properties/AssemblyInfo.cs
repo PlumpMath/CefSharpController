@@ -7,11 +7,11 @@ using System.Windows;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Outscrape")]
+[assembly: AssemblyTitle("CefSharpController")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("CliverSoft")]
-[assembly: AssemblyProduct("Outscrape")]
+[assembly: AssemblyProduct("CefSharpController")]
 [assembly: AssemblyCopyright("Copyright © CliverSoft 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

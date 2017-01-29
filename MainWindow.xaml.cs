@@ -15,7 +15,7 @@ using System.Windows.Shapes;
 using CefSharp;
 using CefSharp.Wpf;
 
-namespace Cliver.Outscrape
+namespace Cliver.CefSharpController
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
