@@ -30,7 +30,7 @@ namespace Cliver.CefSharpController
 
             browser.Loaded += Browser_Loaded;
             browser.LoadingStateChanged += Browser_LoadingStateChanged;
-            browser.RequestHandler = new RequestHandler();
+            //browser.RequestHandler = new RequestHandler();
 
 
 
@@ -44,18 +44,26 @@ namespace Cliver.CefSharpController
             //var element = // some element you find;
             //string highlightJavascript = @"arguments[0].style.cssText = ""border-width: 2px; border-style: solid; border-color: red"";";
             //jsDriver.ExecuteScript(highlightJavascript, new object[] { element });
+
+            Loaded += delegate
+            {
+                route.RecordRoute();
+            };
         }
+        RouteWindow rw;
         public static MainWindow This { get; private set; }
 
         class RequestHandler : IRequestHandler
         {
             public bool GetAuthCredentials(IWebBrowser browserControl, IBrowser browser, IFrame frame, bool isProxy, string host, int port, string realm, string scheme, IAuthCallback callback)
             {
+                return true;
                 throw new NotImplementedException();
             }
 
             public IResponseFilter GetResourceResponseFilter(IWebBrowser browserControl, IBrowser browser, IFrame frame, IRequest request, IResponse response)
             {
+                return null;
                 throw new NotImplementedException();
             }
 
@@ -67,56 +75,63 @@ namespace Cliver.CefSharpController
 
             public CefReturnValue OnBeforeResourceLoad(IWebBrowser browserControl, IBrowser browser, IFrame frame, IRequest request, IRequestCallback callback)
             {
+                return new CefReturnValue();
                 throw new NotImplementedException();
             }
 
             public bool OnCertificateError(IWebBrowser browserControl, IBrowser browser, CefErrorCode errorCode, string requestUrl, ISslInfo sslInfo, IRequestCallback callback)
             {
+                return true;
                 throw new NotImplementedException();
             }
 
             public bool OnOpenUrlFromTab(IWebBrowser browserControl, IBrowser browser, IFrame frame, string targetUrl, WindowOpenDisposition targetDisposition, bool userGesture)
             {
+                return true;
                 throw new NotImplementedException();
             }
 
             public void OnPluginCrashed(IWebBrowser browserControl, IBrowser browser, string pluginPath)
             {
-                throw new NotImplementedException();
+                //throw new NotImplementedException();
             }
 
             public bool OnProtocolExecution(IWebBrowser browserControl, IBrowser browser, string url)
             {
+                return true;
                 throw new NotImplementedException();
             }
 
             public bool OnQuotaRequest(IWebBrowser browserControl, IBrowser browser, string originUrl, long newSize, IRequestCallback callback)
             {
+                return true;
                 throw new NotImplementedException();
             }
 
             public void OnRenderProcessTerminated(IWebBrowser browserControl, IBrowser browser, CefTerminationStatus status)
             {
+                return;
                 throw new NotImplementedException();
             }
 
             public void OnRenderViewReady(IWebBrowser browserControl, IBrowser browser)
             {
-                throw new NotImplementedException();
+                //throw new NotImplementedException();
             }
 
             public void OnResourceLoadComplete(IWebBrowser browserControl, IBrowser browser, IFrame frame, IRequest request, IResponse response, UrlRequestStatus status, long receivedContentLength)
             {
-                throw new NotImplementedException();
+                //throw new NotImplementedException();
             }
 
             public void OnResourceRedirect(IWebBrowser browserControl, IBrowser browser, IFrame frame, IRequest request, ref string newUrl)
             {
-                throw new NotImplementedException();
+                //throw new NotImplementedException();
             }
 
             public bool OnResourceResponse(IWebBrowser browserControl, IBrowser browser, IFrame frame, IRequest request, IResponse response)
             {
+                return true;
                 throw new NotImplementedException();
             }
         }
@@ -162,9 +177,9 @@ namespace Cliver.CefSharpController
             WebBrowserExtensions.Stop(This.browser);
         }
 
-        static public string State
-        {
-            set { This.state.Content = value; }
-        }
+        //static public string State
+        //{
+        //    set { This.state.Content = value; }
+        //}
     }
 }

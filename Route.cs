@@ -22,7 +22,13 @@ namespace Cliver.CefSharpController
 {
     public class Route
     {
-        XmlDocument xd = new XmlDocument();
+        public Route()
+        {
+            xd = new XmlDocument();
+            var xn = xd.CreateElement("ProductList");
+            xd.AppendChild(xn);
+        }
+        XmlDocument xd = null;
 
         public string Xml
         {
@@ -40,9 +46,29 @@ namespace Cliver.CefSharpController
         {
             get
             {
-                return xd.SelectSingleNode("//ProductList/StartUrl").Value;
+                var xn = xd.SelectSingleNode("//ProductList/StartUrl");
+                if (xn == null)
+                    return null;
+                return xn.InnerText;
             }
-            set { }
+            set
+            {
+                try
+                {
+                    var xn = xd.SelectSingleNode("//ProductList/StartUrl");
+                    if (xn == null)
+                    {
+                        var x = xd.SelectSingleNode("//ProductList");
+                        xn = xd.CreateElement("StartUrl");
+                        xn.InnerText = value;
+                        x.AppendChild(xn);
+                    }
+                }
+                catch(Exception e)
+                {
+
+                }
+            }
         }
 
         public string ProductListNextPageXpath
@@ -52,7 +78,7 @@ namespace Cliver.CefSharpController
                 var xn = xd.SelectSingleNode("//ProductList/NextPageXpath");
                 if (xn == null)
                     return null;
-                return xn.Value;
+                return xn.InnerText;
             }
             set
             {
@@ -61,7 +87,7 @@ namespace Cliver.CefSharpController
                 {
                     var x = xd.SelectSingleNode("//ProductList");
                     xn = xd.CreateElement("NextPageXpath");
-                    xn.Value = value;
+                    xn.InnerText = value;
                     x.AppendChild(xn);
                 }
             }
@@ -74,7 +100,7 @@ namespace Cliver.CefSharpController
                 var xn = xd.SelectSingleNode("//ProductList/ProductPagesXpath");
                 if (xn == null)
                     return null;
-                return xn.Value;
+                return xn.InnerText;
             }
             set
             {
@@ -83,7 +109,7 @@ namespace Cliver.CefSharpController
                 {
                     var x = xd.SelectSingleNode("//ProductList");
                     xn = xd.CreateElement("ProductPagesXpath");
-                    xn.Value = value;
+                    xn.InnerText = value;
                     x.AppendChild(xn);
                 }
             }

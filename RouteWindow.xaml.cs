@@ -31,6 +31,7 @@ namespace Cliver.CefSharpController
                 route = new CefSharpController.Route();
                 MainWindow.Load(d.StartUrl.Text);
                 Message.Inform("Click List Next Page Link");
+                Hide();
                 //route.ProductListNextPageXpath = ;
                 Message.Inform("Click Product Page Link");
                 //route.ProductPagesXpath = ;
@@ -38,5 +39,7 @@ namespace Cliver.CefSharpController
         }
         string xml_name;
         Route route;
+
+
     }
 }

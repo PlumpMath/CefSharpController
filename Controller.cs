@@ -21,20 +21,19 @@ namespace Cliver.CefSharpController
 {
     public class Controller
     {
-        public Controller(string xml)
+        public Controller(Route route)
         {
+            this.route = route;
             tw = new StreamWriter(Log.MainSession.Path + "\\output.txt");
-            tw.WriteLine(FieldPreparation.GetCsvLine(product_value_names2xpath.Keys, FieldPreparation.FieldSeparator.COMMA, false));
+            tw.WriteLine(FieldPreparation.GetCsvLine(route.ProductValueNames2Xpath.Keys, FieldPreparation.FieldSeparator.COMMA, false));
         }
         TextWriter tw = null;
-        string next_page_list_link_xpath;
-        string product_page_links_xpath;
-        Dictionary<string, string> product_value_names2xpath;
+        Route route = null;
 
         void Start()
         {
             t = ThreadRoutines.StartTry(() => {
-                MainWindow.Load("");
+                MainWindow.Load(route.ProductListUrl);
                 ProcessProductListPage();
             });
         }
@@ -68,7 +67,7 @@ namespace Cliver.CefSharpController
         void ProcessProductPage()
         {
             List<string> vs = new List<string>();
-            foreach (string vn in product_value_names2xpath.Keys)
+            foreach (string vn in route.ProductValueNames2Xpath.Keys)
             {
                 vs.Add((string) MainWindow.Execute(""));
             }

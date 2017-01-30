@@ -7,11 +7,12 @@
         mc:Ignorable="d"
         Title="StartUrlWindow" Height="205.275" Width="584">
     <Grid>
-
-        <Label Height="auto" Width="auto" Margin="0,5,0,140" >Xml File Name:</Label>
-        <TextBox Name="XmlName"  MaxLines="1" Margin="0,35,0,114" x:FieldModifier="public" ></TextBox>
-        <Label Height="auto" Width="auto" Margin="0,61,0,88" >Next Page List Xpath:</Label>
-        <TextBox Name="StartUrl"  MaxLines="1" Margin="0,87,0,60" x:FieldModifier="public" ></TextBox>
-        <Button Margin="259,142,259,0">Ok</Button>
+        <StackPanel>
+        <Label Height="auto" Width="auto" >Xml File Name:</Label>
+            <TextBox Name="XmlName" Height="auto" Width="auto"  x:FieldModifier="public" ></TextBox>
+        <Label Height="auto" Width="auto" >Next Page List Xpath:</Label>
+            <TextBox Name="StartUrl" Height="auto" Width="auto"  x:FieldModifier="public" ></TextBox>
+        <Button Name="ok">Ok</Button>
+        </StackPanel>
     </Grid>
 </Window>

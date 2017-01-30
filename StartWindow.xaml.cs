@@ -22,6 +22,14 @@ namespace Cliver.CefSharpController
         public StartWindow()
         {
             InitializeComponent();
+
+            XmlName.Text = "test.xml";
+            StartUrl.Text = "google.com";
+
+            ok.Click += delegate
+              {
+                  Close();
+              };
         }
     }
 }
