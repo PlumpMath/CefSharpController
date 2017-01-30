@@ -8,7 +8,13 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
-        <cefSharp:ChromiumWebBrowser Name="browser" Grid.Row="0"
-        Address="https://github.com/cefsharp/CefSharp/wiki/Frequently-asked-questions" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0">
+                <Label Name="state">fdgdfgdf</Label>
+            </StackPanel>
+            <cefSharp:ChromiumWebBrowser Name="browser" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
     </Grid>
 </Window>

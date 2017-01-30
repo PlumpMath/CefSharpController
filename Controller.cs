@@ -15,27 +15,46 @@ using System.IO;
 using System.Diagnostics;
 using System.Reflection;
 using System.Linq;
+using System.Threading;
 
 namespace Cliver.CefSharpController
 {
     public class Controller
     {
-        static void Perform(string xml)
+        public Controller(string xml)
         {
-            MainWindow.Load("");
-
-
-
+            tw = new StreamWriter(Log.MainSession.Path + "\\output.txt");
+            tw.WriteLine(FieldPreparation.GetCsvLine(product_value_names2xpath.Keys, FieldPreparation.FieldSeparator.COMMA, false));
         }
-        
+        TextWriter tw = null;
+        string next_page_list_link_xpath;
+        string product_page_links_xpath;
+        Dictionary<string, string> product_value_names2xpath;
 
-        static void ProcessProductListPage(string next_page_list_link_xpath, string product_page_links_xpath)
+        void Start()
+        {
+            t = ThreadRoutines.StartTry(() => {
+                MainWindow.Load("");
+                ProcessProductListPage();
+            });
+        }
+        Thread t;
+
+        void Stop()
+        {
+            if (t != null && t.IsAlive)
+                t.Abort();
+            MainWindow.Stop();
+        }
+
+        void ProcessProductListPage()
         {
             string next_page_list_url = (string)MainWindow.Execute("");
             List<string> product_page_urls = (List<string>)MainWindow.Execute("");
             foreach (string ppu in product_page_urls)
             {
                 MainWindow.Load(ppu);
+                ProcessProductPage();
             }
             if(!string.IsNullOrWhiteSpace( next_page_list_url))
             {
@@ -43,29 +62,17 @@ namespace Cliver.CefSharpController
                 return;
             }
             MainWindow.Load(next_page_list_url);
-            ProcessProductListPage(next_page_list_link_xpath, product_page_links_xpath);
+            ProcessProductListPage();
         }
 
-        static void ProcessProductPage(Dictionary<string, string> product_value_names2xpaths)
+        void ProcessProductPage()
         {
             List<string> vs = new List<string>();
-            foreach (string vn in product_value_names2xpaths.Keys)
+            foreach (string vn in product_value_names2xpath.Keys)
             {
                 vs.Add((string) MainWindow.Execute(""));
             }
-            FieldPreparation.GetCsvLine(vs, FieldPreparation.FieldSeparator.COMMA, false);
-        }
-
-        static void Save()
-        { }
-
-        static void GetProductListUrl()
-        { }
-
-        static void GetProductListNextPageXpath()
-        { }
-
-        static void GetProductPagesXpath()
-        { }
+            tw.WriteLine(FieldPreparation.GetCsvLine(vs, FieldPreparation.FieldSeparator.COMMA, false));
+        }        
     }
 }

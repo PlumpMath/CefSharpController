@@ -81,5 +81,15 @@ namespace Cliver.CefSharpController
                 throw new Exception("Timeout");
             return t.Result.Result;
         }
+
+        static public void Stop()
+        {
+            WebBrowserExtensions.Stop(This.browser);
+        }
+
+        static public string State
+        {
+            set { This.state.Content = value; }
+        }
     }
 }

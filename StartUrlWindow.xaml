@@ -1,0 +1,17 @@
+﻿<Window x:Class="Cliver.CefSharpController.StartWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Cliver.CefSharpController"
+        mc:Ignorable="d"
+        Title="StartUrlWindow" Height="205.275" Width="584">
+    <Grid>
+
+        <Label Height="auto" Width="auto" Margin="0,5,0,140" >Xml File Name:</Label>
+        <TextBox Name="XmlName"  MaxLines="1" Margin="0,35,0,114" x:FieldModifier="public" ></TextBox>
+        <Label Height="auto" Width="auto" Margin="0,61,0,88" >Next Page List Xpath:</Label>
+        <TextBox Name="StartUrl"  MaxLines="1" Margin="0,87,0,60" x:FieldModifier="public" ></TextBox>
+        <Button Margin="259,142,259,0">Ok</Button>
+    </Grid>
+</Window>
