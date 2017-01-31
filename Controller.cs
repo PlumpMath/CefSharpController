@@ -29,7 +29,9 @@ namespace Cliver.CefSharpController
         {
             this.route = route;
             tw = new StreamWriter(Log.MainSession.Path + "\\output_" + route.Name + ".csv");
-            tw.WriteLine(FieldPreparation.GetCsvLine(route.ProductFields.Select(x=>x.Name), FieldPreparation.FieldSeparator.COMMA, false));
+            List<string> hs = route.ProductFields.Select(x => x.Name).ToList();
+            hs.Insert(0, "Url");
+            tw.WriteLine(FieldPreparation.GetCsvLine(hs, FieldPreparation.FieldSeparator.COMMA));
         }
         TextWriter tw = null;
         Route route = null;
@@ -165,12 +167,18 @@ return vs;
 
         void ProcessProductPage()
         {
+            string url = null;
+            MainWindow.This.Dispatcher.Invoke(() =>
+            {
+                url = MainWindow.Browser.Address;
+            });
             List<string> vs = new List<string>();
             foreach (Route.ProductFieldClass p in route.ProductFields)
             {
                 vs.Add(get_value(p.Xpath));
             }
-            tw.WriteLine(FieldPreparation.GetCsvLine(vs, FieldPreparation.FieldSeparator.COMMA, false));
+            vs.Insert(0, url);
+            tw.WriteLine(FieldPreparation.GetCsvLine(vs, FieldPreparation.FieldSeparator.COMMA, true));
         }        
     }
 }
