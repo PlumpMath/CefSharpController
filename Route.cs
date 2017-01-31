@@ -22,15 +22,19 @@ namespace Cliver.CefSharpController
 {
     public class Route
     {
+        public static Route LoadFromFile(string file)
+        {
+            Route r = new Route();
+            r.Xml = File.ReadAllText(file);
+            return r;
+        }
+        Route() { }
+
         public Route(string name)
         {
-            this.name = name;
-            xd = new XmlDocument();
-            var xn = xd.CreateElement("ProductList");
-            xd.AppendChild(xn);
+            Name = name;
         }
-        XmlDocument xd = null;
-        string name;
+        readonly XmlDocument xd = new XmlDocument();
 
         public string Xml
         {
@@ -41,6 +45,29 @@ namespace Cliver.CefSharpController
             get
             {
                 return xd.OuterXml;
+            }
+        }
+
+        public string Name
+        {
+            get
+            {
+                var xn = xd.SelectSingleNode("//ProductList");
+                if (xn == null)
+                    return null;
+                return xn.Attributes["name"].Value;
+            }
+            set
+            {
+                var xn = xd.SelectSingleNode("//ProductList");
+                if (xn == null)
+                {
+                    xn = xd.CreateElement("ProductList");
+                    xd.AppendChild(xn);
+                }
+                XmlAttribute a = xd.CreateAttribute("name");
+                a.Value = value;
+                xn.Attributes.Append(a);
             }
         }
 
@@ -157,7 +184,7 @@ namespace Cliver.CefSharpController
                     xn = xd.CreateElement("ProductPage");
                     x.AppendChild(xn);
                 }
-                XmlNode xf = xd.SelectSingleNode("//ProductList/ProductPage/Field[@name='"+value.Name+"']");
+                XmlNode xf = xd.SelectSingleNode("//ProductList/ProductPage/Field[@name='" + value.Name + "']");
                 if (xf == null)
                 {
                     xf = xd.CreateElement("Field");
@@ -179,7 +206,7 @@ namespace Cliver.CefSharpController
 
         public void Save()
         {
-            xd.Save(Log.WorkDir + "\\" + name);
+            xd.Save(Log.WorkDir + "\\" + Name);
         }
     }
 }

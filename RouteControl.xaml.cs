@@ -50,7 +50,11 @@ namespace Cliver.CefSharpController
             save.Click += delegate { route.Save(); };
             run.Click += delegate
             {
-                Controller.Start(route);
+                Microsoft.Win32.OpenFileDialog d = new Microsoft.Win32.OpenFileDialog();
+                d.DefaultExt = ".xml";
+                d.Filter = "XML Files (*.xml)|*.xml|All Files (*.*)|*.*";
+                if (d.ShowDialog() == true)
+                    Controller.Start(Route.LoadFromFile(d.FileName));
             };
 
             state.SelectionChanged += delegate
@@ -60,11 +64,13 @@ namespace Cliver.CefSharpController
                     try
                     {
                         var d = new StartWindow();
-                        d.ShowDialog();
-                        route = new CefSharpController.Route(d.XmlName.Text);
-                        route.ProductListUrl = d.StartUrl.Text;
-                        xml.Text = route.Xml;
-                        MainWindow.Load(route.ProductListUrl, true);
+                        if (d.ShowDialog() == true)
+                        {
+                            route = new CefSharpController.Route(d.XmlName.Text);
+                            route.ProductListUrl = d.StartUrl.Text;
+                            xml.Text = route.Xml;
+                            MainWindow.Load(route.ProductListUrl, true);
+                        }
                     }
                     catch (Exception e)
                     {
@@ -84,7 +90,7 @@ namespace Cliver.CefSharpController
 
             Loaded += delegate
             {
-                state.SelectedIndex = 0;
+                //state.SelectedIndex = 0;
             };
         }
         Route route;
@@ -93,7 +99,7 @@ namespace Cliver.CefSharpController
         {
             MainWindow.Execute(@"
 if(!document.__onClick){
-                document.__createXPathFromElement =  function(elm) {
+                document.__createXPathForElement =  function(elm) {
                 var allNodes = document.__getElementsByTagName('*');
                 for (var segs = []; elm && elm.nodeType == 1; elm = elm.parentNode)
                 {
@@ -131,7 +137,7 @@ if(!document.__onClick){
                 return segs.length ? '/' + segs.join('/') : null;
             };
 
-            document.__lookupElementByXPath = function(path) {
+            document.__getElementsByXPath = function(path) {
                 var evaluator = new XPathEvaluator();
                 var result = evaluator.evaluate(path, document.documentElement, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
                 var es = [];
@@ -141,7 +147,7 @@ if(!document.__onClick){
                 return es;
             };
 
-            document.__createXPathFromElement = function(element) {
+            document.__createXPathForElement = function(element) {
                 var xpath = '';
                 for (; element && element.nodeType == 1; element = element.parentNode) {
                     //alert(element);
@@ -161,7 +167,7 @@ if(!document.__onClick){
                   event.returnValue = false;
                   var targetElement = event.target || event.srcElement;
                   //alert(targetElement);
-                    var x = document.__createXPathFromElement(targetElement);
+                    var x = document.__createXPathForElement(targetElement);
                // alert(x);
                     window.JsMapObject.clickedHtml(x);
                 }catch(err){
@@ -190,7 +196,7 @@ if(!document.__onClick){
                 }
 
                 document.__highlightedElements = [];
-                var es = document.__lookupElementByXPath('" + xpath + @"');
+                var es = document.__getElementsByXPath('" + xpath + @"');
                 for(var i = 0; i < es.length; i++){
                     es[i].className += ' __highlight';
                     document.__highlightedElements.push(es[i]);
@@ -210,7 +216,7 @@ if(!document.__onClick){
                 string x = xpath.Remove(ms[i].Groups[1].Index, ms[i].Groups[1].Length);
                 x = x.Insert(ms[i].Groups[1].Index, "*");
                 int count = (int)MainWindow.Execute(@"
-        var es = document.__lookupElementByXPath('" + x + @"');
+        var es = document.__getElementsByXPath('" + x + @"');
         return es.length;
 ");
                 if (count > max_count)
