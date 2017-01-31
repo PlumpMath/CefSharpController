@@ -33,7 +33,7 @@ namespace Cliver.CefSharpController
         void Start()
         {
             t = ThreadRoutines.StartTry(() => {
-                MainWindow.Load(route.ProductListUrl);
+                MainWindow.Load(route.ProductListUrl, false);
                 ProcessProductListPage();
             });
         }
@@ -52,7 +52,7 @@ namespace Cliver.CefSharpController
             List<string> product_page_urls = (List<string>)MainWindow.Execute("");
             foreach (string ppu in product_page_urls)
             {
-                MainWindow.Load(ppu);
+                MainWindow.Load(ppu, false);
                 ProcessProductPage();
             }
             if(!string.IsNullOrWhiteSpace( next_page_list_url))
@@ -60,7 +60,7 @@ namespace Cliver.CefSharpController
                 Log.Warning("no next page found");
                 return;
             }
-            MainWindow.Load(next_page_list_url);
+            MainWindow.Load(next_page_list_url, false);
             ProcessProductListPage();
         }
 

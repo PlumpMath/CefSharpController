@@ -24,7 +24,7 @@ namespace Cliver.CefSharpController
             InitializeComponent();
 
             XmlName.Text = "test.xml";
-            StartUrl.Text = "google.com";
+            StartUrl.Text = "http://boston.craigslist.org/search/ata";
 
             ok.Click += delegate
               {
