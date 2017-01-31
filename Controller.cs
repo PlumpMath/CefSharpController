@@ -28,7 +28,7 @@ namespace Cliver.CefSharpController
         Controller(Route route)
         {
             this.route = route;
-            tw = new StreamWriter(Log.MainSession.Path + "\\output_" + route.Name + ".txt");
+            tw = new StreamWriter(Log.MainSession.Path + "\\output_" + route.Name + ".csv");
             tw.WriteLine(FieldPreparation.GetCsvLine(route.ProductFields.Select(x=>x.Name), FieldPreparation.FieldSeparator.COMMA, false));
         }
         TextWriter tw = null;
@@ -76,7 +76,7 @@ else
 
         List<string> get_links(string xpath)
         {
-            var ls = (List<string>)MainWindow.Execute(@"
+            var os = (List<object>)MainWindow.Execute(@"
                     document.__getElementsByXPath = function(path) {
                         var evaluator = new XPathEvaluator();
                         var result = evaluator.evaluate(path, document.documentElement, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
@@ -95,8 +95,12 @@ for(var i = 0; i < es.length; i++){
 return ls;
             ");
 
-            for (int i = 0; i < ls.Count; i++)
-                ls[i] = GetAbsoluteUrl(ls[i], MainWindow.Browser.Address);
+            List<string> ls = new List<string>();
+            MainWindow.This.Dispatcher.Invoke(() =>
+            {
+                for (int i = 0; i < os.Count; i++)
+                    ls.Add(GetAbsoluteUrl((string)os[i], MainWindow.Browser.Address));
+            });
             return ls;
         }
 
@@ -118,7 +122,6 @@ return ls;
                 return null;
             }
         }
-
 
         string get_value(string xpath)
         {
