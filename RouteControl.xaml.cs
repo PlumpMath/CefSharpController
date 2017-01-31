@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -22,12 +23,16 @@ namespace Cliver.CefSharpController
     {
         public void clickedHtml(string xpath)
         {
-            Application.Current.Dispatcher.Invoke(() => {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
                 highlight(xpath);
                 if (state.SelectedIndex == 1)
                     route.ProductListNextPageXpath = xpath;
                 else if (state.SelectedIndex == 2)
-                    route.ProductPagesXpath = xpath;
+                {
+                    route.ProductPagesXpath = find_product_links_xpath(xpath);
+                    highlight(route.ProductPagesXpath);
+                }
                 else if (state.SelectedIndex == 3)
                 {
                     ProductFieldWindow w = new ProductFieldWindow();
@@ -38,29 +43,15 @@ namespace Cliver.CefSharpController
             });
         }
 
-        //        void fillProduct()
-        //        {
-        //            MainWindow.Execute(@"
-        //                document.__removeEventListener('click', __onClick, false);
-
-        //   function lookupElementByXPath(path) {
-        //                var evaluator = new XPathEvaluator();
-        //                var result = evaluator.evaluate(path, document.documentElement, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
-        //                return result.singleNodeValue;
-        //            }
-
-        //var ps = lookupElementByXPath('"+ route.ProductPagesXpath + @"');
-        //alert(ps);
-        //alert(ps[0]);
-
-        //            ");
-        //            //MainWindow.Load(route.ProductListUrl);
-
-        //        }
-
         public RouteControl()
         {
             InitializeComponent();
+
+            save.Click += delegate { route.Save(); };
+            run.Click += delegate
+            {
+                Controller.Start(route);
+            };
 
             state.SelectionChanged += delegate
             {
@@ -70,8 +61,7 @@ namespace Cliver.CefSharpController
                     {
                         var d = new StartWindow();
                         d.ShowDialog();
-                        xml_name = d.XmlName.Text;
-                        route = new CefSharpController.Route();
+                        route = new CefSharpController.Route(d.XmlName.Text);
                         route.ProductListUrl = d.StartUrl.Text;
                         xml.Text = route.Xml;
                         MainWindow.Load(route.ProductListUrl, true);
@@ -97,7 +87,6 @@ namespace Cliver.CefSharpController
                 state.SelectedIndex = 0;
             };
         }
-        string xml_name;
         Route route;
 
         void listen_clicks()
@@ -144,18 +133,22 @@ if(!document.__onClick){
 
             document.__lookupElementByXPath = function(path) {
                 var evaluator = new XPathEvaluator();
-                var result = evaluator.evaluate(path, document.documentElement, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
-                return result.singleNodeValue;
+                var result = evaluator.evaluate(path, document.documentElement, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
+                var es = [];
+                for(var thisNode = result.iterateNext(); thisNode; thisNode = result.iterateNext()){
+                    es.push(thisNode);
+                }
+                return es;
             };
 
-            document.__createXPathFromElement =  function(element) {
-                var val=element.value;
+            document.__createXPathFromElement = function(element) {
                 var xpath = '';
-                for (; element && element.nodeType == 1; element = element.parentNode)
-                {
+                for (; element && element.nodeType == 1; element = element.parentNode) {
                     //alert(element);
-                    var id = $(element.parentNode).children(element.tagName).index(element) + 1;
-                    id > 1 ? (id = '[' + id + ']') : (id = '');
+                    var cs = $(element.parentNode).children(element.tagName);
+                    var id = '';
+                    if(cs.length > 1)
+                        id = '[' + (cs.index(element) + 1) + ']';
                     xpath = '/' + element.tagName.toLowerCase() + id + xpath;
                 }
                 return xpath;
@@ -186,24 +179,47 @@ if(!document.__onClick){
         void highlight(string xpath)
         {
             MainWindow.Execute(@"
-try{
-                if(!document.__highlightedElement){
+                if(!document.__highlightedElements){
                     var style = document.createElement('style');
                     style.type = 'text/css';
                     style.innerHTML = '.__highlight { background-color: #F00; }';
                     document.getElementsByTagName('head')[0].appendChild(style);
-                }else
-                    document.__highlightedElement.className = document.__highlightedElement.className.replace(/\b__highlight\b/,''); 
+                }else{
+                    for(var i = 0; i < document.__highlightedElements.length; i++)
+                        document.__highlightedElements[i].className = document.__highlightedElements[i].className.replace(/\b__highlight\b/,''); 
+                }
 
-                var e = document.__lookupElementByXPath('" + xpath + @"');
-//alert(e);
-                e.className += ' __highlight';
-
-                document.__highlightedElement = e;
-            }catch(err){
-                    alert(err.message);
+                document.__highlightedElements = [];
+                var es = document.__lookupElementByXPath('" + xpath + @"');
+                for(var i = 0; i < es.length; i++){
+                    es[i].className += ' __highlight';
+                    document.__highlightedElements.push(es[i]);
                 }
             ");
+        }
+
+        string find_product_links_xpath(string xpath)
+        {
+            var mc = Regex.Matches(xpath, @"\[(\d+)\]");
+            Match[] ms = new Match[mc.Count];
+            mc.CopyTo(ms, 0);
+            int max_count = 0;
+            string general_xpath = "";
+            for (int i = ms.Length - 1; i >= 0; i--)
+            {
+                string x = xpath.Remove(ms[i].Groups[1].Index, ms[i].Groups[1].Length);
+                x = x.Insert(ms[i].Groups[1].Index, "*");
+                int count = (int)MainWindow.Execute(@"
+        var es = document.__lookupElementByXPath('" + x + @"');
+        return es.length;
+");
+                if (count > max_count)
+                {
+                    max_count = count;
+                    general_xpath = x;
+                }
+            }
+            return general_xpath;
         }
     }
 }

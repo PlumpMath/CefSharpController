@@ -22,6 +22,8 @@ namespace Cliver.CefSharpController
         public ProductFieldWindow()
         {
             InitializeComponent();
+
+            ok.Click += delegate { Close(); };
         }
     }
 }

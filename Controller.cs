@@ -21,7 +21,7 @@ namespace Cliver.CefSharpController
 {
     public class Controller
     {
-        public Controller(Route route)
+        Controller(Route route)
         {
             this.route = route;
             tw = new StreamWriter(Log.MainSession.Path + "\\output.txt");
@@ -30,19 +30,22 @@ namespace Cliver.CefSharpController
         TextWriter tw = null;
         Route route = null;
 
-        void Start()
+        public static void Start(Route route)
         {
             t = ThreadRoutines.StartTry(() => {
+                c = new Controller(route);
                 MainWindow.Load(route.ProductListUrl, false);
-                ProcessProductListPage();
+                c.ProcessProductListPage();
             });
         }
-        Thread t;
+        static Controller c;
+        static Thread t;
 
-        void Stop()
+        public static void Stop()
         {
             if (t != null && t.IsAlive)
                 t.Abort();
+            c = null;
             MainWindow.Stop();
         }
 

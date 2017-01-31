@@ -16,6 +16,8 @@
             </ComboBox>
             <Label Height="auto" Width="auto" >Xml:</Label>
             <TextBox Name="xml" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"  MinHeight="227" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></TextBox>
+            <Button Name="save">Save</Button>
+            <Button Name="run">Run</Button>
         </StackPanel>
 
     </Grid>

@@ -22,13 +22,15 @@ namespace Cliver.CefSharpController
 {
     public class Route
     {
-        public Route()
+        public Route(string name)
         {
+            this.name = name;
             xd = new XmlDocument();
             var xn = xd.CreateElement("ProductList");
             xd.AppendChild(xn);
         }
         XmlDocument xd = null;
+        string name;
 
         public string Xml
         {
@@ -175,9 +177,9 @@ namespace Cliver.CefSharpController
             }
         }
 
-        public void Save(string file)
+        public void Save()
         {
-            xd.Save(file);
+            xd.Save(Log.WorkDir + "\\" + name);
         }
     }
 }

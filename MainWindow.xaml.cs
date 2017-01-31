@@ -173,7 +173,14 @@ namespace Cliver.CefSharpController
 
         static public object Execute(string script)
         {
-            var t = This.browser.EvaluateScriptAsync(script);
+            var t = This.browser.EvaluateScriptAsync(
+@"(function(){
+    try{
+    " + script + @"
+    }catch(err){
+        alert(err.message);
+    }
+}())");
             while(!t.IsCompleted)
                 DoEvents();
             return t.Result.Result;
