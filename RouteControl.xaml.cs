@@ -146,15 +146,15 @@ function __onClick(event){
     return false;
 }
 document.__onClick = __onClick;
-document.removeEventListener('click', document.__onClick, false);
-document.addEventListener('click', document.__onClick, false);
+document.removeEventListener('contextmenu', document.__onClick, false);
+document.addEventListener('contextmenu', document.__onClick, false);
 ");
 
                 }
                 else if (state.SelectedIndex == 3)
                 {
                     MainWindow.Execute(@"
-                    document.removeEventListener('click', document.__onClick, false);
+                    document.removeEventListener('contextmenu', document.__onClick, false);
                     ");
                     string d = @"
 
