@@ -38,7 +38,7 @@ namespace Cliver.CefSharpController
             }
             get
             {
-               return xd.OuterXml;
+                return xd.OuterXml;
             }
         }
 
@@ -60,11 +60,11 @@ namespace Cliver.CefSharpController
                     {
                         var x = xd.SelectSingleNode("//ProductList");
                         xn = xd.CreateElement("StartUrl");
-                        xn.InnerText = value;
                         x.AppendChild(xn);
                     }
+                    xn.InnerText = value;
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
 
                 }
@@ -87,9 +87,9 @@ namespace Cliver.CefSharpController
                 {
                     var x = xd.SelectSingleNode("//ProductList");
                     xn = xd.CreateElement("NextPageXpath");
-                    xn.InnerText = value;
                     x.AppendChild(xn);
                 }
+                xn.InnerText = value;
             }
         }
 
@@ -109,37 +109,68 @@ namespace Cliver.CefSharpController
                 {
                     var x = xd.SelectSingleNode("//ProductList");
                     xn = xd.CreateElement("ProductPagesXpath");
-                    xn.InnerText = value;
                     x.AppendChild(xn);
                 }
+                xn.InnerText = value;
             }
         }
 
-        public Dictionary<string, string> ProductValueNames2Xpath
+        public class ProductFieldClass
+        {
+            public string Name;
+            public string Xpath;
+            public string Attribute;
+        }
+
+        public List<ProductFieldClass> ProductFields
         {
             get
             {
-                Dictionary<string, string> d = new Dictionary<string, string>();
-                foreach (XmlNode xn in xd.SelectNodes("//ProductList/ProductPage/Value"))
+                List<ProductFieldClass> ps = new List<ProductFieldClass>();
+                foreach (XmlNode xn in xd.SelectNodes("//ProductList/ProductPage/Field"))
                 {
-                    d[xn.Attributes["name"].Value] = xn.Attributes["xpath"].Value;
+                    ps.Add(new ProductFieldClass { Name = xn.Attributes["name"].Value, Xpath = xn.Attributes["xpath"].Value, Attribute = xn.Attributes["attribute"].Value });
                 }
-                return d;
+                return ps;
             }
+        }
+
+        public ProductFieldClass ProductField
+        {
+            //get
+            //{
+            //    Dictionary<string, string> d = new Dictionary<string, string>();
+            //    foreach (XmlNode xn in xd.SelectNodes("//ProductList/ProductPage/Value"))
+            //    {
+            //        d[xn.Attributes["name"].Value] = xn.Attributes["xpath"].Value;
+            //    }
+            //    return d;
+            //}
             set
             {
                 XmlNode xn = xd.SelectSingleNode("//ProductList/ProductPage");
-                xn.RemoveAll();
-                foreach (string n in value.Keys)
+                if (xn == null)
                 {
-                    XmlNode x = xd.CreateElement("Value");
-                    var a = xd.CreateAttribute("name");
-                    a.Value = n;
-                    x.Attributes.Append(a);
-                    a = xd.CreateAttribute("xpath");
-                    a.Value = value[n];
-                    x.Attributes.Append(a);
-                    xn.AppendChild(x);
+                    var x = xd.SelectSingleNode("//ProductList");
+                    xn = xd.CreateElement("ProductPage");
+                    x.AppendChild(xn);
+                }
+                XmlNode xf = xd.SelectSingleNode("//ProductList/ProductPage/Field[@name='"+value.Name+"']");
+                if (xf == null)
+                {
+                    xf = xd.CreateElement("Field");
+                    xn.AppendChild(xf);
+                    XmlAttribute a = xd.CreateAttribute("name");
+                    a.Value = value.Name;
+                    xf.Attributes.Append(a);
+                }
+                {
+                    XmlAttribute a = xd.CreateAttribute("xpath");
+                    a.Value = value.Xpath;
+                    xf.Attributes.Append(a);
+                    a = xd.CreateAttribute("attribute");
+                    a.Value = value.Attribute;
+                    xf.Attributes.Append(a);
                 }
             }
         }

@@ -183,7 +183,7 @@ namespace Cliver.CefSharpController
         {
             string js = @"
             function createXPathFromElement(elm) {
-                var allNodes = document.getElementsByTagName('*');
+                var allNodes = document.__getElementsByTagName('*');
                 for (var segs = []; elm && elm.nodeType == 1; elm = elm.parentNode)
                 {
                     if (elm.hasAttribute('id'))

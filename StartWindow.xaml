@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Cliver.CefSharpController"
         mc:Ignorable="d"
-        Title="StartUrlWindow" Height="205.275" Width="584">
+        Title="StartUrlWindow" Height="auto" Width="auto" SizeToContent="Height">
     <Grid>
         <StackPanel>
         <Label Height="auto" Width="auto" >Xml File Name:</Label>
