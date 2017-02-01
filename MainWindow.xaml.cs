@@ -30,6 +30,11 @@ namespace Cliver.CefSharpController
 
             InitializeComponent();
 
+            Closing += delegate
+              {
+                  browser.Stop();
+              };
+
             //browser = new ChromiumWebBrowser();
             //browser.RegisterJsObject("JsMapObject", route);
             //browser.HorizontalAlignment = HorizontalAlignment.Stretch;
@@ -56,6 +61,16 @@ namespace Cliver.CefSharpController
         //ChromiumWebBrowser browser;
         public static MainWindow This { get; private set; }
         
+     static public   string Url
+        {
+            get
+            {
+                return (string)MainWindow.This.Dispatcher.Invoke(() =>
+                {
+                    return MainWindow.Browser.Address;
+                });
+            }
+        }
 
         //class RequestHandler : IRequestHandler
         //{
@@ -156,18 +171,32 @@ namespace Cliver.CefSharpController
             }
         }
 
-        static public void Load(string url, bool async)
+        static public void Load(string url, bool sync)
         {
-            This.completed = false;
-            This.browser.Load(url);
-            if (async)
-                return;
-            while (!This.completed)
-                DoEvents();
+            This.Dispatcher.Invoke(() =>
+            {
+                This.completed = false;
+                This.browser.Load(url);
+                if (!sync)
+                    return;
+            });
+            WaitForCompletion();
+        }
+
+        static public void WaitForCompletion()
+        {
+            This.Dispatcher.Invoke(() =>
+            {
+                while (!This.completed || This.browser.IsLoading)
+                    DoEvents();
+                    //Thread.Sleep(100);
+            });
         }
 
         public static void DoEvents()
         {
+            if (Application.Current == null)
+                return;
             Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
         }
 
@@ -237,7 +266,7 @@ namespace Cliver.CefSharpController
 
         static public void Stop()
         {
-            WebBrowserExtensions.Stop(This.browser);
+            This.browser.Stop();
         }
 
         //static public string State

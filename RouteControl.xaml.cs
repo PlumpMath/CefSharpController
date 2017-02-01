@@ -53,8 +53,11 @@ namespace Cliver.CefSharpController
                 Microsoft.Win32.OpenFileDialog d = new Microsoft.Win32.OpenFileDialog();
                 d.DefaultExt = ".xml";
                 d.Filter = "XML Files (*.xml)|*.xml|All Files (*.*)|*.*";
-                if (d.ShowDialog() == true)
-                    Controller.Start(Route.LoadFromFile(d.FileName));
+                if (d.ShowDialog() != true)
+                    return;
+                Route r = Route.LoadFromFile(d.FileName);
+                xml.Text = r.Xml;
+                Controller.Start(r);
             };
 
             state.SelectionChanged += delegate
@@ -69,7 +72,7 @@ namespace Cliver.CefSharpController
                             route = new CefSharpController.Route(d.XmlName.Text);
                             route.ProductListUrl = d.StartUrl.Text;
                             xml.Text = route.Xml;
-                            MainWindow.Load(route.ProductListUrl, true);
+                            MainWindow.Load(route.ProductListUrl, false);
                         }
                     }
                     catch (Exception e)

@@ -38,9 +38,10 @@ namespace Cliver.CefSharpController
 
         public static void Start(Route route)
         {
-            t = ThreadRoutines.StartTry(() => {
+            t = ThreadRoutines.StartTry(() =>
+            {
                 c = new Controller(route);
-                MainWindow.Load(route.ProductListUrl, false);
+                MainWindow.Load(route.ProductListUrl, true);
                 c.ProcessProductListPage();
             });
         }
@@ -98,11 +99,9 @@ return ls;
             ");
 
             List<string> ls = new List<string>();
-            MainWindow.This.Dispatcher.Invoke(() =>
-            {
-                for (int i = 0; i < os.Count; i++)
-                    ls.Add(GetAbsoluteUrl((string)os[i], MainWindow.Browser.Address));
-            });
+            string parent_url = MainWindow.Url;
+            for (int i = 0; i < os.Count; i++)
+                ls.Add(GetAbsoluteUrl((string)os[i], parent_url));
             return ls;
         }
 
@@ -149,19 +148,27 @@ return vs;
 
         void ProcessProductListPage()
         {
+            string npu = null;
+            var ls = get_links(route.ProductListNextPageXpath);
+            if (ls.Count > 0)
+                npu = ls[0];
             List<string> product_page_urls = get_links(route.ProductPagesXpath);
+            if (product_page_urls.Count > 5)
+            {
+                Log.Inform("While testing only up to 5 products per page is processed.");
+                product_page_urls.RemoveRange(5, product_page_urls.Count - 6);
+            }
             foreach (string ppu in product_page_urls)
             {
-                MainWindow.Load(ppu, false);
+                MainWindow.Load(ppu, true);
                 ProcessProductPage();
             }
-            var ls = get_links(route.ProductListNextPageXpath);
-            if(ls.Count<1)
+            if (npu == null)
             {
                 Log.Warning("no next page found");
                 return;
             }
-            MainWindow.Load(ls[0], false);
+            MainWindow.Load(npu, true);
             ProcessProductListPage();
         }
 
@@ -179,6 +186,6 @@ return vs;
             }
             vs.Insert(0, url);
             tw.WriteLine(FieldPreparation.GetCsvLine(vs, FieldPreparation.FieldSeparator.COMMA, true));
-        }        
+        }
     }
 }
