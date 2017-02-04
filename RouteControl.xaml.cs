@@ -154,10 +154,21 @@ if(!document.__onClick){
                 var xpath = '';
                 for (; element && element.nodeType == 1; element = element.parentNode) {
                     //alert(element);
-                    var cs = $(element.parentNode).children(element.tagName);
+                    var cs = element.parentNode.children;
+                    var j = 0;
+                    var k = 0;
+                    for(var i = 0; i < cs.length; i++){
+                        if (cs[i].tagName == element.tagName){
+                            j++;
+                            if(cs[i] == element){
+                                k = j;
+                                //break;
+                            }
+                        } 
+                    }
                     var id = '';
-                    if(cs.length > 1)
-                        id = '[' + (cs.index(element) + 1) + ']';
+                    if(j > 1)
+                        id = '[' + k + ']';
                     xpath = '/' + element.tagName.toLowerCase() + id + xpath;
                 }
                 return xpath;

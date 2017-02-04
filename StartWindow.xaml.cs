@@ -28,6 +28,7 @@ namespace Cliver.CefSharpController
 
             ok.Click += delegate
               {
+                  DialogResult = true;
                   Close();
               };
         }

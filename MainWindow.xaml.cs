@@ -177,9 +177,9 @@ namespace Cliver.CefSharpController
             {
                 This.completed = false;
                 This.browser.Load(url);
-                if (!sync)
-                    return;
             });
+            if (!sync)
+                return;
             WaitForCompletion();
         }
 
