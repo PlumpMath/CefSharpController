@@ -93,15 +93,22 @@ else
             var es =  document.__getElementsByXPath('" + xpath + @"');
 var ls = [];
 for(var i = 0; i < es.length; i++){
-    ls.push(es[i].href);
+    var e = es[i];
+    while(e && e.tagName != 'A')
+        e = e.parentNode;
+    if(e)
+        ls.push(e.href);
 }
 return ls;
             ");
 
             List<string> ls = new List<string>();
-            string parent_url = MainWindow.Url;
-            for (int i = 0; i < os.Count; i++)
-                ls.Add(GetAbsoluteUrl((string)os[i], parent_url));
+            if (os != null)
+            {
+                string parent_url = MainWindow.Url;
+                for (int i = 0; i < os.Count; i++)
+                    ls.Add(GetAbsoluteUrl((string)os[i], parent_url));
+            }
             return ls;
         }
 

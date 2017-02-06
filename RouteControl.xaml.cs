@@ -202,7 +202,7 @@ if(!document.__onClick){
                 if(!document.__highlightedElements){
                     var style = document.createElement('style');
                     style.type = 'text/css';
-                    style.innerHTML = '.__highlight { background-color: #F00; }';
+                    style.innerHTML = '.__highlight { background-color: #F00 !important; }';
                     document.getElementsByTagName('head')[0].appendChild(style);
                 }else{
                     for(var i = 0; i < document.__highlightedElements.length; i++)
