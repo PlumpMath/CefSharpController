@@ -193,6 +193,7 @@ return vs;
             }
             vs.Insert(0, url);
             tw.WriteLine(FieldPreparation.GetCsvLine(vs, FieldPreparation.FieldSeparator.COMMA, true));
+            tw.Flush();
         }
     }
 }
