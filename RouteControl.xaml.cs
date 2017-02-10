@@ -35,9 +35,17 @@ namespace Cliver.CefSharpController
                 }
                 else if (state.SelectedIndex == 3)
                 {
+                    Dictionary<string, object> ans2av = get_attributes(xpath);
                     ProductFieldWindow w = new ProductFieldWindow();
+                    foreach(string a in ans2av.Keys)
+                        w.
+
+
+
+
+
                     w.ShowDialog();
-                    route.ProductField = new Route.ProductFieldClass { Name = w.FieldName.Text, Xpath = xpath, Attribute = "text" };
+                    route.ProductField = new Route.ProductFieldClass { Name = w.FieldName.Text, Xpath = xpath, Attribute = "_innerHtml" };
                 }
                 xml.Text = route.Xml;
             });
@@ -240,6 +248,45 @@ if(!document.__onClick){
                 }
             }
             return general_xpath;
+        }
+
+       internal static string Set_getElementsByXPath()
+        {
+            return @"
+if(!document.__getElementsByXPath){
+            document.__getElementsByXPath = function(path) {
+                var evaluator = new XPathEvaluator();
+                var result = evaluator.evaluate(path, document.documentElement, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
+                var es = [];
+                for(var thisNode = result.iterateNext(); thisNode; thisNode = result.iterateNext()){
+                    es.push(thisNode);
+                }
+                return es;
+            };
+};
+            ";
+        }
+
+        Dictionary<string, object> get_attributes(string xpath)
+        {
+            var ans2av = (Dictionary<string, object>)MainWindow.Execute(
+                RouteControl.Set_getElementsByXPath()
+                + @"
+            var es =  document.__getElementsByXPath('" + xpath + @"');
+if(es.length > 1)
+    alert('Found more than 1 element!');
+else if(es.length < 1)
+    alert('Found no element!');
+
+var ans2av = {};
+var as = es[0].attributes;
+for (var i = 0; i < as.length; i++) {
+    ans2av[as[i].name] = as[i].value;
+}
+ans2av['_innerHtml'] = es[0].innerHTML;
+return ans2av;
+            ");           
+            return ans2av;
         }
     }
 }

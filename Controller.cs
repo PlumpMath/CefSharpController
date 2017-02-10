@@ -79,17 +79,9 @@ else
 
         List<string> get_links(string xpath)
         {
-            var os = (List<object>)MainWindow.Execute(@"
-                    document.__getElementsByXPath = function(path) {
-                        var evaluator = new XPathEvaluator();
-                        var result = evaluator.evaluate(path, document.documentElement, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
-                        var es = [];
-                        for(var thisNode = result.iterateNext(); thisNode; thisNode = result.iterateNext()){
-                            es.push(thisNode);
-                        }
-                        return es;
-                    };
-
+            var os = (List<object>)MainWindow.Execute(
+                RouteControl.Set_getElementsByXPath()
+                + @"
             var es =  document.__getElementsByXPath('" + xpath + @"');
 var ls = [];
 for(var i = 0; i < es.length; i++){

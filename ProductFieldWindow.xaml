@@ -8,8 +8,17 @@
         Title="ProductFieldWindow" Height="auto" Width="auto" SizeToContent="Height">
     <Grid>
         <StackPanel>
+            <DataGrid AutoGenerateColumns="False" Height="auto" HorizontalAlignment="Left" Name="attributes" VerticalAlignment="Top" Width="auto">
+                <DataGrid.Columns >
+                    <DataGridTextColumn MinWidth="50" />
+                    <DataGridTextColumn Binding="{Binding Path=Attribute}" MinWidth="50" />
+                    <DataGridTextColumn Binding="{Binding Path=Value}" MinWidth="50" />
+                </DataGrid.Columns>
+            </DataGrid>
             <Label Height="auto" Width="auto" >Field Name:</Label>
             <TextBox Name="FieldName" Height="auto" Width="auto"  x:FieldModifier="public" ></TextBox>
+            <Label Height="auto" Width="auto" >Xpath:</Label>
+            <TextBox Name="Xpath" Height="auto" Width="auto"  x:FieldModifier="public" ></TextBox>
             <!--Label Height="auto" Width="auto" >Field Value:</>
             <TextBox Name="FieldValue" Height="auto" Width="auto"  x:FieldModifier="public" ></TextBox-->
             <Button Name="ok">Ok</Button>
