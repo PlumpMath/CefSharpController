@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Cliver.CefSharpController"
         mc:Ignorable="d"
-        Title="ProductFieldWindow" Height="auto" Width="auto" SizeToContent="Height">
+        Title="ProductFieldWindow" Height="auto" Width="auto" SizeToContent="WidthAndHeight">
     <Grid>
         <StackPanel>
             <DataGrid CanUserAddRows="False" x:FieldModifier="public" AutoGenerateColumns="False" Height="auto" HorizontalAlignment="Left" Name="Attributes" VerticalAlignment="Top" Width="auto">
@@ -29,7 +29,7 @@
                 <Label Height="auto" Width="auto" Grid.Column="0" Grid.Row="1">Xpath:</Label>
                 <TextBox Name="Xpath" Height="auto" Width="auto"  x:FieldModifier="public" Grid.Column="1" Grid.Row="1"></TextBox>
             </Grid>
-            <Button Name="Ok">Ok</Button>
+            <Button x:Name="Ok" Content="Ok" Width="100"/>
         </StackPanel>
     </Grid>
 </Window>
