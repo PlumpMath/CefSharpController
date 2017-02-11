@@ -80,7 +80,7 @@ else
         List<string> get_links(string xpath)
         {
             var os = (List<object>)MainWindow.Execute(
-                RouteControl.Set_getElementsByXPath()
+                WebDocumentRoutines.Define_getElementsByXPath()
                 + @"
             var es =  document.__getElementsByXPath('" + xpath + @"');
 var ls = [];
@@ -179,7 +179,7 @@ return vs;
                 url = MainWindow.Browser.Address;
             });
             List<string> vs = new List<string>();
-            foreach (Route.ProductFieldClass p in route.ProductFields)
+            foreach (Route.ProductField p in route.ProductFields)
             {
                 vs.Add(get_value(p.Xpath));
             }
