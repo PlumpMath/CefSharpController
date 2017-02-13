@@ -52,14 +52,14 @@ namespace Cliver.CefSharpController
         {
             get
             {
-                var xn = xd.SelectSingleNode("//Route");
+                var xn = xd.SelectSingleNode("Route");
                 if (xn == null)
                     return null;
                 return xn.Attributes["name"].Value;
             }
             set
             {
-                var xn = xd.SelectSingleNode("//Route");
+                var xn = xd.SelectSingleNode("Route");
                 if (xn == null)
                 {
                     xn = xd.CreateElement("Route");
@@ -74,7 +74,7 @@ namespace Cliver.CefSharpController
         public void SetOutputUrl(string queue_name, Url url)
         {
             XmlNode xo = get_output_node(queue_name);
-            XmlNode xu = xo.SelectSingleNode("//Url[@queue='" + url.Queue + "']");
+            XmlNode xu = xo.SelectSingleNode("Url[@queue='" + url.Queue + "']");
             if (xu == null)
             {
                 xu = xd.CreateElement("Url");
@@ -99,7 +99,7 @@ namespace Cliver.CefSharpController
         public void SetOutputField(string queue_name, Field pf)
         {
             XmlNode xo = get_output_node(queue_name);
-            XmlNode xf = xo.SelectSingleNode("//Field[@name='" + pf.Name + "']");
+            XmlNode xf = xo.SelectSingleNode("Field[@name='" + pf.Name + "']");
             if (xf == null)
             {
                 xf = xd.CreateElement("Field");
@@ -130,8 +130,8 @@ namespace Cliver.CefSharpController
             get
             {
                 List<Field> ps = new List<Field>();
-                foreach (XmlNode xq in xd.SelectNodes("//Route/Queue"))
-                    foreach (XmlNode xn in xq.SelectNodes("//Field"))
+                foreach (XmlNode xq in xd.SelectNodes("Route/Queue"))
+                    foreach (XmlNode xn in xq.SelectNodes("Field"))
                         ps.Add(new Field { Name = xn.Attributes["name"].Value, Xpath = xn.Attributes["xpath"].Value, Attribute = xn.Attributes["attribute"].Value });
                 return ps;
             }
@@ -144,8 +144,10 @@ namespace Cliver.CefSharpController
 
         public void AddInputItem(string queue_name, Item item)
         {
-            XmlNode xi = get_input_node(queue_name);
-            xi = xd.CreateElement("Item");
+            XmlNode xin = get_input_node(queue_name);
+            //XmlNode xq = xd.SelectSingleNode("Item[@name='" + queue_name + "']");
+            XmlNode xi = xd.CreateElement("Item");
+            xin.AppendChild(xi);
             XmlAttribute a = xd.CreateAttribute("url");
             a.Value = item.Url;
             xi.Attributes.Append(a);
@@ -162,10 +164,10 @@ namespace Cliver.CefSharpController
 
         XmlNode get_queue_node(string queue_name)
         {
-            XmlNode xq = xd.SelectSingleNode("//Route/Queue[@name='" + queue_name + "']");
+            XmlNode xq = xd.SelectSingleNode("Route/Queue[@name='" + queue_name + "']");
             if (xq == null)
             {
-                var xr = xd.SelectSingleNode("//Route");
+                var xr = xd.SelectSingleNode("Route");
                 if (xr == null)
                 {
                     xr = xd.CreateElement("Route");
@@ -173,6 +175,9 @@ namespace Cliver.CefSharpController
                 }
                 xq = xd.CreateElement("Queue");
                 xr.AppendChild(xq);
+                XmlAttribute a = xd.CreateAttribute("name");
+                a.Value = queue_name;
+                xq.Attributes.Append(a);
             }
             return xq;
         }
@@ -180,7 +185,7 @@ namespace Cliver.CefSharpController
         XmlNode get_input_node(string queue_name)
         {
             XmlNode xq = get_queue_node(queue_name);
-            XmlNode xi = xq.SelectSingleNode("//Input");
+            XmlNode xi = xq.SelectSingleNode("Input");
             if (xi == null)
             {
                 xi = xd.CreateElement("Input");
@@ -192,7 +197,7 @@ namespace Cliver.CefSharpController
         XmlNode get_output_node(string queue_name)
         {
             XmlNode xq = get_queue_node(queue_name);
-            XmlNode xo = xq.SelectSingleNode("//Output");
+            XmlNode xo = xq.SelectSingleNode("Output");
             if (xo == null)
             {
                 xo = xd.CreateElement("Output");
@@ -200,10 +205,86 @@ namespace Cliver.CefSharpController
             }
             return xo;
         }
+
+        public class Queue
+        {
+            public string Name;
+            public List<Item> Items = new List<Item>();
+            public List<Url> Urls = new List<Url>();
+            public List<Field> Fields = new List<Field>();
+        }
+
+        public List<Queue> GetQueues()
+        {
+            List<Queue> qs = new List<Queue>();
+            foreach (XmlNode xq in xd.SelectNodes("Route/Queue"))
+            {
+                List<Item> li = new List<Item>();
+                XmlNode xi = xq.SelectSingleNode("Input");
+                if (xi != null)
+                {
+                    foreach (XmlNode x in xi.SelectNodes("Item"))
+                        li.Add(new Item { Url = x.Attributes["url"].Value, Xpath = x.Attributes["xpath"].Value });
+                }
+
+                List<Url> us = new List<Url>();
+                XmlNode xo = xq.SelectSingleNode("Output");
+                foreach (XmlNode x in xo.SelectNodes("Url"))
+                    us.Add(new Url { Queue = x.Attributes["queue"].Value, Xpath = x.Attributes["xpath"].Value });
+
+                List<Field> fs = new List<Field>();
+                foreach (XmlNode x in xo.SelectNodes("Field"))
+                    fs.Add(new Field { Attribute = x.Attributes["attribute"].Value, Xpath = x.Attributes["xpath"].Value, Name = x.Attributes["name"].Value });
+
+                var q = new Queue
+                {
+                    Name= xq.Attributes["name"].Value,
+                    Fields = fs,
+                    Urls = us,
+                    Items = li
+                };
+                qs.Add(q);
+            }
+            return qs;
+        }
     }
 }
 
 /*
+#0
+<Route name="test.xml">
+    <Queue name="Start">
+        <Input>
+            <Item url="" xpath=""/>
+            <Item url="" xpath=""/>
+        </Input>
+        <Output>
+            <Url xpath="/html/body/section/form/div[3]/div[3]/span[2]/a[3]" queue="NextPageList"/>
+            <Url xpath="/html/body/section/form/div[4]/ul/li[*]/p/a" queue="Product"/>
+        </Output>
+    </Queue>
+    <Queue name="ListNextPage">
+        <Output>
+            <Url xpath="/html/body/section/form/div[3]/div[3]/span[2]/a[3]" queue="NextPageList"/>
+            <Url xpath="/html/body/section/form/div[4]/ul/li[*]/p/a" queue="Product"/>
+        </Output>
+    </Queue>
+    <Queue name="Product">
+        <Output>
+            <Field name="postingbody." xpath="/html/body/section/section/section/section" attribute="" />
+            <Field name="postingbody.class" xpath="/html/body/section/section/section/section" attribute="class" />
+            <Url xpath="" queue="Product2"/>
+        </Output>
+    </Queue>
+    <Queue name="Product2">
+        <Output>
+            <Field name="postingbody." xpath="/html/body/section/section/section/section" attribute="" />
+            <Field name="postingbody.class" xpath="/html/body/section/section/section/section" attribute="class" />
+        </Output>
+    </Queue>
+</Route>    
+ 
+#1
 <Route name="test.xml">
     <Queue name="Start">
         <Input>

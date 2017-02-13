@@ -25,14 +25,41 @@ namespace Cliver.CefSharpController
     {
         Controller(Route route)
         {
-            this.route = route;
+            List<Route.Queue> rqs = route.GetQueues();
+            foreach (Route.Queue rq in rqs)
+            {
+                Queue q = new Queue();
+
+                List<Queue.Item> li = new List<Queue.Item>();
+                foreach (Route.Item x in rq.Items)
+                    li.Add(new Queue.Item { Url = x.Url, Xpath = x.Xpath, ParentItem = null, Queue = q });
+
+                List<Queue.Field> fs = new List<Queue.Field>();
+                foreach (Route.Field x in rq.Fields)
+                    fs.Add(new Queue.Field { Name = x.Name, Xpath = x.Xpath, Attribute = x.Attribute });
+
+                q.Name = rq.Name;
+                q.Items = li;
+                q.Fields = fs;
+                queues.Add(q);
+            }
+            foreach (Route.Queue rq in rqs)
+            {
+                List<Queue.Url> us = new List<Queue.Url>();
+                foreach (Route.Url x in rq.Urls)
+                    us.Add(new Queue.Url { Queue = queues.Where(z => z.Name == x.Queue).First(), Xpath = x.Xpath });
+
+                Queue q = queues.Where(z => z.Name == rq.Name).First();
+                q.Urls = us;
+            }
+            queues.Reverse();
+
             tw = new StreamWriter(Log.MainSession.Path + "\\output_" + route.Name + ".csv");
             List<string> hs = route.Fields.Select(x => x.Name).ToList();
             hs.Insert(0, "Url");
             tw.WriteLine(FieldPreparation.GetCsvLine(hs, FieldPreparation.FieldSeparator.COMMA));
         }
         TextWriter tw = null;
-        Route route = null;
 
         public static void Start(Route route)
         {
@@ -83,7 +110,7 @@ namespace Cliver.CefSharpController
                 if (i == null)
                     return;
                 i.Queue.ProcessItem(i);
-                if (i.Queue == queues[queues.Count - 1])
+                if (i.Queue == queues[0])
                 {
                     List<string> vs = i.OutputValues;
                     for (Queue.Item pi = i.ParentItem; pi != null; pi = pi.ParentItem)
@@ -108,10 +135,9 @@ namespace Cliver.CefSharpController
             }
             return null;
         }
-        List<Queue> queues = new List<Queue>();
-        //Dictionary<string, Queue> queue_names2queue = new Dictionary<string, Queue>();
+        readonly List<Queue> queues = new List<Queue>();
 
-        class Queue
+        public class Queue
         {
             public string Name;
 
@@ -120,7 +146,7 @@ namespace Cliver.CefSharpController
                 public string Url;
                 public string Xpath;
                 public Queue Queue;
-                public Item ParentItem;
+                public Item ParentItem = null;
                 public List<string> OutputValues = new List<string>();
             }
 
@@ -143,17 +169,17 @@ namespace Cliver.CefSharpController
 
             public void ProcessItem(Item item)
             {
-                if(item.Url!=null)
+                if (!string.IsNullOrWhiteSpace(item.Url))
                     MainWindow.Load(item.Url, true);
-                if (item.Xpath != null)
+                if (!string.IsNullOrWhiteSpace(item.Xpath))
                     get_value(new Field { Name = "", Attribute = "", Xpath = item.Xpath });
-                    string url = MainWindow.Url;
+                string url = MainWindow.Url;
                 foreach (Url u in Urls)
                 {
                     foreach (string l in get_links(u.Xpath))
-                        u.Queue.Items.Add(new Controller.Queue.Item() { Url = l, Queue = u.Queue, ParentItem = item });
+                        u.Queue.Items.Add(new Controller.Queue.Item { Url = l, Queue = u.Queue, ParentItem = item });
                 }
-                
+
                 foreach (Field f in Fields)
                 {
                     item.OutputValues.Add(get_value(f));
@@ -203,11 +229,8 @@ return ls;
             var es =  document.__getElementsByXPath('" + field.Xpath + @"');
 
 var vs = '';
-for(var i = 0; i < es.length; i++){
-    if(!attribute)
-        vs += '\r\n' + es[i].innerText;
-    else
-        vs += '\r\n' + es[i].getAttribute('" + field.Attribute + @"');
+for(var i = 0; i < es.length; i++){    
+    vs += '\r\n' + " + (field.Attribute == "__innerHtml__" ? @"es[i].innerText" : @"es[i].getAttribute('" + field.Attribute + @"')") + @";
 }
 return vs;
             ");

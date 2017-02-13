@@ -34,11 +34,12 @@ namespace Cliver.CefSharpController
             };
 
             Xpath.TextChanged += delegate {
-                set();
+                set_by_xpath();
             };
 
             Attributes.SelectionChanged += (o, e) =>
             {
+               // this.Dispatcher.
                 e.Handled = true;
                 Attributes.UnselectAll();
             };
@@ -48,7 +49,7 @@ namespace Cliver.CefSharpController
 
         readonly List<Item> items = new List<Item>();
 
-        void set()
+        void set_by_xpath()
         {
             items.Clear();
 
@@ -89,7 +90,7 @@ var as = es[0].attributes;
 for (var i = 0; i < as.length; i++) {
     ans2av[as[i].name] = as[i].value;
 }
-ans2av[''] = es[0].innerHTML;
+ans2av['__innerHtml__'] = es[0].innerHTML;
 return ans2av;
             ");
             return ans2av;

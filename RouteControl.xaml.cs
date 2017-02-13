@@ -23,11 +23,11 @@ namespace Cliver.CefSharpController
     {
         public void clickedHtml(string xpath)
         {
-            switch (route_type.SelectedIndex)
+            Application.Current.Dispatcher.Invoke((Action)(() =>
             {
-                case 0:
-                    Application.Current.Dispatcher.Invoke((Action)(() =>
-                    {
+                switch (route_type.SelectedIndex)
+                {
+                    case 0:
                         highlight(xpath);
                         if (step.SelectedIndex == 1)
                         {
@@ -41,20 +41,24 @@ namespace Cliver.CefSharpController
                             route.SetOutputUrl("ListNextPage", new Route.Url { Queue = "Product", Xpath = x });
                             highlight(x);
                         }
-                        else if (step.SelectedIndex == 3)
+                        else if (step.SelectedIndex == step.Items.Count - 1)
+                        {
+                            route.SetOutputUrl("Product" + (step.SelectedIndex - 4), new Route.Url { Queue = "Product" + (step.SelectedIndex - 3), Xpath = xpath });
+                        }
+                        else
                         {
                             ProductFieldWindow w = new ProductFieldWindow(xpath);
                             if (w.ShowDialog() == true)
                             {
                                 foreach (dynamic o in w.Attributes.Items)
                                     if (o.Get == true)
-                                        route.SetOutputField("Product", new Route.Field { Name = w.Name.Text + "." + o.Attribute, Xpath = xpath, Attribute = o.Attribute });
+                                        route.SetOutputField("Product" + (step.SelectedIndex - 3), new Route.Field { Name = w.Name.Text + "." + o.Attribute, Xpath = xpath, Attribute = o.Attribute });
                             }
                         }
                         xml.Text = route.Xml;
-                    }));
-                    break;
-            }
+                        break;
+                }
+            }));
         }
 
         public RouteControl()
@@ -69,9 +73,9 @@ namespace Cliver.CefSharpController
                 d.Filter = "XML Files (*.xml)|*.xml|All Files (*.*)|*.*";
                 if (d.ShowDialog() != true)
                     return;
-                Route2 r = Route2.LoadFromFile(d.FileName);
+                Route r = Route.LoadFromFile(d.FileName);
                 xml.Text = r.Xml;
-                Controller2.Start(r);
+                Controller.Start(r);
             };
 
             route_type.SelectionChanged += delegate
@@ -83,7 +87,8 @@ namespace Cliver.CefSharpController
                         step.Items.Add("SetSite");
                         step.Items.Add("SetListNextPage");
                         step.Items.Add("SetProductPages");
-                        step.Items.Add("SetProduct");
+                        step.Items.Add("SetProduct0");
+                        step.Items.Add("SetOneMoreProductPage");
                         break;
                     case 1:
                         step.Items.Add("SetSite");
@@ -93,7 +98,8 @@ namespace Cliver.CefSharpController
                         break;
                     case 2:
                         step.Items.Add("SetProductPages");
-                        step.Items.Add("SetProduct");
+                        step.Items.Add("SetProduct0");
+                        step.Items.Add("SetOneMoreProductPage");
                         break;
                     default:
                         throw new Exception("No such option: " + route_type.SelectedIndex);
@@ -124,12 +130,11 @@ namespace Cliver.CefSharpController
                                 Log.Error(e);
                             }
                         }
-                        else if (step.SelectedIndex == 1
-                            || step.SelectedIndex == 2)
+                        else if (step.SelectedIndex == step.Items.Count - 1)
                         {
-                            listen_clicks();
+                            step.Items.Insert(step.SelectedIndex, "SetProduct" + (step.SelectedIndex - 3));
                         }
-                        else if (step.SelectedIndex == 3)
+                        else
                         {
                             listen_clicks();
                         }
