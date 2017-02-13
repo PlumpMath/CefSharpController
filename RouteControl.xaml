@@ -8,7 +8,12 @@
              d:DesignHeight="300" >
     <Grid>
         <StackPanel Orientation="Vertical" Width="100" >
-            <ComboBox Name="state">
+            <ComboBox Name="route_type">
+                <ComboBoxItem Name="ListToData">ListToData</ComboBoxItem>
+                <ComboBoxItem Name="DataInList">DataInList</ComboBoxItem>
+                <ComboBoxItem Name="DataPages">DataPages</ComboBoxItem>
+            </ComboBox>
+            <ComboBox Name="step">
                 <ComboBoxItem Name="SetSite">SetSite</ComboBoxItem>
                 <ComboBoxItem Name="SetNextPageList">SetNextPageList</ComboBoxItem>
                 <ComboBoxItem Name="SetProductPages">SetProductPages</ComboBoxItem>

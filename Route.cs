@@ -52,17 +52,17 @@ namespace Cliver.CefSharpController
         {
             get
             {
-                var xn = xd.SelectSingleNode("//ProductList");
+                var xn = xd.SelectSingleNode("//Route");
                 if (xn == null)
                     return null;
                 return xn.Attributes["name"].Value;
             }
             set
             {
-                var xn = xd.SelectSingleNode("//ProductList");
+                var xn = xd.SelectSingleNode("//Route");
                 if (xn == null)
                 {
-                    xn = xd.CreateElement("ProductList");
+                    xn = xd.CreateElement("Route");
                     xd.AppendChild(xn);
                 }
                 XmlAttribute a = xd.CreateAttribute("name");
@@ -71,139 +71,172 @@ namespace Cliver.CefSharpController
             }
         }
 
-        public string ProductListUrl
+        public void SetOutputUrl(string queue_name, Url url)
         {
-            get
+            XmlNode xo = get_output_node(queue_name);
+            XmlNode xu = xo.SelectSingleNode("//Url[@queue='" + url.Queue + "']");
+            if (xu == null)
             {
-                var xn = xd.SelectSingleNode("//ProductList/StartUrl");
-                if (xn == null)
-                    return null;
-                return xn.InnerText;
+                xu = xd.CreateElement("Url");
+                xo.AppendChild(xu);
+                XmlAttribute a = xd.CreateAttribute("queue");
+                a.Value = url.Queue;
+                xu.Attributes.Append(a);
             }
-            set
             {
-                try
-                {
-                    var xn = xd.SelectSingleNode("//ProductList/StartUrl");
-                    if (xn == null)
-                    {
-                        var x = xd.SelectSingleNode("//ProductList");
-                        xn = xd.CreateElement("StartUrl");
-                        x.AppendChild(xn);
-                    }
-                    xn.InnerText = value;
-                }
-                catch (Exception e)
-                {
-
-                }
+                XmlAttribute a = xd.CreateAttribute("xpath");
+                a.Value = url.Xpath;
+                xu.Attributes.Append(a);
             }
         }
 
-        public string ProductListNextPageXpath
+        public class Url
         {
-            get
+            public string Queue;
+            public string Xpath;
+        }
+
+        public void SetOutputField(string queue_name, Field pf)
+        {
+            XmlNode xo = get_output_node(queue_name);
+            XmlNode xf = xo.SelectSingleNode("//Field[@name='" + pf.Name + "']");
+            if (xf == null)
             {
-                var xn = xd.SelectSingleNode("//ProductList/NextPageXpath");
-                if (xn == null)
-                    return null;
-                return xn.InnerText;
+                xf = xd.CreateElement("Field");
+                xo.AppendChild(xf);
+                XmlAttribute a = xd.CreateAttribute("name");
+                a.Value = pf.Name;
+                xf.Attributes.Append(a);
             }
-            set
             {
-                var xn = xd.SelectSingleNode("//ProductList/NextPageXpath");
-                if (xn == null)
-                {
-                    var x = xd.SelectSingleNode("//ProductList");
-                    xn = xd.CreateElement("NextPageXpath");
-                    x.AppendChild(xn);
-                }
-                xn.InnerText = value;
+                XmlAttribute a = xd.CreateAttribute("xpath");
+                a.Value = pf.Xpath;
+                xf.Attributes.Append(a);
+                a = xd.CreateAttribute("attribute");
+                a.Value = pf.Attribute;
+                xf.Attributes.Append(a);
             }
         }
 
-        public string ProductPagesXpath
-        {
-            get
-            {
-                var xn = xd.SelectSingleNode("//ProductList/ProductPagesXpath");
-                if (xn == null)
-                    return null;
-                return xn.InnerText;
-            }
-            set
-            {
-                var xn = xd.SelectSingleNode("//ProductList/ProductPagesXpath");
-                if (xn == null)
-                {
-                    var x = xd.SelectSingleNode("//ProductList");
-                    xn = xd.CreateElement("ProductPagesXpath");
-                    x.AppendChild(xn);
-                }
-                xn.InnerText = value;
-            }
-        }
-
-        public class ProductField
+        public class Field
         {
             public string Name;
             public string Xpath;
             public string Attribute;
         }
 
-        public List<ProductField> ProductFields
+        public List<Field> Fields
         {
             get
             {
-                List<ProductField> ps = new List<ProductField>();
-                foreach (XmlNode xn in xd.SelectNodes("//ProductList/ProductPage/Field"))
-                {
-                    ps.Add(new ProductField { Name = xn.Attributes["name"].Value, Xpath = xn.Attributes["xpath"].Value, Attribute = xn.Attributes["attribute"].Value });
-                }
+                List<Field> ps = new List<Field>();
+                foreach (XmlNode xq in xd.SelectNodes("//Route/Queue"))
+                    foreach (XmlNode xn in xq.SelectNodes("//Field"))
+                        ps.Add(new Field { Name = xn.Attributes["name"].Value, Xpath = xn.Attributes["xpath"].Value, Attribute = xn.Attributes["attribute"].Value });
                 return ps;
             }
-        }
-
-        public void SetProductField(ProductField pf)
-        {
-            //get
-            //{
-            //    Dictionary<string, string> d = new Dictionary<string, string>();
-            //    foreach (XmlNode xn in xd.SelectNodes("//ProductList/ProductPage/Value"))
-            //    {
-            //        d[xn.Attributes["name"].Value] = xn.Attributes["xpath"].Value;
-            //    }
-            //    return d;
-            //}
-                XmlNode xn = xd.SelectSingleNode("//ProductList/ProductPage");
-                if (xn == null)
-                {
-                    var x = xd.SelectSingleNode("//ProductList");
-                    xn = xd.CreateElement("ProductPage");
-                    x.AppendChild(xn);
-                }
-                XmlNode xf = xd.SelectSingleNode("//ProductList/ProductPage/Field[@name='" + pf.Name + "']");
-                if (xf == null)
-                {
-                    xf = xd.CreateElement("Field");
-                    xn.AppendChild(xf);
-                    XmlAttribute a = xd.CreateAttribute("name");
-                    a.Value = pf.Name;
-                    xf.Attributes.Append(a);
-                }
-                {
-                    XmlAttribute a = xd.CreateAttribute("xpath");
-                    a.Value = pf.Xpath;
-                    xf.Attributes.Append(a);
-                    a = xd.CreateAttribute("attribute");
-                    a.Value = pf.Attribute;
-                    xf.Attributes.Append(a);
-                }
         }
 
         public void Save()
         {
             xd.Save(Log.WorkDir + "\\" + Name);
         }
+
+        public void AddInputItem(string queue_name, Item item)
+        {
+            XmlNode xi = get_input_node(queue_name);
+            xi = xd.CreateElement("Item");
+            XmlAttribute a = xd.CreateAttribute("url");
+            a.Value = item.Url;
+            xi.Attributes.Append(a);
+            a = xd.CreateAttribute("xpath");
+            a.Value = item.Xpath;
+            xi.Attributes.Append(a);
+        }
+
+        public class Item
+        {
+            public string Url;
+            public string Xpath;
+        }
+
+        XmlNode get_queue_node(string queue_name)
+        {
+            XmlNode xq = xd.SelectSingleNode("//Route/Queue[@name='" + queue_name + "']");
+            if (xq == null)
+            {
+                var xr = xd.SelectSingleNode("//Route");
+                if (xr == null)
+                {
+                    xr = xd.CreateElement("Route");
+                    xd.AppendChild(xr);
+                }
+                xq = xd.CreateElement("Queue");
+                xr.AppendChild(xq);
+            }
+            return xq;
+        }
+
+        XmlNode get_input_node(string queue_name)
+        {
+            XmlNode xq = get_queue_node(queue_name);
+            XmlNode xi = xq.SelectSingleNode("//Input");
+            if (xi == null)
+            {
+                xi = xd.CreateElement("Input");
+                xq.AppendChild(xi);
+            }
+            return xi;
+        }
+
+        XmlNode get_output_node(string queue_name)
+        {
+            XmlNode xq = get_queue_node(queue_name);
+            XmlNode xo = xq.SelectSingleNode("//Output");
+            if (xo == null)
+            {
+                xo = xd.CreateElement("Output");
+                xq.AppendChild(xo);
+            }
+            return xo;
+        }
     }
 }
+
+/*
+<Route name="test.xml">
+    <Queue name="Start">
+        <Input>
+            <Item url="" xpath=""/>
+            <Item url="" xpath=""/>
+        </Input>
+        <Output>
+            <Url xpath="/html/body/section/form/div[3]/div[3]/span[2]/a[3]" queue="NextPageList"/>
+            <Url xpath="/html/body/section/form/div[4]/ul/li[*]/p/a" queue="Product"/>
+        </Output>
+    </Queue>
+    <Queue name="ListNextPage">
+        <Output>
+            <Url xpath="/html/body/section/form/div[3]/div[3]/span[2]/a[3]" queue="NextPageList"/>
+            <Url xpath="/html/body/section/form/div[4]/ul/li[*]/p/a" queue="Product"/>
+        </Output>
+    </Queue>
+    <Queue name="Product">
+        <Input>
+            <Item url="" xpath=""/>
+            <Item url="" xpath=""/>
+        </Input>
+        <Output>
+            <Field name="postingbody." xpath="/html/body/section/section/section/section" attribute="" />
+            <Field name="postingbody.class" xpath="/html/body/section/section/section/section" attribute="class" />
+            <Url xpath="" queue="Product2"/>
+        </Output>
+    </Queue>
+    <Queue name="Product2">
+        <Output>
+            <Field name="postingbody." xpath="/html/body/section/section/section/section" attribute="" />
+            <Field name="postingbody.class" xpath="/html/body/section/section/section/section" attribute="class" />
+        </Output>
+    </Queue>
+</Route>     
+*/

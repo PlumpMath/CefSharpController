@@ -23,28 +23,38 @@ namespace Cliver.CefSharpController
     {
         public void clickedHtml(string xpath)
         {
-            Application.Current.Dispatcher.Invoke((Action)(() =>
+            switch (route_type.SelectedIndex)
             {
-                highlight(xpath);
-                if (state.SelectedIndex == 1)
-                    route.ProductListNextPageXpath = xpath;
-                else if (state.SelectedIndex == 2)
-                {
-                    route.ProductPagesXpath = find_product_links_xpath(xpath);
-                    highlight(route.ProductPagesXpath);
-                }
-                else if (state.SelectedIndex == 3)
-                {
-                    ProductFieldWindow w = new ProductFieldWindow(xpath);
-                    if (w.ShowDialog() == true)
+                case 0:
+                    Application.Current.Dispatcher.Invoke((Action)(() =>
                     {
-                        foreach(dynamic o in w.Attributes.Items)
-                            if(o.Get == true)
-                                route.SetProductField(new Route.ProductField { Name = w.Name.Text + "." + o.Attribute, Xpath = xpath, Attribute = o.Attribute });
-                    }
-                }
-                xml.Text = route.Xml;
-            }));
+                        highlight(xpath);
+                        if (step.SelectedIndex == 1)
+                        {
+                            route.SetOutputUrl("Start", new Route.Url { Queue = "ListNextPage", Xpath = xpath });
+                            route.SetOutputUrl("ListNextPage", new Route.Url { Queue = "ListNextPage", Xpath = xpath });
+                        }
+                        else if (step.SelectedIndex == 2)
+                        {
+                            string x = find_product_links_xpath(xpath);
+                            route.SetOutputUrl("Start", new Route.Url { Queue = "Product", Xpath = x });
+                            route.SetOutputUrl("ListNextPage", new Route.Url { Queue = "Product", Xpath = x });
+                            highlight(x);
+                        }
+                        else if (step.SelectedIndex == 3)
+                        {
+                            ProductFieldWindow w = new ProductFieldWindow(xpath);
+                            if (w.ShowDialog() == true)
+                            {
+                                foreach (dynamic o in w.Attributes.Items)
+                                    if (o.Get == true)
+                                        route.SetOutputField("Product", new Route.Field { Name = w.Name.Text + "." + o.Attribute, Xpath = xpath, Attribute = o.Attribute });
+                            }
+                        }
+                        xml.Text = route.Xml;
+                    }));
+                    break;
+            }
         }
 
         public RouteControl()
@@ -59,40 +69,72 @@ namespace Cliver.CefSharpController
                 d.Filter = "XML Files (*.xml)|*.xml|All Files (*.*)|*.*";
                 if (d.ShowDialog() != true)
                     return;
-                Route r = Route.LoadFromFile(d.FileName);
+                Route2 r = Route2.LoadFromFile(d.FileName);
                 xml.Text = r.Xml;
-                Controller.Start(r);
+                Controller2.Start(r);
             };
 
-            state.SelectionChanged += delegate
+            route_type.SelectionChanged += delegate
             {
-                if (state.SelectedIndex == 0)
+                step.Items.Clear();
+                switch (route_type.SelectedIndex)
                 {
-                    try
-                    {
-                        var d = new StartWindow();
-                        if (d.ShowDialog() == true)
+                    case 0:
+                        step.Items.Add("SetSite");
+                        step.Items.Add("SetListNextPage");
+                        step.Items.Add("SetProductPages");
+                        step.Items.Add("SetProduct");
+                        break;
+                    case 1:
+                        step.Items.Add("SetSite");
+                        step.Items.Add("SetListNextPage");
+                        step.Items.Add("SetProductBlocks");
+                        step.Items.Add("SetProduct");
+                        break;
+                    case 2:
+                        step.Items.Add("SetProductPages");
+                        step.Items.Add("SetProduct");
+                        break;
+                    default:
+                        throw new Exception("No such option: " + route_type.SelectedIndex);
+                }
+            };
+
+            step.SelectionChanged += delegate
+            {
+                switch (route_type.SelectedIndex)
+                {
+                    case 0:
+                        if (step.SelectedIndex == 0)
                         {
-                            route = new CefSharpController.Route(d.XmlName.Text);
-                            route.ProductListUrl = d.StartUrl.Text;
-                            xml.Text = route.Xml;
-                            MainWindow.Load(route.ProductListUrl, false);
+                            try
+                            {
+                                var d = new StartWindow();
+                                if (d.ShowDialog() == true)
+                                {
+                                    route = new CefSharpController.Route(d.XmlName.Text);
+                                    string url = d.StartUrl.Text;
+                                    route.AddInputItem("Start", new Route.Item { Url = url });
+                                    xml.Text = route.Xml;
+                                    MainWindow.Load(url, false);
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                Log.Error(e);
+                            }
                         }
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Error(e);
-                    }
-                }
-                else if (state.SelectedIndex == 1
-                    || state.SelectedIndex == 2)
-                {
-                    listen_clicks();
-                }
-                else if (state.SelectedIndex == 3)
-                {
-                    listen_clicks();
-                }
+                        else if (step.SelectedIndex == 1
+                            || step.SelectedIndex == 2)
+                        {
+                            listen_clicks();
+                        }
+                        else if (step.SelectedIndex == 3)
+                        {
+                            listen_clicks();
+                        }
+                        break;
+                };
             };
 
             Loaded += delegate
@@ -101,7 +143,7 @@ namespace Cliver.CefSharpController
             };
         }
         Route route;
-
+        
         void listen_clicks()
         {
             MainWindow.Execute(@"
@@ -245,6 +287,5 @@ if(!document.__onClick){
             }
             return general_xpath;
         }
-
     }
 }

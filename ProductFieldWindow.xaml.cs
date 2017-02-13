@@ -37,7 +37,9 @@ namespace Cliver.CefSharpController
                 set();
             };
 
-            Attributes.SelectionChanged += delegate {
+            Attributes.SelectionChanged += (o, e) =>
+            {
+                e.Handled = true;
                 Attributes.UnselectAll();
             };
 
@@ -58,6 +60,10 @@ namespace Cliver.CefSharpController
                 items.Add(new Item() { Get = false, Attribute = a, Value = (string)ans2av[a] });
 
             Attributes.ItemsSource = items;
+
+            object name = null;
+            if (ans2av.TryGetValue("id", out name) || ans2av.TryGetValue("class", out name))
+                Name.Text = (string)name;
         }
 
         public class Item
@@ -83,7 +89,7 @@ var as = es[0].attributes;
 for (var i = 0; i < as.length; i++) {
     ans2av[as[i].name] = as[i].value;
 }
-ans2av['_innerHtml'] = es[0].innerHTML;
+ans2av[''] = es[0].innerHTML;
 return ans2av;
             ");
             return ans2av;
