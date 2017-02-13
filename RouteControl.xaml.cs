@@ -37,13 +37,13 @@ namespace Cliver.CefSharpController
                         else if (step.SelectedIndex == 2)
                         {
                             string x = find_product_links_xpath(xpath);
-                            route.SetOutputUrl("Start", new Route.Url { Queue = "Product", Xpath = x });
-                            route.SetOutputUrl("ListNextPage", new Route.Url { Queue = "Product", Xpath = x });
+                            route.SetOutputUrl("Start", new Route.Url { Queue = "Product0", Xpath = x });
+                            route.SetOutputUrl("ListNextPage", new Route.Url { Queue = "Product0", Xpath = x });
                             highlight(x);
                         }
                         else if (step.SelectedIndex == step.Items.Count - 1)
                         {
-                            route.SetOutputUrl("Product" + (step.SelectedIndex - 4), new Route.Url { Queue = "Product" + (step.SelectedIndex - 3), Xpath = xpath });
+                            route.SetOutputUrl("Product" + (step.SelectedIndex - 5), new Route.Url { Queue = "Product" + (step.SelectedIndex - 4), Xpath = xpath });
                         }
                         else
                         {

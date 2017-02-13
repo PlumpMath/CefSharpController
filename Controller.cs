@@ -55,7 +55,9 @@ namespace Cliver.CefSharpController
             queues.Reverse();
 
             tw = new StreamWriter(Log.MainSession.Path + "\\output_" + route.Name + ".csv");
-            List<string> hs = route.Fields.Select(x => x.Name).ToList();
+            List<string> hs = new List<string>();
+            foreach (Queue q in queues)
+                hs.InsertRange(0, q.Fields.Select(f => f.Name));
             hs.Insert(0, "Url");
             tw.WriteLine(FieldPreparation.GetCsvLine(hs, FieldPreparation.FieldSeparator.COMMA));
         }
@@ -115,6 +117,7 @@ namespace Cliver.CefSharpController
                     List<string> vs = i.OutputValues;
                     for (Queue.Item pi = i.ParentItem; pi != null; pi = pi.ParentItem)
                         vs.InsertRange(0, pi.OutputValues);
+                    vs.Insert(0, i.Url);
                     tw.WriteLine(FieldPreparation.GetCsvLine(vs, FieldPreparation.FieldSeparator.COMMA, true));
                     tw.Flush();
                 }
@@ -210,6 +213,12 @@ return ls;
                     for (int i = 0; i < os.Count; i++)
                         ls.Add(GetAbsoluteUrl((string)os[i], parent_url));
                 }
+
+                if (ls.Count > 3)
+                {
+                    Log.Warning("While debugging only first 3 links are taken of actual " + ls.Count);
+                    ls.RemoveRange(3, ls.Count - 3);
+                }
                 return ls;
             }
 
@@ -230,7 +239,7 @@ return ls;
 
 var vs = '';
 for(var i = 0; i < es.length; i++){    
-    vs += '\r\n' + " + (field.Attribute == "__innerHtml__" ? @"es[i].innerText" : @"es[i].getAttribute('" + field.Attribute + @"')") + @";
+    vs += '\r\n' + " + (field.Attribute == "INNER_HTML" ? @"es[i].innerText" : @"es[i].getAttribute('" + field.Attribute + @"')") + @";
 }
 return vs;
             ");

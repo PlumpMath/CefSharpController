@@ -56,9 +56,11 @@ namespace Cliver.CefSharpController
             if (string.IsNullOrWhiteSpace(Xpath.Text))
                 return;
             Dictionary<string, object> ans2av = get_attributes(Xpath.Text);
+            if (ans2av == null)
+                return;
 
             foreach (string a in ans2av.Keys)
-                items.Add(new Item() { Get = false, Attribute = a, Value = (string)ans2av[a] });
+                items.Add(new Item() { Get = (a == "INNER_HTML" ? true : false), Attribute = a, Value = (string)ans2av[a] });
 
             Attributes.ItemsSource = items;
 
@@ -88,9 +90,15 @@ else if(es.length < 1)
 var ans2av = {};
 var as = es[0].attributes;
 for (var i = 0; i < as.length; i++) {
-    ans2av[as[i].name] = as[i].value;
+    var c = as[i].value;
+    if(as[i].name == 'class'){
+        c = c.replace(/\b__highlight\b/,'').trim();
+        //if(!c.trim())
+        //    continue;
+    }
+    ans2av[as[i].name] = c;
 }
-ans2av['__innerHtml__'] = es[0].innerHTML;
+ans2av['INNER_HTML'] = es[0].innerHTML;
 return ans2av;
             ");
             return ans2av;
