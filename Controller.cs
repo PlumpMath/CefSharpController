@@ -192,7 +192,7 @@ namespace Cliver.CefSharpController
             List<string> get_links(string xpath)
             {
                 var os = (List<object>)MainWindow.This.Browser.ExecuteJavaScript(
-                    WebDocumentRoutines.Define_getElementsByXPath() + @"
+                    CefSharpBrowser.Define_getElementsByXPath() + @"
             var es =  document.__getElementsByXPath('" + xpath + @"');
 var ls = [];
 for(var i = 0; i < es.length; i++){
@@ -224,7 +224,7 @@ return ls;
             string get_value(Field field)
             {
                 return (string)MainWindow.This.Browser.ExecuteJavaScript(
-                    WebDocumentRoutines.Define_getElementsByXPath() + @"
+                    CefSharpBrowser.Define_getElementsByXPath() + @"
             var es =  document.__getElementsByXPath('" + field.Xpath + @"');
 
 var vs = '';

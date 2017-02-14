@@ -223,8 +223,8 @@ namespace Cliver.CefSharpController
         void listen_clicks()
         {
             MainWindow.This.Browser.ExecuteJavaScript(
-                WebDocumentRoutines.Define_getElementsByXPath()
-                + WebDocumentRoutines.Define_createXPathForElement() + @"
+                CefSharpBrowser.Define_getElementsByXPath()
+                + CefSharpBrowser.Define_createXPathForElement() + @"
 if(!document.__onClick){
             function __onClick(event){
                 try{
