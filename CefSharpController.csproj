@@ -100,12 +100,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Controller2.cs" />
+    <Compile Include="CefSharpBrowser.Document.cs" />
     <Compile Include="InternetDateTime.cs" />
     <Compile Include="ProductFieldWindow.xaml.cs">
       <DependentUpon>ProductFieldWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Route2.cs" />
     <Compile Include="Route.cs" />
     <Compile Include="RouteControl.xaml.cs">
       <DependentUpon>RouteControl.xaml</DependentUpon>
@@ -116,6 +115,7 @@
     <Compile Include="StartWindow.xaml.cs">
       <DependentUpon>StartWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CefSharpBrowser.cs" />
     <Compile Include="WebDocumentRoutines.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

@@ -29,47 +29,56 @@ if(!document.__getElementsByXPath){
             ";
         }
 
-      static public  void Click(string xpath)
+        public static string Define_createXPathForElement()
         {
-            MainWindow.Execute(@"
-                    document.__getElementsByXPath = function(path) {
-                        var evaluator = new XPathEvaluator();
-                        var result = evaluator.evaluate(path, document.documentElement, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
-                        var es = [];
-                        for(var thisNode = result.iterateNext(); thisNode; thisNode = result.iterateNext()){
-                            es.push(thisNode);
-                        }
-                        return es;
-                    };
-
-            var es =  document.__getElementsByXPath('" + xpath + @"');
-if(es.length < 1)
-    alert('no element found:' + '" + xpath + @"');
-else
-    es[0].click();
-            ");
+            return @"
+if(!document.__createXPathForElement){
+            document.__createXPathForElement = function(element) {
+                var xpath = '';
+                for (; element && element.nodeType == 1; element = element.parentNode) {
+                    //alert(element);
+                    var cs = element.parentNode.children;
+                    var j = 0;
+                    var k = 0;
+                    for(var i = 0; i < cs.length; i++){
+                        if (cs[i].tagName == element.tagName){
+                            j++;
+                            if(cs[i] == element){
+                                k = j;
+                                //break;
+                            }
+                        } 
+                    }
+                    var id = '';
+                    if(j > 1)
+                        id = '[' + k + ']';
+                    xpath = '/' + element.tagName.toLowerCase() + id + xpath;
+                }
+                return xpath;
+            };
+};
+            ";
         }
 
-        //        static public object Execute(this ChromiumWebBrowser browser, string script)
-        //        {
-        //            var t = browser.EvaluateScriptAsync(
-        //@"(function(){
-        //    try{
-        //    " + script + @"
-        //    }catch(err){
-        //        alert(err.message);
-        //    }
-        //}())");
-        //            while (!t.IsCompleted)
-        //                DoEvents();
-        //            return t.Result.Result;
-        //        }
+//        static public  void Click(string xpath)
+//        {
+//            CefSharpRoutines.Execute(MainWindow.Browser, @"
+//                    document.__getElementsByXPath = function(path) {
+//                        var evaluator = new XPathEvaluator();
+//                        var result = evaluator.evaluate(path, document.documentElement, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
+//                        var es = [];
+//                        for(var thisNode = result.iterateNext(); thisNode; thisNode = result.iterateNext()){
+//                            es.push(thisNode);
+//                        }
+//                        return es;
+//                    };
 
-        //        public static void DoEvents()
-        //        {
-        //            if (Application.Current == null)
-        //                return;
-        //            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
-        //        }
+//            var es =  document.__getElementsByXPath('" + xpath + @"');
+//if(es.length < 1)
+//    alert('no element found:' + '" + xpath + @"');
+//else
+//    es[0].click();
+//            ");
+//        }
     }
 }

@@ -71,26 +71,26 @@ namespace Cliver.CefSharpController
             }
         }
 
-        public void SetOutputUrl(string queue_name, Url url)
+        public void SetOutputUrl(string queue_name, UrlCollection url_collection)
         {
             XmlNode xo = get_output_node(queue_name);
-            XmlNode xu = xo.SelectSingleNode("Url[@queue='" + url.Queue + "']");
+            XmlNode xu = xo.SelectSingleNode("UrlCollection[@queue='" + url_collection.Queue + "']");
             if (xu == null)
             {
                 xu = xd.CreateElement("Url");
                 xo.AppendChild(xu);
                 XmlAttribute a = xd.CreateAttribute("queue");
-                a.Value = url.Queue;
+                a.Value = url_collection.Queue;
                 xu.Attributes.Append(a);
             }
             {
                 XmlAttribute a = xd.CreateAttribute("xpath");
-                a.Value = url.Xpath;
+                a.Value = url_collection.Xpath;
                 xu.Attributes.Append(a);
             }
         }
 
-        public class Url
+        public class UrlCollection
         {
             public string Queue;
             public string Xpath;
@@ -210,7 +210,7 @@ namespace Cliver.CefSharpController
         {
             public string Name;
             public List<Item> Items = new List<Item>();
-            public List<Url> Urls = new List<Url>();
+            public List<UrlCollection> UrlCollections = new List<UrlCollection>();
             public List<Field> Fields = new List<Field>();
         }
 
@@ -227,10 +227,10 @@ namespace Cliver.CefSharpController
                         li.Add(new Item { Url = x.Attributes["url"].Value, Xpath = x.Attributes["xpath"].Value });
                 }
 
-                List<Url> us = new List<Url>();
+                List<UrlCollection> ucs = new List<UrlCollection>();
                 XmlNode xo = xq.SelectSingleNode("Output");
-                foreach (XmlNode x in xo.SelectNodes("Url"))
-                    us.Add(new Url { Queue = x.Attributes["queue"].Value, Xpath = x.Attributes["xpath"].Value });
+                foreach (XmlNode x in xo.SelectNodes("UrlCollection"))
+                    ucs.Add(new UrlCollection { Queue = x.Attributes["queue"].Value, Xpath = x.Attributes["xpath"].Value });
 
                 List<Field> fs = new List<Field>();
                 foreach (XmlNode x in xo.SelectNodes("Field"))
@@ -240,7 +240,7 @@ namespace Cliver.CefSharpController
                 {
                     Name= xq.Attributes["name"].Value,
                     Fields = fs,
-                    Urls = us,
+                    UrlCollections = ucs,
                     Items = li
                 };
                 qs.Add(q);
@@ -259,21 +259,21 @@ namespace Cliver.CefSharpController
             <Item url="" xpath=""/>
         </Input>
         <Output>
-            <Url xpath="/html/body/section/form/div[3]/div[3]/span[2]/a[3]" queue="NextPageList"/>
-            <Url xpath="/html/body/section/form/div[4]/ul/li[*]/p/a" queue="Product"/>
+            <UrlCollection xpath="/html/body/section/form/div[3]/div[3]/span[2]/a[3]" queue="NextPageList"/>
+            <UrlCollection xpath="/html/body/section/form/div[4]/ul/li[*]/p/a" queue="Product"/>
         </Output>
     </Queue>
     <Queue name="ListNextPage">
         <Output>
-            <Url xpath="/html/body/section/form/div[3]/div[3]/span[2]/a[3]" queue="NextPageList"/>
-            <Url xpath="/html/body/section/form/div[4]/ul/li[*]/p/a" queue="Product"/>
+            <UrlCollection xpath="/html/body/section/form/div[3]/div[3]/span[2]/a[3]" queue="NextPageList"/>
+            <UrlCollection xpath="/html/body/section/form/div[4]/ul/li[*]/p/a" queue="Product"/>
         </Output>
     </Queue>
     <Queue name="Product">
         <Output>
             <Field name="postingbody." xpath="/html/body/section/section/section/section" attribute="" />
             <Field name="postingbody.class" xpath="/html/body/section/section/section/section" attribute="class" />
-            <Url xpath="" queue="Product2"/>
+            <UrlCollection xpath="" queue="Product2"/>
         </Output>
     </Queue>
     <Queue name="Product2">
@@ -292,28 +292,17 @@ namespace Cliver.CefSharpController
             <Item url="" xpath=""/>
         </Input>
         <Output>
-            <Url xpath="/html/body/section/form/div[3]/div[3]/span[2]/a[3]" queue="NextPageList"/>
-            <Url xpath="/html/body/section/form/div[4]/ul/li[*]/p/a" queue="Product"/>
+            <UrlCollection xpath="/html/body/section/form/div[3]/div[3]/span[2]/a[3]" queue="NextPageList"/>
+            <ElementCollection xpath="/html/body/section/form/div[4]/ul/li[*]/p/a" queue="Product"/>
         </Output>
     </Queue>
     <Queue name="ListNextPage">
         <Output>
-            <Url xpath="/html/body/section/form/div[3]/div[3]/span[2]/a[3]" queue="NextPageList"/>
-            <Url xpath="/html/body/section/form/div[4]/ul/li[*]/p/a" queue="Product"/>
+            <UrlCollection xpath="/html/body/section/form/div[3]/div[3]/span[2]/a[3]" queue="NextPageList"/>
+            <ElementCollection xpath="/html/body/section/form/div[4]/ul/li[*]/p/a" queue="Product"/>
         </Output>
     </Queue>
     <Queue name="Product">
-        <Input>
-            <Item url="" xpath=""/>
-            <Item url="" xpath=""/>
-        </Input>
-        <Output>
-            <Field name="postingbody." xpath="/html/body/section/section/section/section" attribute="" />
-            <Field name="postingbody.class" xpath="/html/body/section/section/section/section" attribute="class" />
-            <Url xpath="" queue="Product2"/>
-        </Output>
-    </Queue>
-    <Queue name="Product2">
         <Output>
             <Field name="postingbody." xpath="/html/body/section/section/section/section" attribute="" />
             <Field name="postingbody.class" xpath="/html/body/section/section/section/section" attribute="class" />

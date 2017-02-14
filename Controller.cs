@@ -45,12 +45,12 @@ namespace Cliver.CefSharpController
             }
             foreach (Route.Queue rq in rqs)
             {
-                List<Queue.Url> us = new List<Queue.Url>();
-                foreach (Route.Url x in rq.Urls)
-                    us.Add(new Queue.Url { Queue = queues.Where(z => z.Name == x.Queue).First(), Xpath = x.Xpath });
+                List<Queue.UrlCollection> ucs = new List<Queue.UrlCollection>();
+                foreach (Route.UrlCollection x in rq.UrlCollections)
+                    ucs.Add(new Queue.UrlCollection { Queue = queues.Where(z => z.Name == x.Queue).First(), Xpath = x.Xpath });
 
                 Queue q = queues.Where(z => z.Name == rq.Name).First();
-                q.Urls = us;
+                q.UrlCollections = ucs;
             }
             queues.Reverse();
 
@@ -81,7 +81,7 @@ namespace Cliver.CefSharpController
             if (t != null && t.IsAlive)
                 t.Abort();
             c = null;
-            MainWindow.Stop();
+            MainWindow.This.Browser.Stop();
         }
 
         public static string GetAbsoluteUrl(string link, string parent_url)
@@ -153,7 +153,7 @@ namespace Cliver.CefSharpController
                 public List<string> OutputValues = new List<string>();
             }
 
-            public class Url
+            public class UrlCollection
             {
                 public string Xpath;
                 public Queue Queue;
@@ -167,20 +167,20 @@ namespace Cliver.CefSharpController
             }
 
             public List<Item> Items = new List<Item>();
-            public List<Url> Urls = new List<Url>();
+            public List<UrlCollection> UrlCollections = new List<UrlCollection>();
             public List<Field> Fields = new List<Field>();
 
             public void ProcessItem(Item item)
             {
                 if (!string.IsNullOrWhiteSpace(item.Url))
-                    MainWindow.Load(item.Url, true);
+                    MainWindow.This.Browser.Load(item.Url, true);
                 if (!string.IsNullOrWhiteSpace(item.Xpath))
                     get_value(new Field { Name = "", Attribute = "", Xpath = item.Xpath });
-                string url = MainWindow.Url;
-                foreach (Url u in Urls)
+                string url = MainWindow.This.Browser.Url;
+                foreach (UrlCollection uc in UrlCollections)
                 {
-                    foreach (string l in get_links(u.Xpath))
-                        u.Queue.Items.Add(new Controller.Queue.Item { Url = l, Queue = u.Queue, ParentItem = item });
+                    foreach (string l in get_links(uc.Xpath))
+                        uc.Queue.Items.Add(new Controller.Queue.Item { Url = l, Queue = uc.Queue, ParentItem = item });
                 }
 
                 foreach (Field f in Fields)
@@ -191,9 +191,8 @@ namespace Cliver.CefSharpController
 
             List<string> get_links(string xpath)
             {
-                var os = (List<object>)MainWindow.Execute(
-                    WebDocumentRoutines.Define_getElementsByXPath()
-                    + @"
+                var os = (List<object>)MainWindow.This.Browser.ExecuteJavaScript(
+                    WebDocumentRoutines.Define_getElementsByXPath() + @"
             var es =  document.__getElementsByXPath('" + xpath + @"');
 var ls = [];
 for(var i = 0; i < es.length; i++){
@@ -209,7 +208,7 @@ return ls;
                 List<string> ls = new List<string>();
                 if (os != null)
                 {
-                    string parent_url = MainWindow.Url;
+                    string parent_url = MainWindow.This.Browser.Url;
                     for (int i = 0; i < os.Count; i++)
                         ls.Add(GetAbsoluteUrl((string)os[i], parent_url));
                 }
@@ -224,17 +223,8 @@ return ls;
 
             string get_value(Field field)
             {
-                return (string)MainWindow.Execute(@"
-                    document.__getElementsByXPath = function(path) {
-                        var evaluator = new XPathEvaluator();
-                        var result = evaluator.evaluate(path, document.documentElement, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
-                        var es = [];
-                        for(var thisNode = result.iterateNext(); thisNode; thisNode = result.iterateNext()){
-                            es.push(thisNode);
-                        }
-                        return es;
-                    };
-
+                return (string)MainWindow.This.Browser.ExecuteJavaScript(
+                    WebDocumentRoutines.Define_getElementsByXPath() + @"
             var es =  document.__getElementsByXPath('" + field.Xpath + @"');
 
 var vs = '';

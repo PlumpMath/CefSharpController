@@ -30,47 +30,17 @@ namespace Cliver.CefSharpController
 
             InitializeComponent();
 
+            Browser = new CefSharpBrowser(browser, "JsMapObject", route);
+
             Closing += delegate
               {
                   browser.Stop();
               };
-
-            //browser = new ChromiumWebBrowser();
-            //browser.RegisterJsObject("JsMapObject", route);
-            //browser.HorizontalAlignment = HorizontalAlignment.Stretch;
-            //browser.VerticalAlignment = VerticalAlignment.Stretch;
-            //Grid.SetColumn(browser, 1);
-            //grid.Children.Add(browser);
-            browser.RegisterAsyncJsObject("JsMapObject", route);
-
-            browser.LoadingStateChanged += Browser_LoadingStateChanged;
-            //browser.RequestHandler = new RequestHandler();
-
-
-
-            //IJavaScriptExecutor js = browser as IJavaScriptExecutor;
-            //string title = (string)js.ExecuteScript("return document.title");
-
-
-            //var jsDriver = (IJavaScriptExecutor)driver;
-            //var element = // some element you find;
-            //string highlightJavascript = @"arguments[0].style.cssText = ""border-width: 2px; border-style: solid; border-color: red"";";
-            //jsDriver.ExecuteScript(highlightJavascript, new object[] { element });
-
         }
-        //ChromiumWebBrowser browser;
         public static MainWindow This { get; private set; }
-        
-     static public   string Url
-        {
-            get
-            {
-                return (string)MainWindow.This.Dispatcher.Invoke(() =>
-                {
-                    return MainWindow.Browser.Address;
-                });
-            }
-        }
+
+        readonly public CefSharpBrowser Browser;
+
 
         //class RequestHandler : IRequestHandler
         //{
@@ -155,119 +125,6 @@ namespace Cliver.CefSharpController
         //    }
         //}
 
-        private void Browser_LoadingStateChanged(object sender, LoadingStateChangedEventArgs e)
-        {
-            if (e.IsLoading)
-                return;
-            completed = true;
-        }
-        bool completed = false;
-
-       static public ChromiumWebBrowser Browser
-        {
-            get
-            {
-                return This.browser;
-            }
-        }
-
-        static public void Load(string url, bool sync)
-        {
-            This.Dispatcher.Invoke(() =>
-            {
-                This.completed = false;
-                This.browser.Load(url);
-            });
-            if (!sync)
-                return;
-            WaitForCompletion();
-        }
-
-        static public void WaitForCompletion()
-        {
-            This.Dispatcher.Invoke(() =>
-            {
-                while (!This.completed || This.browser.IsLoading)
-                    DoEvents();
-                    //Thread.Sleep(100);
-            });
-        }
-
-        public static void DoEvents()
-        {
-            if (Application.Current == null)
-                return;
-            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
-        }
-
-        static public object Execute(string script)
-        {
-            var t = This.browser.EvaluateScriptAsync(
-@"(function(){
-    try{
-    " + script + @"
-    }catch(err){
-        alert(err.message);
-    }
-}())");
-            while(!t.IsCompleted)
-                DoEvents();
-            return t.Result.Result;
-        }
-
-        void h()
-        {
-            string js = @"
-            function createXPathFromElement(elm) {
-                var allNodes = document.__getElementsByTagName('*');
-                for (var segs = []; elm && elm.nodeType == 1; elm = elm.parentNode)
-                {
-                    if (elm.hasAttribute('id'))
-                    {
-                        var uniqueIdCount = 0;
-                        for (var n = 0; n < allNodes.length; n++)
-                        {
-                            if (allNodes[n].hasAttribute('id') && allNodes[n].id == elm.id) uniqueIdCount++;
-                            if (uniqueIdCount > 1) break;
-                        };
-                        if (uniqueIdCount == 1)
-                        {
-                            segs.unshift('id(""' + elm.getAttribute('id') + '"")');
-                            return segs.join('/');
-                        }
-                        else
-                        {
-                            segs.unshift(elm.localName.toLowerCase() + '[@id=""' + elm.getAttribute('id') + '""]');
-                        }
-                    }
-                    else if (elm.hasAttribute('class'))
-                    {
-                        segs.unshift(elm.localName.toLowerCase() + '[@class=""' + elm.getAttribute('class') + '""]');
-                    }
-                    else
-                    {
-                        for (i = 1, sib = elm.previousSibling; sib; sib = sib.previousSibling)
-                        {
-                            if (sib.localName == elm.localName) i++;
-                        };
-                        segs.unshift(elm.localName.toLowerCase() + '[' + i + ']');
-                    };
-                };
-                return segs.length ? '/' + segs.join('/') : null;
-            };
-
-            function lookupElementByXPath(path) {
-                var evaluator = new XPathEvaluator();
-                var result = evaluator.evaluate(path, document.documentElement, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
-                return result.singleNodeValue;
-            }
-        }";
-        }
-
-        static public void Stop()
-        {
-            This.browser.Stop();
-        }
 
         //static public string State
         //{
