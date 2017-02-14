@@ -35,19 +35,19 @@ namespace Cliver.CefSharpController
                         MainWindow.This.Browser.HighlightElements(xpath);
                         if (step.SelectedIndex == 1)
                         {
-                            route.SetOutputUrl("Start", new Route.UrlCollection { Queue = "ListNextPage", Xpath = xpath });
-                            route.SetOutputUrl("ListNextPage", new Route.UrlCollection { Queue = "ListNextPage", Xpath = xpath });
+                            route.SetOutputUrlCollection("Start", new Route.UrlCollection { Queue = "ListNextPage", Xpath = xpath });
+                            route.SetOutputUrlCollection("ListNextPage", new Route.UrlCollection { Queue = "ListNextPage", Xpath = xpath });
                         }
                         else if (step.SelectedIndex == 2)
                         {//SetProductPages
                             string x = find_product_links_xpath(xpath);
-                            route.SetOutputUrl("Start", new Route.UrlCollection { Queue = "Product0", Xpath = x });
-                            route.SetOutputUrl("ListNextPage", new Route.UrlCollection { Queue = "Product0", Xpath = x });
+                            route.SetOutputUrlCollection("Start", new Route.UrlCollection { Queue = "Product0", Xpath = x });
+                            route.SetOutputUrlCollection("ListNextPage", new Route.UrlCollection { Queue = "Product0", Xpath = x });
                             MainWindow.This.Browser.HighlightElements(x);
                         }
                         else if (step.SelectedIndex == step.Items.Count - 1)
                         {
-                            route.SetOutputUrl("Product" + (step.SelectedIndex - 5), new Route.UrlCollection { Queue = "Product" + (step.SelectedIndex - 4), Xpath = xpath });
+                            route.SetOutputUrlCollection("Product" + (step.SelectedIndex - 5), new Route.UrlCollection { Queue = "Product" + (step.SelectedIndex - 4), Xpath = xpath });
                         }
                         else
                         {//SetProduct
@@ -65,14 +65,14 @@ namespace Cliver.CefSharpController
                         MainWindow.This.Browser.HighlightElements(xpath);
                         if (step.SelectedIndex == 1)
                         {
-                            route.SetOutputUrl("Start", new Route.UrlCollection { Queue = "ListNextPage", Xpath = xpath });
-                            route.SetOutputUrl("ListNextPage", new Route.UrlCollection { Queue = "ListNextPage", Xpath = xpath });
+                            route.SetOutputUrlCollection("Start", new Route.UrlCollection { Queue = "ListNextPage", Xpath = xpath });
+                            route.SetOutputUrlCollection("ListNextPage", new Route.UrlCollection { Queue = "ListNextPage", Xpath = xpath });
                         }
                         else if (step.SelectedIndex == 2)
                         {//SetProductBlocks
                             string x = find_product_blocks_xpath(xpath);
-                            route.SetOutputUrl("Start", new Route.UrlCollection { Queue = "Product0", Xpath = x });
-                            route.SetOutputUrl("ListNextPage", new Route.UrlCollection { Queue = "Product0", Xpath = x });
+                            route.SetOutputElementCollection("Start", new Route.ElementCollection { Queue = "Product0", Xpath = x });
+                            route.SetOutputElementCollection("ListNextPage", new Route.ElementCollection { Queue = "Product0", Xpath = x });
                             MainWindow.This.Browser.HighlightElements(x);
                         }
                         //else if (step.SelectedIndex == step.Items.Count - 1)
@@ -156,7 +156,7 @@ namespace Cliver.CefSharpController
                                 {
                                     route = new CefSharpController.Route(d.XmlName.Text);
                                     string url = d.StartUrl.Text;
-                                    route.AddInputItem("Start", new Route.Item { Url = url });
+                                    route.AddInputItem("Start", new Route.Item { Value = url, Type = Route.Item.Types.URL });
                                     xml.Text = route.Xml;
                                     MainWindow.This.Browser.Load(url, false);
                                 }
@@ -185,7 +185,7 @@ namespace Cliver.CefSharpController
                                 {
                                     route = new CefSharpController.Route(d.XmlName.Text);
                                     string url = d.StartUrl.Text;
-                                    route.AddInputItem("Start", new Route.Item { Url = url });
+                                    route.AddInputItem("Start", new Route.Item { Value = url, Type = Route.Item.Types.URL });
                                     xml.Text = route.Xml;
                                     MainWindow.This.Browser.Load(url, false);
                                 }

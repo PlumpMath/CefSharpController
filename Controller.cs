@@ -32,7 +32,7 @@ namespace Cliver.CefSharpController
 
                 List<Queue.Item> li = new List<Queue.Item>();
                 foreach (Route.Item x in rq.Items)
-                    li.Add(new Queue.Item { Url = x.Url, Xpath = x.Xpath, ParentItem = null, Queue = q });
+                    li.Add(new Queue.Item { Value = x.Value, Type = x.Type, ParentItem = null, Queue = q });
 
                 List<Queue.Field> fs = new List<Queue.Field>();
                 foreach (Route.Field x in rq.Fields)
@@ -114,10 +114,18 @@ namespace Cliver.CefSharpController
                 i.Queue.ProcessItem(i);
                 if (i.Queue == queues[0])
                 {
-                    List<string> vs = i.OutputValues;
-                    for (Queue.Item pi = i.ParentItem; pi != null; pi = pi.ParentItem)
-                        vs.InsertRange(0, pi.OutputValues);
-                    vs.Insert(0, i.Url);
+                    List<string> vs = new List<string>();
+                    string url = null;
+                    for (; i != null; i = i.ParentItem)
+                    {
+                        if (i.OutputValues.Count > 0)
+                        {
+                            vs.InsertRange(0, i.OutputValues);
+                            if (i.Type == Route.Item.Types.URL)
+                                url = i.Value;
+                        }
+                    }
+                    vs.Insert(0, url);
                     tw.WriteLine(FieldPreparation.GetCsvLine(vs, FieldPreparation.FieldSeparator.COMMA, true));
                     tw.Flush();
                 }
@@ -146,14 +154,20 @@ namespace Cliver.CefSharpController
 
             public class Item
             {
-                public string Url;
-                public string Xpath;
+                public string Value;
+                public Route.Item.Types Type;
                 public Queue Queue;
                 public Item ParentItem = null;
                 public List<string> OutputValues = new List<string>();
             }
 
             public class UrlCollection
+            {
+                public string Xpath;
+                public Queue Queue;
+            }
+
+            public class ElementCollection
             {
                 public string Xpath;
                 public Queue Queue;
@@ -168,24 +182,42 @@ namespace Cliver.CefSharpController
 
             public List<Item> Items = new List<Item>();
             public List<UrlCollection> UrlCollections = new List<UrlCollection>();
+            public List<ElementCollection> ElementCollections = new List<ElementCollection>();
             public List<Field> Fields = new List<Field>();
 
             public void ProcessItem(Item item)
             {
-                if (!string.IsNullOrWhiteSpace(item.Url))
-                    MainWindow.This.Browser.Load(item.Url, true);
-                if (!string.IsNullOrWhiteSpace(item.Xpath))
-                    get_value(new Field { Name = "", Attribute = "", Xpath = item.Xpath });
+                string base_xpath = "";
+                switch(item.Type)
+                {
+                    case Route.Item.Types.URL:
+                        MainWindow.This.Browser.Load(item.Value, true);
+                        break;
+                    case Route.Item.Types.XPATH:
+                        base_xpath = item.Value;
+                        break;
+                    default:
+                        throw new Exception("Unknown type: " + item.Type);
+                }
                 string url = MainWindow.This.Browser.Url;
                 foreach (UrlCollection uc in UrlCollections)
                 {
-                    foreach (string l in get_links(uc.Xpath))
-                        uc.Queue.Items.Add(new Controller.Queue.Item { Url = l, Queue = uc.Queue, ParentItem = item });
+                    foreach (string l in get_links(base_xpath + uc.Xpath))
+                        uc.Queue.Items.Add(new Controller.Queue.Item { Type = Route.Item.Types.URL, Value = l, Queue = uc.Queue, ParentItem = item });
+                }
+
+                foreach (ElementCollection ec in ElementCollections)
+                {
+                    //int el = get_elements(base_xpath + ec.Xpath);
+                    //for (int i = 0; i < el; i++)
+                    //ec.Queue.Items.Add(new Controller.Queue.Item { Type = Route.Item.Types.HTML_ELEMENT_KEY, Value = i.ToString(), Queue = ec.Queue, ParentItem = item });
+                    foreach (string x in get_xpaths(base_xpath + ec.Xpath))
+                        ec.Queue.Items.Add(new Controller.Queue.Item { Type = Route.Item.Types.XPATH, Value = x, Queue = ec.Queue, ParentItem = item });
                 }
 
                 foreach (Field f in Fields)
                 {
-                    item.OutputValues.Add(get_value(f));
+                    item.OutputValues.Add(get_value(base_xpath + f.Xpath, f.Attribute));
                 }
             }
 
@@ -193,7 +225,7 @@ namespace Cliver.CefSharpController
             {
                 var os = (List<object>)MainWindow.This.Browser.ExecuteJavaScript(
                     CefSharpBrowser.Define_getElementsByXPath() + @"
-            var es =  document.__getElementsByXPath('" + xpath + @"');
+var es =  document.__getElementsByXPath('" + xpath + @"');
 var ls = [];
 for(var i = 0; i < es.length; i++){
     var e = es[i];
@@ -221,15 +253,51 @@ return ls;
                 return ls;
             }
 
-            string get_value(Field field)
+            List<string> get_xpaths(string xpath)
+            {
+                var os = (List<object>)MainWindow.This.Browser.ExecuteJavaScript(
+                    CefSharpBrowser.Define_getElementsByXPath() + 
+                    CefSharpBrowser.Define_createXPathForElement() + @"
+var es =  document.__getElementsByXPath('" + xpath + @"');
+var xs = [];
+for(var i = 0; i < es.length; i++){
+    xs.push(document.__createXPathForElement(es[i]);
+}
+return xs;
+            ");
+
+                List<string> xs = new List<string>();
+                if (os != null)
+                {
+                    for (int i = 0; i < os.Count; i++)
+                        xs.Add((string)os[i]);
+                }
+
+                if (xs.Count > 3)
+                {
+                    Log.Warning("While debugging only first 3 xpaths are taken of actual " + xs.Count);
+                    xs.RemoveRange(3, xs.Count - 3);
+                }
+                return xs;
+            }
+
+            //            int get_elements(string xpath)
+            //            {
+            //                return (int)MainWindow.This.Browser.ExecuteJavaScript(
+            //                    CefSharpBrowser.Define_getElementsByXPath() + @"
+            //document.__elementCollection =  document.__getElementsByXPath('" + xpath + @"');
+            //return document.__elementCollection.length;
+            //            ");
+            //            }
+
+            string get_value(string xpath, string attribute)
             {
                 return (string)MainWindow.This.Browser.ExecuteJavaScript(
                     CefSharpBrowser.Define_getElementsByXPath() + @"
-            var es =  document.__getElementsByXPath('" + field.Xpath + @"');
-
+var es =  document.__getElementsByXPath('" + xpath + @"');
 var vs = '';
 for(var i = 0; i < es.length; i++){    
-    vs += '\r\n' + " + (field.Attribute == "INNER_HTML" ? @"es[i].innerText" : @"es[i].getAttribute('" + field.Attribute + @"')") + @";
+    vs += '\r\n' + " + (attribute == "INNER_HTML" ? @"es[i].innerText" : @"es[i].getAttribute('" + attribute + @"')") + @";
 }
 return vs;
             ");

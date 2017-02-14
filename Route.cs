@@ -71,13 +71,13 @@ namespace Cliver.CefSharpController
             }
         }
 
-        public void SetOutputUrl(string queue_name, UrlCollection url_collection)
+        public void SetOutputUrlCollection(string queue_name, UrlCollection url_collection)
         {
             XmlNode xo = get_output_node(queue_name);
             XmlNode xu = xo.SelectSingleNode("UrlCollection[@queue='" + url_collection.Queue + "']");
             if (xu == null)
             {
-                xu = xd.CreateElement("Url");
+                xu = xd.CreateElement("UrlCollection");
                 xo.AppendChild(xu);
                 XmlAttribute a = xd.CreateAttribute("queue");
                 a.Value = url_collection.Queue;
@@ -91,6 +91,31 @@ namespace Cliver.CefSharpController
         }
 
         public class UrlCollection
+        {
+            public string Queue;
+            public string Xpath;
+        }
+
+        public void SetOutputElementCollection(string queue_name, ElementCollection url_collection)
+        {
+            XmlNode xo = get_output_node(queue_name);
+            XmlNode xu = xo.SelectSingleNode("ElementCollection[@queue='" + url_collection.Queue + "']");
+            if (xu == null)
+            {
+                xu = xd.CreateElement("ElementCollection");
+                xo.AppendChild(xu);
+                XmlAttribute a = xd.CreateAttribute("queue");
+                a.Value = url_collection.Queue;
+                xu.Attributes.Append(a);
+            }
+            {
+                XmlAttribute a = xd.CreateAttribute("xpath");
+                a.Value = url_collection.Xpath;
+                xu.Attributes.Append(a);
+            }
+        }
+
+        public class ElementCollection
         {
             public string Queue;
             public string Xpath;
@@ -148,18 +173,30 @@ namespace Cliver.CefSharpController
             //XmlNode xq = xd.SelectSingleNode("Item[@name='" + queue_name + "']");
             XmlNode xi = xd.CreateElement("Item");
             xin.AppendChild(xi);
-            XmlAttribute a = xd.CreateAttribute("url");
-            a.Value = item.Url;
+            XmlAttribute a = xd.CreateAttribute("value");
+            if (string.IsNullOrEmpty(item.Value))
+                throw new Exception("Value is empty");
+            a.Value = item.Value;
             xi.Attributes.Append(a);
-            a = xd.CreateAttribute("xpath");
-            a.Value = item.Xpath;
+            a = xd.CreateAttribute("type");
+            if (item.Type == Item.Types.NULL)
+                throw new Exception("Type is empty");
+            a.Value = item.Type.ToString();
             xi.Attributes.Append(a);
         }
 
         public class Item
         {
-            public string Url;
-            public string Xpath;
+            public string Value;
+            public Types Type;
+
+            public enum Types
+            {
+                NULL,
+                URL,
+                //HTML_ELEMENT_KEY,
+                XPATH
+            }
         }
 
         XmlNode get_queue_node(string queue_name)
@@ -211,6 +248,7 @@ namespace Cliver.CefSharpController
             public string Name;
             public List<Item> Items = new List<Item>();
             public List<UrlCollection> UrlCollections = new List<UrlCollection>();
+            public List<ElementCollection> ElementCollections = new List<ElementCollection>();
             public List<Field> Fields = new List<Field>();
         }
 
@@ -224,13 +262,18 @@ namespace Cliver.CefSharpController
                 if (xi != null)
                 {
                     foreach (XmlNode x in xi.SelectNodes("Item"))
-                        li.Add(new Item { Url = x.Attributes["url"].Value, Xpath = x.Attributes["xpath"].Value });
+                        li.Add(new Item { Value = x.Attributes["value"].Value, Type = (Item.Types)Enum.Parse(typeof(Item.Types), x.Attributes["type"].Value) });
                 }
 
-                List<UrlCollection> ucs = new List<UrlCollection>();
                 XmlNode xo = xq.SelectSingleNode("Output");
+
+                List<UrlCollection> ucs = new List<UrlCollection>();
                 foreach (XmlNode x in xo.SelectNodes("UrlCollection"))
                     ucs.Add(new UrlCollection { Queue = x.Attributes["queue"].Value, Xpath = x.Attributes["xpath"].Value });
+
+                List<ElementCollection> ecs = new List<ElementCollection>();
+                foreach (XmlNode x in xo.SelectNodes("ElementCollection"))
+                    ecs.Add(new ElementCollection { Queue = x.Attributes["queue"].Value, Xpath = x.Attributes["xpath"].Value });
 
                 List<Field> fs = new List<Field>();
                 foreach (XmlNode x in xo.SelectNodes("Field"))
@@ -255,8 +298,8 @@ namespace Cliver.CefSharpController
 <Route name="test.xml">
     <Queue name="Start">
         <Input>
-            <Item url="" xpath=""/>
-            <Item url="" xpath=""/>
+            <Item value=""/>//can be url
+            <Item value=""/>
         </Input>
         <Output>
             <UrlCollection xpath="/html/body/section/form/div[3]/div[3]/span[2]/a[3]" queue="NextPageList"/>
@@ -288,8 +331,8 @@ namespace Cliver.CefSharpController
 <Route name="test.xml">
     <Queue name="Start">
         <Input>
-            <Item url="" xpath=""/>
-            <Item url="" xpath=""/>
+            <Item value=""/>
+            <Item value=""/>
         </Input>
         <Output>
             <UrlCollection xpath="/html/body/section/form/div[3]/div[3]/span[2]/a[3]" queue="NextPageList"/>
