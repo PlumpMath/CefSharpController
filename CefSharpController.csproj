@@ -112,6 +112,9 @@
     <Compile Include="RouteWindow.xaml.cs">
       <DependentUpon>RouteWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SaveWindow.xaml.cs">
+      <DependentUpon>SaveWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="StartWindow.xaml.cs">
       <DependentUpon>StartWindow.xaml</DependentUpon>
     </Compile>
@@ -140,6 +143,10 @@
     <Page Include="RouteWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SaveWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="StartWindow.xaml">
       <SubType>Designer</SubType>

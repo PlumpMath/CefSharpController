@@ -14,16 +14,13 @@ using System.Windows.Shapes;
 
 namespace Cliver.CefSharpController
 {
-    /// <summary>
-    /// Interaction logic for StartUrlWindow.xaml
-    /// </summary>
-    public partial class StartWindow : Window
+    public partial class SaveWindow : Window
     {
-        public StartWindow()
+        public SaveWindow()
         {
             InitializeComponent();
-            
-            StartUrl.Text = "http://boston.craigslist.org/search/ata";
+
+            XmlName.Text = "test.xml";
 
             ok.Click += delegate
               {

@@ -5,14 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Cliver.CefSharpController"
         mc:Ignorable="d"
-        Title="StartUrlWindow" Height="auto" Width="auto" SizeToContent="Height">
+        Title="StartUrlWindow" Height="auto" Width="395.04" SizeToContent="Height">
     <Grid>
         <StackPanel>
-        <Label Height="auto" Width="auto" >Xml File Name:</Label>
-            <TextBox Name="XmlName" Height="auto" Width="auto"  x:FieldModifier="public" ></TextBox>
+            <Label Height="auto" Width="auto" >Route Type:</Label>
+            <ComboBox Name="RouteType" x:FieldModifier="public" >
+                <ComboBoxItem Name="ListToData">List Page and Data Page are diffrent</ComboBoxItem>
+                <ComboBoxItem Name="DataInList">List Page and Data Page are the same</ComboBoxItem>
+            </ComboBox>
         <Label Height="auto" Width="auto" >Next Page List Xpath:</Label>
-            <TextBox Name="StartUrl" Height="auto" Width="auto"  x:FieldModifier="public" ></TextBox>
-        <Button Name="ok">Ok</Button>
+            <TextBox x:Name="StartUrl" Height="auto" Width="auto"  x:FieldModifier="public"  TextWrapping="Wrap" AcceptsReturn="True"/>
+            <Button Name="ok">Ok</Button>
         </StackPanel>
     </Grid>
 </Window>

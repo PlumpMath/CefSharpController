@@ -29,9 +29,9 @@ namespace Cliver.CefSharpController
         {
             Application.Current.Dispatcher.Invoke((Action)(() =>
             {
-                switch (route_type.SelectedIndex)
+                switch (route_type)
                 {
-                    case 0:
+                    case RouteType.DATA_SEPARATED_FROM_LIST:
                         MainWindow.This.Browser.HighlightElements(xpath);
                         if (step.SelectedIndex == 1)
                         {
@@ -61,7 +61,7 @@ namespace Cliver.CefSharpController
                         }
                         xml.Text = route.Xml;
                         break;
-                    case 1:
+                    case RouteType.DATA_IS_IN_LIST:
                         MainWindow.This.Browser.HighlightElements(xpath);
                         if (step.SelectedIndex == 1)
                         {
@@ -74,11 +74,8 @@ namespace Cliver.CefSharpController
                             route.SetOutputElementCollection("Start", new Route.ElementCollection { Queue = "Product0", Xpath = x });
                             route.SetOutputElementCollection("ListNextPage", new Route.ElementCollection { Queue = "Product0", Xpath = x });
                             MainWindow.This.Browser.HighlightElements(x);
+                            base_xpath = xpath;
                         }
-                        //else if (step.SelectedIndex == step.Items.Count - 1)
-                        //{
-                        //    route.SetOutputUrl("Product" + (step.SelectedIndex - 5), new Route.Url { Queue = "Product" + (step.SelectedIndex - 4), Xpath = xpath });
-                        //}
                         else
                         {
                             ProductFieldWindow w = new ProductFieldWindow(xpath);
@@ -86,22 +83,31 @@ namespace Cliver.CefSharpController
                             {
                                 foreach (dynamic o in w.Attributes.Items)
                                     if (o.Get == true)
-                                        route.SetOutputField("Product" + (step.SelectedIndex - 3), new Route.Field { Name = w.Name.Text + "." + o.Attribute, Xpath = xpath, Attribute = o.Attribute });
+                                        route.SetOutputField("Product0", new Route.Field { Name = w.Name.Text + "." + o.Attribute, Xpath = xpath.Substring(base_xpath.Length, xpath.Length - base_xpath.Length), Attribute = o.Attribute });
                             }
                         }
                         xml.Text = route.Xml;
                         break;
                     default:
-                        throw new Exception("No such option: " + route_type.SelectedIndex);
+                        throw new Exception("No such option: " + route_type);
                 }
             }));
         }
-
+        string base_xpath = null;
+        
         public RouteControl()
         {
             InitializeComponent();
 
-            save.Click += delegate { route.Save(); };
+            save.Click += delegate {
+                Microsoft.Win32.SaveFileDialog d = new Microsoft.Win32.SaveFileDialog();
+                d.FileName = "route"; 
+                d.DefaultExt = ".xml";
+                d.Filter = "Routes (.xml)|*.xml"; 
+                if (d.ShowDialog() == true)
+                    route.Save(d.FileName);
+            };
+
             run.Click += delegate
             {
                 Microsoft.Win32.OpenFileDialog d = new Microsoft.Win32.OpenFileDialog();
@@ -109,107 +115,70 @@ namespace Cliver.CefSharpController
                 d.Filter = "XML Files (*.xml)|*.xml|All Files (*.*)|*.*";
                 if (d.ShowDialog() != true)
                     return;
-                Route r = Route.LoadFromFile(d.FileName);
+                Route r = new Route(d.FileName);
                 xml.Text = r.Xml;
                 Controller.Start(r);
             };
 
-            route_type.SelectionChanged += delegate
+            new_.Click += delegate
             {
-                step.Items.Clear();
-                switch (route_type.SelectedIndex)
+                try
                 {
-                    case 0:
-                        step.Items.Add("SetSite");
-                        step.Items.Add("SetListNextPage");
-                        step.Items.Add("SetProductPages");
-                        step.Items.Add("SetProduct0");
-                        step.Items.Add("SetOneMoreProductPage");
-                        break;
-                    case 1:
-                        step.Items.Add("SetSite");
-                        step.Items.Add("SetListNextPage");
-                        step.Items.Add("SetProductBlocks");
-                        step.Items.Add("SetProduct");
-                        break;
-                    case 2:
-                        step.Items.Add("SetProductPages");
-                        step.Items.Add("SetProduct0");
-                        step.Items.Add("SetOneMoreProductPage");
-                        break;
-                    default:
-                        throw new Exception("No such option: " + route_type.SelectedIndex);
+                    var d = new StartWindow();
+                    if (d.ShowDialog() != true)
+                        return;
+                    route = new CefSharpController.Route();
+                    string[] urls = d.StartUrl.Text.Split('\n');
+                    foreach (string url in urls)
+                    {
+                        route.AddInputItem("Start", new Route.Item { Value = url.Trim(), Type = Route.Item.Types.URL });
+                        xml.Text = route.Xml;
+                    }
+                    MainWindow.This.Browser.Load(urls[0], false);
+
+                    step.Items.Clear();
+                    switch (d.RouteType.SelectedIndex)
+                    {
+                        case 0:
+                            route_type = RouteType.DATA_SEPARATED_FROM_LIST;
+                            step.Items.Add("SetListNextPage");
+                            step.Items.Add("SetProductPages");
+                            step.Items.Add("SetProduct0");
+                            step.Items.Add("SetOneMoreProductPage");
+                            break;
+                        case 1:
+                            route_type = RouteType.DATA_IS_IN_LIST;
+                            step.Items.Add("SetListNextPage");
+                            step.Items.Add("SetProductBlocks");
+                            step.Items.Add("SetProduct");
+                            break;
+                        //case 2:
+                        //    step.Items.Add("SetProductPages");
+                        //    step.Items.Add("SetProduct0");
+                        //    step.Items.Add("SetOneMoreProductPage");
+                        //    break;
+                        default:
+                            throw new Exception("No such option: " + d.RouteType.SelectedIndex);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e);
                 }
             };
 
             step.SelectionChanged += delegate
             {
-                switch (route_type.SelectedIndex)
+                switch (route_type)
                 {
-                    case 0:
-                        if (step.SelectedIndex == 0)
-                        {
-                            try
-                            {
-                                var d = new StartWindow();
-                                if (d.ShowDialog() == true)
-                                {
-                                    route = new CefSharpController.Route(d.XmlName.Text);
-                                    string url = d.StartUrl.Text;
-                                    route.AddInputItem("Start", new Route.Item { Value = url, Type = Route.Item.Types.URL });
-                                    xml.Text = route.Xml;
-                                    MainWindow.This.Browser.Load(url, false);
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                Log.Error(e);
-                            }
-                        }
-                        else if (step.SelectedIndex == step.Items.Count - 1)
-                        {
+                    case RouteType.DATA_SEPARATED_FROM_LIST:
                             listen_clicks();
-                        }
-                        else
-                        {
-                            listen_clicks();
-                        }
                         break;
-                    case 1:
-                        if (step.SelectedIndex == 0)
-                        {
-                            try
-                            {
-                                var d = new StartWindow();
-                                if (d.ShowDialog() == true)
-                                {
-                                    route = new CefSharpController.Route(d.XmlName.Text);
-                                    string url = d.StartUrl.Text;
-                                    route.AddInputItem("Start", new Route.Item { Value = url, Type = Route.Item.Types.URL });
-                                    xml.Text = route.Xml;
-                                    MainWindow.This.Browser.Load(url, false);
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                Log.Error(e);
-                            }
-                        }
-                        //else if (step.SelectedIndex == 1)
-                        //{
-                        //    step.Items.Insert(step.SelectedIndex, "SetProduct" + (step.SelectedIndex - 3));
-                        //}
-                        //else if (step.SelectedIndex == 2)
-                        //{
-                        //    step.Items.Insert(step.SelectedIndex, "SetProduct" + (step.SelectedIndex - 3));
-                        //}
-                        else
-                        {
+                    case RouteType.DATA_IS_IN_LIST:
                             listen_clicks();
-                        }
                         break;
                     default:
-                        throw new Exception("No such option: " + route_type.SelectedIndex);
+                        throw new Exception("No such option: " + route_type);
                 };
             };
 
@@ -217,6 +186,12 @@ namespace Cliver.CefSharpController
             {
                 //state.SelectedIndex = 0;
             };
+        }
+        RouteType route_type;
+        enum RouteType
+        {
+            DATA_SEPARATED_FROM_LIST,
+            DATA_IS_IN_LIST
         }
         Route route;
         

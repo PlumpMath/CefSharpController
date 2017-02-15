@@ -22,17 +22,13 @@ namespace Cliver.CefSharpController
 {
     public class Route
     {
-        public static Route LoadFromFile(string file)
+        public Route(string file)
         {
-            Route r = new Route();
-            r.Xml = File.ReadAllText(file);
-            return r;
+            Xml = File.ReadAllText(file);
         }
-        Route() { }
 
-        public Route(string name)
+        public Route()
         {
-            Name = name;
         }
         readonly XmlDocument xd = new XmlDocument();
 
@@ -162,9 +158,11 @@ namespace Cliver.CefSharpController
             }
         }
 
-        public void Save()
+        public void Save(string file)
         {
-            xd.Save(Log.WorkDir + "\\" + Name);
+            if (Name == null)
+                Name = PathRoutines.GetFileNameWithoutExtentionFromPath(file);
+            xd.Save(file);
         }
 
         public void AddInputItem(string queue_name, Item item)
@@ -188,7 +186,7 @@ namespace Cliver.CefSharpController
         public class Item
         {
             public string Value;
-            public Types Type;
+            public Types Type = Types.NULL;
 
             public enum Types
             {

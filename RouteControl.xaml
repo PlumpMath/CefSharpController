@@ -8,22 +8,17 @@
              d:DesignHeight="300" >
     <Grid>
         <StackPanel Orientation="Vertical" Width="100" >
-            <ComboBox Name="route_type">
-                <ComboBoxItem Name="ListToData">ListToData</ComboBoxItem>
-                <ComboBoxItem Name="DataInList">DataInList</ComboBoxItem>
-                <ComboBoxItem Name="DataPages">DataPages</ComboBoxItem>
-            </ComboBox>
+            <Button Name="new_">New</Button>
             <ComboBox Name="step">
                 <ComboBoxItem Name="SetSite">SetSite</ComboBoxItem>
                 <ComboBoxItem Name="SetNextPageList">SetNextPageList</ComboBoxItem>
                 <ComboBoxItem Name="SetProductPages">SetProductPages</ComboBoxItem>
                 <ComboBoxItem Name="SetProduct">SetProduct</ComboBoxItem>
             </ComboBox>
-            <Label Height="auto" Width="auto" >Xml:</Label>
-            <TextBox Name="xml" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" MaxHeight="500" ScrollViewer.VerticalScrollBarVisibility="Auto"  MinHeight="227" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></TextBox>
             <Button Name="save">Save</Button>
             <Button Name="run">Run</Button>
-        </StackPanel>
-
+            <Label Height="auto" Width="auto" >Xml:</Label>
+            <TextBox Name="xml" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Height="auto" ScrollViewer.VerticalScrollBarVisibility="Auto"  MinHeight="227" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></TextBox>
+           </StackPanel>
     </Grid>
 </UserControl>
