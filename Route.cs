@@ -168,31 +168,41 @@ namespace Cliver.CefSharpController
             xd.Save(file);
         }
 
-        public void AddInputItem(string queue_name, InputItem item)
+        public void AddInputItem(string queue_name, InputItem ii)
         {
             XmlNode xin = get_input_node(queue_name);
-            if (item.Type == InputItem.Types.NULL)
-                throw new Exception("Type is empty");
-            XmlNode xi = xd.CreateElement(item.Type.ToString());
+            InputElement.Types tag;
+            if (ii is InputUrl)
+                tag = InputItem.Types.Url;
+            else if (ii is InputElement)
+                tag = InputItem.Types.Element;
+            else
+                throw new Exception("Unknown type: " + ii.GetType());
+            XmlNode xi = xd.CreateElement(tag.ToString());
             xin.AppendChild(xi);
             XmlAttribute a = xd.CreateAttribute("value");
-            if (string.IsNullOrEmpty(item.Value))
+            if (string.IsNullOrEmpty(ii.Value))
                 throw new Exception("Value is empty");
-            a.Value = item.Value;
+            a.Value = ii.Value;
             xi.Attributes.Append(a);
         }
 
-        public class InputItem
+        public abstract class InputItem
         {
             public string Value;
-            public Types Type = Types.NULL;
-
             public enum Types
             {
-                NULL,
                 Url,
                 Element
             }
+        }
+
+        public class InputUrl : InputItem
+        {
+        }
+
+        public class InputElement : InputItem
+        {
         }
 
         XmlNode get_queue_node(string queue_name)
@@ -258,7 +268,19 @@ namespace Cliver.CefSharpController
                 if (xi != null)
                 {
                     foreach (XmlNode x in xi.SelectNodes("*"))
-                        iis.Add(new InputItem { Value = x.Attributes["value"].Value, Type = (InputItem.Types)Enum.Parse(typeof(InputItem.Types), x.Name) });
+                    {
+                        switch( (InputItem.Types)Enum.Parse(typeof(InputItem.Types), x.Name))
+                        {
+                            case InputItem.Types.Url:
+                                iis.Add(new InputUrl { Value = x.Attributes["value"].Value });
+                                break;
+                            case InputItem.Types.Element:
+                                iis.Add(new InputElement { Value = x.Attributes["value"].Value });
+                                break;
+                            default:
+                                throw new Exception("Unknown option!");
+                        }
+                    }
                 }
 
                 XmlNode xo = xq.SelectSingleNode("Output");

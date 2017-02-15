@@ -32,6 +32,11 @@ namespace Cliver.CefSharpController
 
             Browser = new CefSharpBrowser(browser, "JsMapObject", route);
 
+            browser.LoadingStateChanged += delegate (object sender, LoadingStateChangedEventArgs e)
+            {
+                route.Dispatcher.BeginInvoke((Action)(() => { route.IsEnabled = !e.IsLoading; }));
+            };
+
             Closing += delegate
               {
                   browser.Stop();

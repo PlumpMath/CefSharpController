@@ -33,17 +33,12 @@ namespace Cliver.CefSharpController
                 List<Queue.InputItem> iis = new List<Queue.InputItem>();
                 foreach (Route.InputItem x in rq.InputItems)
                 {
-                    switch (x.Type)
-                    {
-                        case Route.InputItem.Types.Url:
-                            iis.Add(new Queue.InputUrl { Value = x.Value, ParentItem = null, Queue = q });
-                            break;
-                        case Route.InputItem.Types.Element:
-                            iis.Add(new Queue.InputElement { Value = x.Value, ParentItem = null, Queue = q });
-                            break;
-                        default:
-                            throw new Exception("Unknown option: " + x.Type);
-                    }
+                    if (x is Route.InputUrl)
+                        iis.Add(new Queue.InputUrl { Value = x.Value, ParentItem = null, Queue = q });
+                    else if (x is Route.InputElement)
+                        iis.Add(new Queue.InputElement { Value = x.Value, ParentItem = null, Queue = q });
+                    else
+                        throw new Exception("Unknown type: " + x.GetType());
                 }
 
                 List<Queue.OutputField> ofs = new List<Queue.OutputField>();

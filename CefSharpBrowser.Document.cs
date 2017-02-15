@@ -69,7 +69,7 @@ for(var i = 0; i < es.length; i++){
             //document.__highlightedElementOnHover.style.outline = '';
             document.__highlightedElementOnHover.style.backgroundColor = '';
         }   
-        event.target.style.backgroundColor = '#f40';
+        event.target.style.backgroundColor = '#f70';
         //event.target.style.outline = 'dotted';
         //event.target.style.backgroundColor = 'invert';
         document.__highlightedElementOnHover = event.target;
