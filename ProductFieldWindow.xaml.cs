@@ -79,7 +79,7 @@ namespace Cliver.CefSharpController
         Dictionary<string, object> get_attributes(string xpath)
         {
             var ans2av = (Dictionary<string, object>)MainWindow.This.Browser.ExecuteJavaScript(
-                CefSharpBrowser.Define_getElementsByXPath()
+                CefSharpBrowser.Define__getElementsByXPath()
                 + @"
             var es =  document.__getElementsByXPath('" + xpath + @"');
 if(es.length > 1)

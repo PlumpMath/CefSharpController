@@ -224,7 +224,7 @@ namespace Cliver.CefSharpController
             List<string> get_links(string xpath)
             {
                 var os = (List<object>)MainWindow.This.Browser.ExecuteJavaScript(
-                    CefSharpBrowser.Define_getElementsByXPath() + @"
+                    CefSharpBrowser.Define__getElementsByXPath() + @"
 var es =  document.__getElementsByXPath('" + xpath + @"');
 var ls = [];
 for(var i = 0; i < es.length; i++){
@@ -256,8 +256,8 @@ return ls;
             List<string> get_xpaths(string xpath)
             {
                 var os = (List<object>)MainWindow.This.Browser.ExecuteJavaScript(
-                    CefSharpBrowser.Define_getElementsByXPath() + 
-                    CefSharpBrowser.Define_createXPathForElement() + @"
+                    CefSharpBrowser.Define__getElementsByXPath() + 
+                    CefSharpBrowser.Define__createXPathForElement() + @"
 var es =  document.__getElementsByXPath('" + xpath + @"');
 var xs = [];
 for(var i = 0; i < es.length; i++){
@@ -284,7 +284,7 @@ return xs;
             //            int get_elements(string xpath)
             //            {
             //                return (int)MainWindow.This.Browser.ExecuteJavaScript(
-            //                    CefSharpBrowser.Define_getElementsByXPath() + @"
+            //                    CefSharpBrowser.Define__getElementsByXPath() + @"
             //document.__elementCollection =  document.__getElementsByXPath('" + xpath + @"');
             //return document.__elementCollection.length;
             //            ");
@@ -293,7 +293,7 @@ return xs;
             string get_value(string xpath, string attribute)
             {
                 return (string)MainWindow.This.Browser.ExecuteJavaScript(
-                    CefSharpBrowser.Define_getElementsByXPath() + @"
+                    CefSharpBrowser.Define__getElementsByXPath() + @"
 var es =  document.__getElementsByXPath('" + xpath + @"');
 var vs = '';
 for(var i = 0; i < es.length; i++){    

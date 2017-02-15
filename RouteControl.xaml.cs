@@ -33,12 +33,12 @@ namespace Cliver.CefSharpController
                 {
                     case RouteType.DATA_SEPARATED_FROM_LIST:
                         MainWindow.This.Browser.HighlightElements(xpath);
-                        if (step.SelectedIndex == 1)
+                        if (step.SelectedIndex == 0)
                         {
                             route.SetOutputUrlCollection("Start", new Route.UrlCollection { Queue = "ListNextPage", Xpath = xpath });
                             route.SetOutputUrlCollection("ListNextPage", new Route.UrlCollection { Queue = "ListNextPage", Xpath = xpath });
                         }
-                        else if (step.SelectedIndex == 2)
+                        else if (step.SelectedIndex == 1)
                         {//SetProductPages
                             string x = find_product_links_xpath(xpath);
                             route.SetOutputUrlCollection("Start", new Route.UrlCollection { Queue = "Product0", Xpath = x });
@@ -63,12 +63,12 @@ namespace Cliver.CefSharpController
                         break;
                     case RouteType.DATA_IS_IN_LIST:
                         MainWindow.This.Browser.HighlightElements(xpath);
-                        if (step.SelectedIndex == 1)
+                        if (step.SelectedIndex == 0)
                         {
                             route.SetOutputUrlCollection("Start", new Route.UrlCollection { Queue = "ListNextPage", Xpath = xpath });
                             route.SetOutputUrlCollection("ListNextPage", new Route.UrlCollection { Queue = "ListNextPage", Xpath = xpath });
                         }
-                        else if (step.SelectedIndex == 2)
+                        else if (step.SelectedIndex == 1)
                         {//SetProductBlocks
                             string x = find_product_blocks_xpath(xpath);
                             route.SetOutputElementCollection("Start", new Route.ElementCollection { Queue = "Product0", Xpath = x });
@@ -172,10 +172,12 @@ namespace Cliver.CefSharpController
                 switch (route_type)
                 {
                     case RouteType.DATA_SEPARATED_FROM_LIST:
-                            listen_clicks();
+                        MainWindow.This.Browser.HighlightElementsOnHover();
+                        listen_clicks();
                         break;
                     case RouteType.DATA_IS_IN_LIST:
-                            listen_clicks();
+                        MainWindow.This.Browser.HighlightElementsOnHover();
+                        listen_clicks();
                         break;
                     default:
                         throw new Exception("No such option: " + route_type);
@@ -198,8 +200,8 @@ namespace Cliver.CefSharpController
         void listen_clicks()
         {
             MainWindow.This.Browser.ExecuteJavaScript(
-                CefSharpBrowser.Define_getElementsByXPath()
-                + CefSharpBrowser.Define_createXPathForElement() + @"
+                CefSharpBrowser.Define__getElementsByXPath()
+                + CefSharpBrowser.Define__createXPathForElement() + @"
 if(!document.__onClick){
             function __onClick(event){
                 try{

@@ -22,14 +22,25 @@ namespace Cliver.CefSharpController
         public StartWindow()
         {
             InitializeComponent();
-            
-            StartUrl.Text = "http://boston.craigslist.org/search/ata";
 
             ok.Click += delegate
               {
                   DialogResult = true;
                   Close();
               };
+
+            RouteType.SelectionChanged += delegate
+            {
+                switch (RouteType.SelectedIndex)
+                {
+                    case 0:
+                        StartUrl.Text = "http://boston.craigslist.org/search/ata";
+                        break;
+                    case 1:
+                        StartUrl.Text = "https://www.google.com/search?q=js+get+all+elements";
+                        break;
+                }
+            };
         }
     }
 }

@@ -49,7 +49,39 @@ namespace Cliver.CefSharpController
             ");
         }
 
-        public static string Define_getElementsByXPath()
+        public void HighlightElementsOnHover()
+        {
+            ExecuteJavaScript(@"
+if(document.__highlightElementsOnHover)
+    return;
+
+//var style = document.createElement('style');
+//style.type = 'text/css';
+////style.innerHTML = '*:hover { background-color: #F00 !important; }';
+//style.innerHTML = ':hover { outline: dotted #F00 !important; }';
+//document.getElementsByTagName('head')[0].appendChild(style);
+//document.__highlightElementsOnHover = style;
+
+var es = document.body.getElementsByTagName('*');
+for(var i = 0; i < es.length; i++){
+    es[i].addEventListener('mouseover', function( event ) {
+        if(document.__highlightedElementOnHover){
+            //document.__highlightedElementOnHover.style.outline = '';
+            document.__highlightedElementOnHover.style.backgroundColor = '';
+        }   
+        event.target.style.backgroundColor = '#f40';
+        //event.target.style.outline = 'dotted';
+        //event.target.style.backgroundColor = 'invert';
+        document.__highlightedElementOnHover = event.target;
+    }, false);
+    //es[i].addEventListener('mouseleave', function( event ) { 
+    //    event.target.style.outline = '';
+    //}, false);
+}
+            ");
+        }
+
+        public static string Define__getElementsByXPath()
         {
             return @"
 if(!document.__getElementsByXPath){
@@ -66,7 +98,7 @@ if(!document.__getElementsByXPath){
             ";
         }
 
-        public static string Define_createXPathForElement()
+        public static string Define__createXPathForElement()
         {
             return @"
 if(!document.__createXPathForElement){
