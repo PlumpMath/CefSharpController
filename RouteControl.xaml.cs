@@ -35,19 +35,19 @@ namespace Cliver.CefSharpController
                         MainWindow.This.Browser.HighlightElements(xpath);
                         if (step.SelectedIndex == 0)
                         {
-                            route.SetOutputUrlCollection("Start", new Route.UrlCollection { Queue = "ListNextPage", Xpath = xpath });
-                            route.SetOutputUrlCollection("ListNextPage", new Route.UrlCollection { Queue = "ListNextPage", Xpath = xpath });
+                            route.SetOutputUrlCollection("Start", new Route.OutputUrlCollection { Queue = "ListNextPage", Xpath = xpath });
+                            route.SetOutputUrlCollection("ListNextPage", new Route.OutputUrlCollection { Queue = "ListNextPage", Xpath = xpath });
                         }
                         else if (step.SelectedIndex == 1)
                         {//SetProductPages
                             string x = find_product_links_xpath(xpath);
-                            route.SetOutputUrlCollection("Start", new Route.UrlCollection { Queue = "Product0", Xpath = x });
-                            route.SetOutputUrlCollection("ListNextPage", new Route.UrlCollection { Queue = "Product0", Xpath = x });
+                            route.SetOutputUrlCollection("Start", new Route.OutputUrlCollection { Queue = "Product0", Xpath = x });
+                            route.SetOutputUrlCollection("ListNextPage", new Route.OutputUrlCollection { Queue = "Product0", Xpath = x });
                             MainWindow.This.Browser.HighlightElements(x);
                         }
                         else if (step.SelectedIndex == step.Items.Count - 1)
                         {
-                            route.SetOutputUrlCollection("Product" + (step.SelectedIndex - 5), new Route.UrlCollection { Queue = "Product" + (step.SelectedIndex - 4), Xpath = xpath });
+                            route.SetOutputUrlCollection("Product" + (step.SelectedIndex - 5), new Route.OutputUrlCollection { Queue = "Product" + (step.SelectedIndex - 4), Xpath = xpath });
                         }
                         else
                         {//SetProduct
@@ -56,7 +56,7 @@ namespace Cliver.CefSharpController
                             {
                                 foreach (dynamic o in w.Attributes.Items)
                                     if (o.Get == true)
-                                        route.SetOutputField("Product" + (step.SelectedIndex - 3), new Route.Field { Name = w.Name.Text + "." + o.Attribute, Xpath = xpath, Attribute = o.Attribute });
+                                        route.SetOutputField("Product" + (step.SelectedIndex - 3), new Route.OutputField { Name = w.Name.Text + "." + o.Attribute, Xpath = xpath, Attribute = o.Attribute });
                             }
                         }
                         xml.Text = route.Xml;
@@ -65,14 +65,14 @@ namespace Cliver.CefSharpController
                         MainWindow.This.Browser.HighlightElements(xpath);
                         if (step.SelectedIndex == 0)
                         {
-                            route.SetOutputUrlCollection("Start", new Route.UrlCollection { Queue = "ListNextPage", Xpath = xpath });
-                            route.SetOutputUrlCollection("ListNextPage", new Route.UrlCollection { Queue = "ListNextPage", Xpath = xpath });
+                            route.SetOutputUrlCollection("Start", new Route.OutputUrlCollection { Queue = "ListNextPage", Xpath = xpath });
+                            route.SetOutputUrlCollection("ListNextPage", new Route.OutputUrlCollection { Queue = "ListNextPage", Xpath = xpath });
                         }
                         else if (step.SelectedIndex == 1)
                         {//SetProductBlocks
                             string x = find_product_blocks_xpath(xpath);
-                            route.SetOutputElementCollection("Start", new Route.ElementCollection { Queue = "Product0", Xpath = x });
-                            route.SetOutputElementCollection("ListNextPage", new Route.ElementCollection { Queue = "Product0", Xpath = x });
+                            route.SetOutputElementCollection("Start", new Route.OutputElementCollection { Queue = "Product0", Xpath = x });
+                            route.SetOutputElementCollection("ListNextPage", new Route.OutputElementCollection { Queue = "Product0", Xpath = x });
                             MainWindow.This.Browser.HighlightElements(x);
                             base_xpath = xpath;
                         }
@@ -83,7 +83,7 @@ namespace Cliver.CefSharpController
                             {
                                 foreach (dynamic o in w.Attributes.Items)
                                     if (o.Get == true)
-                                        route.SetOutputField("Product0", new Route.Field { Name = w.Name.Text + "." + o.Attribute, Xpath = xpath.Substring(base_xpath.Length, xpath.Length - base_xpath.Length), Attribute = o.Attribute });
+                                        route.SetOutputField("Product0", new Route.OutputField { Name = w.Name.Text + "." + o.Attribute, Xpath = xpath.Substring(base_xpath.Length, xpath.Length - base_xpath.Length), Attribute = o.Attribute });
                             }
                         }
                         xml.Text = route.Xml;
@@ -131,7 +131,7 @@ namespace Cliver.CefSharpController
                     string[] urls = d.StartUrl.Text.Split('\n');
                     foreach (string url in urls)
                     {
-                        route.AddInputItem("Start", new Route.Item { Value = url.Trim(), Type = Route.Item.Types.Url });
+                        route.AddInputItem("Start", new Route.InputItem { Value = url.Trim(), Type = Route.InputItem.Types.Url });
                         xml.Text = route.Xml;
                     }
                     MainWindow.This.Browser.Load(urls[0], false);

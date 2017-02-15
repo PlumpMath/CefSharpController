@@ -30,39 +30,51 @@ namespace Cliver.CefSharpController
             {
                 Queue q = new Queue();
 
-                List<Queue.Item> li = new List<Queue.Item>();
-                foreach (Route.Item x in rq.Items)
-                    li.Add(new Queue.Item { Value = x.Value, Type = x.Type, ParentItem = null, Queue = q });
+                List<Queue.InputItem> iis = new List<Queue.InputItem>();
+                foreach (Route.InputItem x in rq.InputItems)
+                {
+                    switch (x.Type)
+                    {
+                        case Route.InputItem.Types.Url:
+                            iis.Add(new Queue.InputUrl { Value = x.Value, ParentItem = null, Queue = q });
+                            break;
+                        case Route.InputItem.Types.Element:
+                            iis.Add(new Queue.InputElement { Value = x.Value, ParentItem = null, Queue = q });
+                            break;
+                        default:
+                            throw new Exception("Unknown option: " + x.Type);
+                    }
+                }
 
-                List<Queue.Field> fs = new List<Queue.Field>();
-                foreach (Route.Field x in rq.Fields)
-                    fs.Add(new Queue.Field { Name = x.Name, Xpath = x.Xpath, Attribute = x.Attribute });
+                List<Queue.OutputField> ofs = new List<Queue.OutputField>();
+                foreach (Route.OutputField x in rq.OutputFields)
+                    ofs.Add(new Queue.OutputField { Name = x.Name, Xpath = x.Xpath, Attribute = x.Attribute });
 
                 q.Name = rq.Name;
-                q.Items = li;
-                q.Fields = fs;
+                q.InputItems = iis;
+                q.OutputFields = ofs;
                 queues.Add(q);
             }
             foreach (Route.Queue rq in rqs)
             {
-                List<Queue.UrlCollection> ucs = new List<Queue.UrlCollection>();
-                foreach (Route.UrlCollection x in rq.UrlCollections)
-                    ucs.Add(new Queue.UrlCollection { Queue = queues.Where(z => z.Name == x.Queue).First(), Xpath = x.Xpath });
+                List<Queue.OutputUrlCollection> ucs = new List<Queue.OutputUrlCollection>();
+                foreach (Route.OutputUrlCollection x in rq.OutputUrlCollections)
+                    ucs.Add(new Queue.OutputUrlCollection { Queue = queues.Where(z => z.Name == x.Queue).First(), Xpath = x.Xpath });
 
-                List<Queue.ElementCollection> ecs = new List<Queue.ElementCollection>();
-                foreach (Route.ElementCollection x in rq.ElementCollections)
-                    ecs.Add(new Queue.ElementCollection { Queue = queues.Where(z => z.Name == x.Queue).First(), Xpath = x.Xpath });
+                List<Queue.OutputElementCollection> ecs = new List<Queue.OutputElementCollection>();
+                foreach (Route.OutputElementCollection x in rq.OutputElementCollections)
+                    ecs.Add(new Queue.OutputElementCollection { Queue = queues.Where(z => z.Name == x.Queue).First(), Xpath = x.Xpath });
 
                 Queue q = queues.Where(z => z.Name == rq.Name).First();
-                q.UrlCollections = ucs;
-                q.ElementCollections = ecs;
+                q.OutputUrlCollections = ucs;
+                q.OutputElementCollections = ecs;
             }
             queues.Reverse();
 
             tw = new StreamWriter(Log.MainSession.Path + "\\output_" + route.Name + ".csv");
             List<string> hs = new List<string>();
             foreach (Queue q in queues)
-                hs.InsertRange(0, q.Fields.Select(f => f.Name));
+                hs.InsertRange(0, q.OutputFields.Select(f => f.Name));
             hs.Insert(0, "Url");
             tw.WriteLine(FieldPreparation.GetCsvLine(hs, FieldPreparation.FieldSeparator.COMMA));
         }
@@ -115,19 +127,19 @@ namespace Cliver.CefSharpController
             run = true;
             while (run)
             {
-                var i = get_next_item();
-                if (i == null)
+                var ii = get_next_item();
+                if (ii == null)
                     return;
-                i.Queue.ProcessItem(i);
-                if (i.Queue == queues[0])
+                ii.Queue.ProcessItem(ii);
+                if (ii.Queue == queues[0])
                 {
                     List<string> vs = new List<string>();
                     string url = null;
-                    for (; i != null; i = i.ParentItem)
+                    for (; ii != null; ii = ii.ParentItem)
                     {
-                        vs.InsertRange(0, i.OutputValues);
-                        if (i.Type == Route.Item.Types.Url)
-                            url = i.Value;
+                        vs.InsertRange(0, ii.OutputValues);
+                        if (url == null && ii is Queue.InputUrl)
+                            url = ii.Value;
                     }
                     vs.Insert(0, url);
                     tw.WriteLine(FieldPreparation.GetCsvLine(vs, FieldPreparation.FieldSeparator.COMMA, true));
@@ -137,14 +149,14 @@ namespace Cliver.CefSharpController
         }
         bool run = false;
 
-        Queue.Item get_next_item()
+        Queue.InputItem get_next_item()
         {
             foreach (Queue q in queues)
             {
-                if (q.Items.Count > 0)
+                if (q.InputItems.Count > 0)
                 {
-                    var i = q.Items[0];
-                    q.Items.Remove(i);
+                    var i = q.InputItems[0];
+                    q.InputItems.Remove(i);
                     return i;
                 }
             }
@@ -156,72 +168,79 @@ namespace Cliver.CefSharpController
         {
             public string Name;
 
-            public class Item
+            public abstract class InputItem
             {
                 public string Value;
-                public Route.Item.Types Type;
                 public Queue Queue;
-                public Item ParentItem = null;
+                public InputItem ParentItem = null;
                 public List<string> OutputValues = new List<string>();
             }
 
-            public class UrlCollection
+            public class InputUrl : InputItem
+            {
+            }
+
+            public class InputElement : InputItem
+            {
+            }
+
+            public class OutputUrlCollection
             {
                 public string Xpath;
                 public Queue Queue;
             }
 
-            public class ElementCollection
+            public class OutputElementCollection
             {
                 public string Xpath;
                 public Queue Queue;
             }
 
-            public class Field
+            public class OutputField
             {
                 public string Name;
                 public string Xpath;
                 public string Attribute;
             }
 
-            public List<Item> Items = new List<Item>();
-            public List<UrlCollection> UrlCollections = new List<UrlCollection>();
-            public List<ElementCollection> ElementCollections = new List<ElementCollection>();
-            public List<Field> Fields = new List<Field>();
+            public List<InputItem> InputItems = new List<InputItem>();
+            public List<OutputUrlCollection> OutputUrlCollections = new List<OutputUrlCollection>();
+            public List<OutputElementCollection> OutputElementCollections = new List<OutputElementCollection>();
+            public List<OutputField> OutputFields = new List<OutputField>();
 
-            public void ProcessItem(Item item)
+            public void ProcessItem(InputItem ii)
             {
                 string base_xpath = "";
-                switch(item.Type)
+                if (ii is InputUrl)
                 {
-                    case Route.Item.Types.Url:
-                        MainWindow.This.Browser.Load(item.Value, true);
-                        break;
-                    case Route.Item.Types.Element:
-                        base_xpath = item.Value;
-                        break;
-                    default:
-                        throw new Exception("Unknown type: " + item.Type);
+                    MainWindow.This.Browser.Load(ii.Value, true);
                 }
+                else if (ii is InputElement)
+                {
+                    base_xpath = ii.Value;
+                }
+                else
+                    throw new Exception("Unknown type: " + ii.GetType());
+                
                 string url = MainWindow.This.Browser.Url;
-                foreach (UrlCollection uc in UrlCollections)
+                foreach (OutputUrlCollection uc in OutputUrlCollections)
                 {
                     foreach (string l in get_links(base_xpath + uc.Xpath))
-                        uc.Queue.Items.Add(new Controller.Queue.Item { Type = Route.Item.Types.Url, Value = l, Queue = uc.Queue, ParentItem = item });
+                        uc.Queue.InputItems.Add(new Controller.Queue.InputUrl { Value = l, Queue = uc.Queue, ParentItem = ii });
                 }
 
-                foreach (ElementCollection ec in ElementCollections)
+                foreach (OutputElementCollection ec in OutputElementCollections)
                 {
                     //int el = get_elements(base_xpath + ec.Xpath);
                     //for (int i = 0; i < el; i++)
                     //ec.Queue.Items.Add(new Controller.Queue.Item { Type = Route.Item.Types.HTML_ELEMENT_KEY, Value = i.ToString(), Queue = ec.Queue, ParentItem = item });
                     foreach (string x in get_single_element_xpaths(base_xpath + ec.Xpath))
-                        ec.Queue.Items.Add(new Controller.Queue.Item { Type = Route.Item.Types.Element, Value = x, Queue = ec.Queue, ParentItem = item });
+                        ec.Queue.InputItems.Add(new Controller.Queue.InputElement { Value = x, Queue = ec.Queue, ParentItem = ii });
                 }
 
-                foreach (Field f in Fields)
+                foreach (OutputField f in OutputFields)
                 {
-                    item.OutputValues.Add(get_value(base_xpath + f.Xpath, f.Attribute));
+                    ii.OutputValues.Add(get_value(base_xpath + f.Xpath, f.Attribute));
                 }
             }
 
