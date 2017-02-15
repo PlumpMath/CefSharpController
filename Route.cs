@@ -51,7 +51,10 @@ namespace Cliver.CefSharpController
                 var xn = xd.SelectSingleNode("Route");
                 if (xn == null)
                     return null;
-                return xn.Attributes["name"].Value;
+                var n = xn.Attributes["name"];
+                if (n == null)
+                    return null;
+                return n.Value;
             }
             set
             {
@@ -279,9 +282,10 @@ namespace Cliver.CefSharpController
 
                 var q = new Queue
                 {
-                    Name= xq.Attributes["name"].Value,
+                    Name = xq.Attributes["name"].Value,
                     Fields = fs,
                     UrlCollections = ucs,
+                    ElementCollections = ecs,
                     Items = li
                 };
                 qs.Add(q);

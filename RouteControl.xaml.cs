@@ -25,7 +25,7 @@ namespace Cliver.CefSharpController
         /// must start with low-case!!!
         /// </summary>
         /// <param name="xpath"></param>
-        public void htmlElementClicked(string xpath)
+        public void htmlElementSelected(string xpath)
         {
             Application.Current.Dispatcher.Invoke((Action)(() =>
             {
@@ -202,24 +202,29 @@ namespace Cliver.CefSharpController
             MainWindow.This.Browser.ExecuteJavaScript(
                 CefSharpBrowser.Define__getElementsByXPath()
                 + CefSharpBrowser.Define__createXPathForElement() + @"
-if(!document.__onClick){
-            function __onClick(event){
-                try{
-                  if ( event.preventDefault ) event.preventDefault();
-                  if ( event.stopPropagation ) event.stopPropagation();
-                  event.returnValue = false;
-                  var targetElement = event.target || event.srcElement;
-                  var x = document.__createXPathForElement(targetElement);
-                  window.JsMapObject.htmlElementClicked(x);
-                }catch(err){
-                    alert(err.message);
-                }
-                return false;
-            };
-
-            document.__onClick = __onClick;
-            document.addEventListener('contextmenu', document.__onClick, false);
+if(document.__onElementSelected)
+    return;
+document.__onElementSelected = function(event){
+    try{
+        if ( event.preventDefault ) event.preventDefault();
+        if ( event.stopPropagation ) event.stopPropagation();
+        event.returnValue = false;
+        var target = event.target || event.srcElement;
+        if(document.__clickedElement == target)
+            document.__selectedElement = document.__selectedElement.parentNode;
+        else
+            document.__selectedElement = target;
+        document.__clickedElement = target;
+        var x = document.__createXPathForElement(document.__selectedElement);
+        window.JsMapObject.htmlElementSelected(x);
+    }catch(err){
+        alert(err.message);
+    }
+    return false;
 };
+
+document.addEventListener('contextmenu', document.__onElementSelected, false);
+     
 ");
         }
 

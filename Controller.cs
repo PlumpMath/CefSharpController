@@ -49,8 +49,13 @@ namespace Cliver.CefSharpController
                 foreach (Route.UrlCollection x in rq.UrlCollections)
                     ucs.Add(new Queue.UrlCollection { Queue = queues.Where(z => z.Name == x.Queue).First(), Xpath = x.Xpath });
 
+                List<Queue.ElementCollection> ecs = new List<Queue.ElementCollection>();
+                foreach (Route.ElementCollection x in rq.ElementCollections)
+                    ecs.Add(new Queue.ElementCollection { Queue = queues.Where(z => z.Name == x.Queue).First(), Xpath = x.Xpath });
+
                 Queue q = queues.Where(z => z.Name == rq.Name).First();
                 q.UrlCollections = ucs;
+                q.ElementCollections = ecs;
             }
             queues.Reverse();
 
@@ -118,12 +123,9 @@ namespace Cliver.CefSharpController
                     string url = null;
                     for (; i != null; i = i.ParentItem)
                     {
-                        if (i.OutputValues.Count > 0)
-                        {
-                            vs.InsertRange(0, i.OutputValues);
-                            if (i.Type == Route.Item.Types.URL)
-                                url = i.Value;
-                        }
+                        vs.InsertRange(0, i.OutputValues);
+                        if (i.Type == Route.Item.Types.URL)
+                            url = i.Value;
                     }
                     vs.Insert(0, url);
                     tw.WriteLine(FieldPreparation.GetCsvLine(vs, FieldPreparation.FieldSeparator.COMMA, true));
@@ -211,7 +213,7 @@ namespace Cliver.CefSharpController
                     //int el = get_elements(base_xpath + ec.Xpath);
                     //for (int i = 0; i < el; i++)
                     //ec.Queue.Items.Add(new Controller.Queue.Item { Type = Route.Item.Types.HTML_ELEMENT_KEY, Value = i.ToString(), Queue = ec.Queue, ParentItem = item });
-                    foreach (string x in get_xpaths(base_xpath + ec.Xpath))
+                    foreach (string x in get_single_element_xpaths(base_xpath + ec.Xpath))
                         ec.Queue.Items.Add(new Controller.Queue.Item { Type = Route.Item.Types.XPATH, Value = x, Queue = ec.Queue, ParentItem = item });
                 }
 
@@ -253,7 +255,7 @@ return ls;
                 return ls;
             }
 
-            List<string> get_xpaths(string xpath)
+            List<string> get_single_element_xpaths(string xpath)
             {
                 var os = (List<object>)MainWindow.This.Browser.ExecuteJavaScript(
                     CefSharpBrowser.Define__getElementsByXPath() + 
@@ -261,7 +263,7 @@ return ls;
 var es =  document.__getElementsByXPath('" + xpath + @"');
 var xs = [];
 for(var i = 0; i < es.length; i++){
-    xs.push(document.__createXPathForElement(es[i]);
+    xs.push(document.__createXPathForElement(es[i]));
 }
 return xs;
             ");

@@ -18,7 +18,7 @@
             <Button Name="save">Save</Button>
             <Button Name="run">Run</Button>
             <Label Height="auto" Width="auto" >Xml:</Label>
-            <TextBox Name="xml" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Height="auto" ScrollViewer.VerticalScrollBarVisibility="Auto"  MinHeight="227" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></TextBox>
+            <TextBox Name="xml" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" MaxHeight="700" Height="auto" MinHeight="227" HorizontalAlignment="Stretch"></TextBox>
            </StackPanel>
     </Grid>
 </UserControl>
