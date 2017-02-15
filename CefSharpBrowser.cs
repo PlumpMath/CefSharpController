@@ -7,6 +7,7 @@ using CefSharp;
 using CefSharp.Wpf;
 using System.Windows;
 using System.Windows.Threading;
+using System.Threading;
 
 namespace Cliver.CefSharpController
 {
@@ -60,12 +61,11 @@ namespace Cliver.CefSharpController
 
         public void WaitForCompletion()
         {
-            browser.Dispatcher.Invoke(() =>
+            while (!completed)
             {
-                while (!completed || browser.IsLoading)
-                    DoEvents();
-                //Thread.Sleep(100);
-            });
+                DoEvents();
+                Thread.Sleep(50);
+            };
         }
 
         public void Stop()

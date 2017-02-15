@@ -11,8 +11,8 @@
             <DataGrid CanUserAddRows="False" x:FieldModifier="public" AutoGenerateColumns="False" Height="auto" HorizontalAlignment="Left" Name="Attributes" VerticalAlignment="Top" Width="auto">
                 <DataGrid.Columns >
                     <DataGridCheckBoxColumn Header="Get" Binding="{Binding Get}" MinWidth="50"/>
-                    <DataGridTextColumn Header="Attribute" Binding="{Binding Attribute}" MinWidth="50" />
-                    <DataGridTextColumn Header="Value" Binding="{Binding Value}" MinWidth="50" />
+                    <DataGridTextColumn IsReadOnly="True"  Header="Attribute" Binding="{Binding Attribute}" MinWidth="50" />
+                    <DataGridTextColumn IsReadOnly="True"  Header="Value" Binding="{Binding Value}" MinWidth="50" />
                 </DataGrid.Columns>
             </DataGrid>
             <Grid>

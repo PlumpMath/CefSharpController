@@ -39,12 +39,24 @@ namespace Cliver.CefSharpController
 
             Attributes.SelectionChanged += (o, e) =>
             {
-               // this.Dispatcher.
-                e.Handled = true;
-                Attributes.UnselectAll();
+                //((Item)Attributes.Items[Attributes.SelectedIndex]).Get = !((Item)Attributes.Items[Attributes.SelectedIndex]).Get;
+                //this.Dispatcher.
+                //e.Handled = true;
+                //Attributes.UnselectAll();
             };
 
+            Attributes.MouseLeftButtonUp += Attributes_MouseLeftButtonUp;
+
             Xpath.Text = xpath;
+        }
+
+        private void Attributes_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            DataGridRow row = ItemsControl.ContainerFromElement((DataGrid)sender, e.OriginalSource as DependencyObject) as DataGridRow;
+            if (row == null)
+                return;
+            ((Item)row.Item).Get = !((Item)row.Item).Get;
+            Attributes.Items.Refresh();
         }
 
         readonly List<Item> items = new List<Item>();
