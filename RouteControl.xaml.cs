@@ -47,7 +47,8 @@ namespace Cliver.CefSharpController
                         }
                         else if (step.SelectedIndex == step.Items.Count - 1)
                         {
-                            route.SetOutputUrlCollection("Product" + (step.SelectedIndex - 5), new Route.OutputUrlCollection { Queue = "Product" + (step.SelectedIndex - 4), Xpath = xpath });
+                            route.SetOutputUrlCollection("Product" + (step.Items.Count - 4), new Route.OutputUrlCollection { Queue = "Product" + (step.Items.Count - 3), Xpath = xpath });
+                            step.Items.Insert(step.Items.Count - 1, "SetProduct" + (step.Items.Count - 3));
                         }
                         else
                         {//SetProduct
@@ -56,7 +57,7 @@ namespace Cliver.CefSharpController
                             {
                                 foreach (dynamic o in w.Attributes.Items)
                                     if (o.Get == true)
-                                        route.SetOutputField("Product" + (step.SelectedIndex - 3), new Route.OutputField { Name = w.Name.Text + "." + o.Attribute, Xpath = xpath, Attribute = o.Attribute });
+                                        route.SetOutputField("Product" + (step.SelectedIndex - 2), new Route.OutputField { Name = w.Name.Text + "." + o.Attribute, Xpath = xpath, Attribute = o.Attribute });
                             }
                         }
                         xml.Text = route.Xml;
@@ -131,7 +132,7 @@ namespace Cliver.CefSharpController
                     string[] urls = d.StartUrl.Text.Split('\n');
                     foreach (string url in urls)
                     {
-                        route.AddInputItem("Start", new Route.InputItem { Value = url.Trim(), Type = Route.InputItem.Types.Url });
+                        route.AddInputItem("Start", new Route.InputUrl { Value = url.Trim() });
                         xml.Text = route.Xml;
                     }
                     MainWindow.This.Browser.Load(urls[0], false);
@@ -173,7 +174,7 @@ namespace Cliver.CefSharpController
                 {
                     case RouteType.DATA_SEPARATED_FROM_LIST:
                         MainWindow.This.Browser.HighlightElementsOnHover();
-                        listen_clicks();
+                        listen_clicks();                        
                         break;
                     case RouteType.DATA_IS_IN_LIST:
                         MainWindow.This.Browser.HighlightElementsOnHover();
