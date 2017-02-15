@@ -130,11 +130,16 @@ namespace Cliver.CefSharpController
                 {
                     List<string> vs = new List<string>();
                     string url = null;
-                    for (; ii != null; ii = ii.ParentItem)
+                    while (ii != null)
                     {
                         vs.InsertRange(0, ii.OutputValues);
-                        if (url == null && ii is Queue.InputUrl)
+                        if (ii is Queue.InputUrl && ii.OutputValues.Count > 0)
                             url = ii.Value;
+                        if (ii.ParentItem == null)
+                            break;
+                        if (queues.IndexOf(ii.Queue) >= queues.IndexOf(ii.ParentItem.Queue))
+                            break;
+                        ii = ii.ParentItem;
                     }
                     vs.Insert(0, url);
                     tw.WriteLine(FieldPreparation.GetCsvLine(vs, FieldPreparation.FieldSeparator.COMMA, true));
