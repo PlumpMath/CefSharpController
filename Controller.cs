@@ -85,6 +85,8 @@ namespace Cliver.CefSharpController
                 c.run = false;
             if (t != null && t.IsAlive)
                 t.Abort();
+            if (c.tw != null)
+                c.tw.Close();
             c = null;
             MainWindow.This.Browser.Stop();
         }
@@ -124,7 +126,7 @@ namespace Cliver.CefSharpController
                     for (; i != null; i = i.ParentItem)
                     {
                         vs.InsertRange(0, i.OutputValues);
-                        if (i.Type == Route.Item.Types.URL)
+                        if (i.Type == Route.Item.Types.Url)
                             url = i.Value;
                     }
                     vs.Insert(0, url);
@@ -192,10 +194,10 @@ namespace Cliver.CefSharpController
                 string base_xpath = "";
                 switch(item.Type)
                 {
-                    case Route.Item.Types.URL:
+                    case Route.Item.Types.Url:
                         MainWindow.This.Browser.Load(item.Value, true);
                         break;
-                    case Route.Item.Types.XPATH:
+                    case Route.Item.Types.Element:
                         base_xpath = item.Value;
                         break;
                     default:
@@ -205,7 +207,7 @@ namespace Cliver.CefSharpController
                 foreach (UrlCollection uc in UrlCollections)
                 {
                     foreach (string l in get_links(base_xpath + uc.Xpath))
-                        uc.Queue.Items.Add(new Controller.Queue.Item { Type = Route.Item.Types.URL, Value = l, Queue = uc.Queue, ParentItem = item });
+                        uc.Queue.Items.Add(new Controller.Queue.Item { Type = Route.Item.Types.Url, Value = l, Queue = uc.Queue, ParentItem = item });
                 }
 
                 foreach (ElementCollection ec in ElementCollections)
@@ -214,7 +216,7 @@ namespace Cliver.CefSharpController
                     //for (int i = 0; i < el; i++)
                     //ec.Queue.Items.Add(new Controller.Queue.Item { Type = Route.Item.Types.HTML_ELEMENT_KEY, Value = i.ToString(), Queue = ec.Queue, ParentItem = item });
                     foreach (string x in get_single_element_xpaths(base_xpath + ec.Xpath))
-                        ec.Queue.Items.Add(new Controller.Queue.Item { Type = Route.Item.Types.XPATH, Value = x, Queue = ec.Queue, ParentItem = item });
+                        ec.Queue.Items.Add(new Controller.Queue.Item { Type = Route.Item.Types.Element, Value = x, Queue = ec.Queue, ParentItem = item });
                 }
 
                 foreach (Field f in Fields)

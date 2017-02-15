@@ -171,18 +171,14 @@ namespace Cliver.CefSharpController
         public void AddInputItem(string queue_name, Item item)
         {
             XmlNode xin = get_input_node(queue_name);
-            //XmlNode xq = xd.SelectSingleNode("Item[@name='" + queue_name + "']");
-            XmlNode xi = xd.CreateElement("Item");
+            if (item.Type == Item.Types.NULL)
+                throw new Exception("Type is empty");
+            XmlNode xi = xd.CreateElement(item.Type.ToString());
             xin.AppendChild(xi);
             XmlAttribute a = xd.CreateAttribute("value");
             if (string.IsNullOrEmpty(item.Value))
                 throw new Exception("Value is empty");
             a.Value = item.Value;
-            xi.Attributes.Append(a);
-            a = xd.CreateAttribute("type");
-            if (item.Type == Item.Types.NULL)
-                throw new Exception("Type is empty");
-            a.Value = item.Type.ToString();
             xi.Attributes.Append(a);
         }
 
@@ -194,9 +190,8 @@ namespace Cliver.CefSharpController
             public enum Types
             {
                 NULL,
-                URL,
-                //HTML_ELEMENT_KEY,
-                XPATH
+                Url,
+                Element
             }
         }
 
@@ -262,8 +257,8 @@ namespace Cliver.CefSharpController
                 XmlNode xi = xq.SelectSingleNode("Input");
                 if (xi != null)
                 {
-                    foreach (XmlNode x in xi.SelectNodes("Item"))
-                        li.Add(new Item { Value = x.Attributes["value"].Value, Type = (Item.Types)Enum.Parse(typeof(Item.Types), x.Attributes["type"].Value) });
+                    foreach (XmlNode x in xi.SelectNodes("*"))
+                        li.Add(new Item { Value = x.Attributes["value"].Value, Type = (Item.Types)Enum.Parse(typeof(Item.Types), x.Name) });
                 }
 
                 XmlNode xo = xq.SelectSingleNode("Output");
@@ -300,8 +295,7 @@ namespace Cliver.CefSharpController
 <Route name="test.xml">
     <Queue name="Start">
         <Input>
-            <Item value=""/>//can be url
-            <Item value=""/>
+            <Url value=""/>
         </Input>
         <Output>
             <UrlCollection xpath="/html/body/section/form/div[3]/div[3]/span[2]/a[3]" queue="NextPageList"/>
@@ -333,8 +327,8 @@ namespace Cliver.CefSharpController
 <Route name="test.xml">
     <Queue name="Start">
         <Input>
-            <Item value=""/>
-            <Item value=""/>
+            <Url value=""/>
+            <Element value=""/>
         </Input>
         <Output>
             <UrlCollection xpath="/html/body/section/form/div[3]/div[3]/span[2]/a[3]" queue="NextPageList"/>

@@ -131,7 +131,7 @@ namespace Cliver.CefSharpController
                     string[] urls = d.StartUrl.Text.Split('\n');
                     foreach (string url in urls)
                     {
-                        route.AddInputItem("Start", new Route.Item { Value = url.Trim(), Type = Route.Item.Types.URL });
+                        route.AddInputItem("Start", new Route.Item { Value = url.Trim(), Type = Route.Item.Types.Url });
                         xml.Text = route.Xml;
                     }
                     MainWindow.This.Browser.Load(urls[0], false);
