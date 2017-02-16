@@ -105,8 +105,8 @@ for (var i = 0; i < as.length; i++) {
     var c = as[i].value;
     if(as[i].name == 'class'){
         c = c.replace(/\b__highlight\b/,'').trim();
-        //if(!c.trim())
-        //    continue;
+        if(!c)
+            continue;
     }
     ans2av[as[i].name] = c;
 }
