@@ -120,6 +120,7 @@ namespace Cliver.CefSharpController
         void Start()
         {
             run = true;
+
             while (run)
             {
                 var ii = get_next_item();
@@ -130,16 +131,17 @@ namespace Cliver.CefSharpController
                 {
                     List<string> vs = new List<string>();
                     string url = null;
-                    while (ii != null)
+                    for (; ii != null; ii = ii.ParentItem)
                     {
                         vs.InsertRange(0, ii.OutputValues);
-                        if (ii is Queue.InputUrl && ii.OutputValues.Count > 0)
+                        if (ii is Queue.InputUrl
+                            && (url == null || ii.OutputValues.Count > 0)
+                            )
                             url = ii.Value;
                         if (ii.ParentItem == null)
                             break;
                         if (queues.IndexOf(ii.Queue) >= queues.IndexOf(ii.ParentItem.Queue))
                             break;
-                        ii = ii.ParentItem;
                     }
                     vs.Insert(0, url);
                     tw.WriteLine(FieldPreparation.GetCsvLine(vs, FieldPreparation.FieldSeparator.COMMA, true));
@@ -294,12 +296,6 @@ return xs;
                 {
                     for (int i = 0; i < os.Count; i++)
                         xs.Add((string)os[i]);
-                }
-
-                if (xs.Count > 3)
-                {
-                    Log.Warning("While debugging only first 3 xpaths are taken of actual " + xs.Count);
-                    xs.RemoveRange(3, xs.Count - 3);
                 }
                 return xs;
             }

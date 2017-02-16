@@ -57,7 +57,7 @@ namespace Cliver.CefSharpController
                             {
                                 foreach (dynamic o in w.Attributes.Items)
                                     if (o.Get == true)
-                                        route.SetOutputField("Product" + (step.SelectedIndex - 2), new Route.OutputField { Name = w.Name.Text, Xpath = xpath, Attribute = o.Attribute });
+                                        route.SetOutputField("Product" + (step.SelectedIndex - 2), new Route.OutputField { Name = w.Name.Text + "." + o.Attribute, Xpath = xpath, Attribute = o.Attribute });
                             }
                         }
                         xml.Text = route.Xml;
@@ -84,7 +84,7 @@ namespace Cliver.CefSharpController
                             {
                                 foreach (dynamic o in w.Attributes.Items)
                                     if (o.Get == true)
-                                        route.SetOutputField("Product0", new Route.OutputField { Name = w.Name.Text, Xpath = xpath.Substring(base_xpath.Length, xpath.Length - base_xpath.Length), Attribute = o.Attribute });
+                                        route.SetOutputField("Product0", new Route.OutputField { Name = w.Name.Text + "." + o.Attribute, Xpath = xpath.Substring(base_xpath.Length, xpath.Length - base_xpath.Length), Attribute = o.Attribute });
                             }
                         }
                         xml.Text = route.Xml;

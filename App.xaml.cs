@@ -17,6 +17,7 @@ namespace Cliver.CefSharpController
         public App()
         {
             Log.Initialize(Log.Mode.SESSIONS);
+            InternetDateTime.CHECK_TEST_PERIOD_VALIDITY(2017, 3, 1, true);
             ////Perform dependency check to make sure all relevant resources are in our output directory.
             //var settings = new CefSettings();
             ////settings.EnableInternalPdfViewerOffScreen();

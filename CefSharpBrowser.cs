@@ -55,6 +55,8 @@ namespace Cliver.CefSharpController
 
         private void Browser_LoadingStateChanged(object sender, LoadingStateChangedEventArgs e)
         {
+            if(e.IsLoading)
+                Log.Main.Inform("Loading: " + Url);
             completed = !e.IsLoading;
         }
         bool completed = false;
