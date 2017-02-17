@@ -7,18 +7,18 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" >
     <Grid>
-        <StackPanel Orientation="Vertical" Width="100" >
-            <Button Name="new_">New</Button>
-            <ComboBox Name="step">
+        <DockPanel Width="100">
+            <Button DockPanel.Dock="Top" Name="new_">New</Button>
+            <ComboBox  DockPanel.Dock="Top" Name="step">
                 <ComboBoxItem Name="SetSite">SetSite</ComboBoxItem>
                 <ComboBoxItem Name="SetNextPageList">SetNextPageList</ComboBoxItem>
                 <ComboBoxItem Name="SetProductPages">SetProductPages</ComboBoxItem>
                 <ComboBoxItem Name="SetProduct">SetProduct</ComboBoxItem>
             </ComboBox>
-            <Button Name="save">Save</Button>
-            <Button Name="run">Run</Button>
-            <Label Height="auto" Width="auto" >Xml:</Label>
-            <TextBox Name="xml" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" MaxHeight="700" Height="auto" MinHeight="227" HorizontalAlignment="Stretch"></TextBox>
-           </StackPanel>
+            <Button  DockPanel.Dock="Top" Name="save">Save</Button>
+            <Button  DockPanel.Dock="Top" Name="run">Run</Button>
+            <Label  DockPanel.Dock="Top" Height="auto" Width="auto" >Xml:</Label>
+            <TextBox  DockPanel.Dock="Top" Name="xml" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" MaxHeight="700" Height="auto" MinHeight="227" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></TextBox>
+           </DockPanel>
     </Grid>
 </UserControl>
