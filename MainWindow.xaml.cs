@@ -35,13 +35,34 @@ namespace Cliver.CefSharpController
             browser.LoadingStateChanged += delegate (object sender, LoadingStateChangedEventArgs e)
             {
                 route.Dispatcher.BeginInvoke((Action)(() => { route.IsEnabled = !e.IsLoading; }));
+
+                url.Dispatcher.BeginInvoke((Action)(() => { url.Text = browser.Address; }));
             };
 
             Closing += delegate
               {
                   browser.Stop();
               };
+
+            back.Click += delegate
+            { browser.Back(); };
+
+            forward.Click += delegate
+            { browser.Forward(); };
+
+            stop.Click += delegate
+            { browser.Stop(); };
+
+            reload.Click += delegate
+            { browser.Reload(); };
+
+            url.KeyUp += (object sender, KeyEventArgs e) =>
+        {
+            if (e.Key == Key.Enter)
+                browser.Load(url.Text);
+        };
         }
+        
         public static MainWindow This { get; private set; }
 
         readonly public CefSharpBrowser Browser;

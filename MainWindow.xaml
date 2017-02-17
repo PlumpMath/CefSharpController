@@ -9,12 +9,29 @@
         Title="MainWindow" Height="350" Width="525">
     <Grid Name="grid">
         <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto"></ColumnDefinition>
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <local:RouteControl Grid.Column="0" x:Name="route" />
-        <cefSharp:ChromiumWebBrowser Name="browser" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        <local:RouteControl Grid.Column="0" Grid.RowSpan="2" x:Name="route" />
+        <DockPanel Grid.Column="1" Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Stretch"  >
+                <Button Name="back">                   
+                        <Image Source="images/arrow-left-bold.png" Width="20" Height="20" />
+                </Button>
+                <Button Name="forward">
+                    <Image Source="images/arrow-right-bold.png" Width="20" Height="20" />
+                </Button>
+                <Button Name="stop">
+                    <Image Source="images/stop.png" Width="20" Height="20" />
+                </Button>
+                <Button Name="reload">
+                    <Image Source="images/refresh.png" Width="20" Height="20" />
+                </Button>
+            <TextBox Name="url" HorizontalAlignment="Stretch" MinWidth="300"></TextBox>
+        </DockPanel>
+        <cefSharp:ChromiumWebBrowser Name="browser" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
     </Grid>
 </Window>
