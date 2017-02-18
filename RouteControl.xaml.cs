@@ -55,9 +55,9 @@ namespace Cliver.CefSharpController
                             ProductFieldWindow w = new ProductFieldWindow(xpath);
                             if (w.ShowDialog() == true)
                             {
-                                foreach (dynamic o in w.Attributes.Items)
-                                    if (o.Get == true)
-                                        route.SetOutputField("Product" + (step.SelectedIndex - 2), new Route.OutputField { Name = w.Name.Text + "." + o.Attribute, Xpath = xpath, Attribute = o.Attribute });
+                                foreach (ProductFieldWindow.Item i in w.Items)
+                                    if (i.Get)
+                                        route.SetOutputField("Product" + (step.SelectedIndex - 2), new Route.OutputField { Name = w.Name.Text + "." + i.Attribute, Xpath = xpath, Attribute = i.Attribute });
                             }
                         }
                         xml.Text = route.Xml;
@@ -78,13 +78,24 @@ namespace Cliver.CefSharpController
                             base_xpath = xpath;
                         }
                         else
-                        {
+                        {//SetProduct
+                            if (base_xpath==null)
+                            {
+                                Message.Error("No product block was set.");
+                                return;
+                            }
+                            if (!xpath.StartsWith(base_xpath))
+                            {
+                                MainWindow.This.Browser.HighlightElements(base_xpath);
+                                Message.Error("Your selection must be inside the product block you picked up previously.");
+                                return;
+                            }
                             ProductFieldWindow w = new ProductFieldWindow(xpath);
                             if (w.ShowDialog() == true)
                             {
-                                foreach (dynamic o in w.Attributes.Items)
-                                    if (o.Get == true)
-                                        route.SetOutputField("Product0", new Route.OutputField { Name = w.Name.Text + "." + o.Attribute, Xpath = xpath.Substring(base_xpath.Length, xpath.Length - base_xpath.Length), Attribute = o.Attribute });
+                                foreach (ProductFieldWindow.Item i in w.Items)
+                                    if (i.Get)
+                                        route.SetOutputField("Product0", new Route.OutputField { Name = w.Name.Text + "." + i.Attribute, Xpath = xpath.Substring(base_xpath.Length, xpath.Length - base_xpath.Length), Attribute = i.Attribute });
                             }
                         }
                         xml.Text = route.Xml;
@@ -94,11 +105,13 @@ namespace Cliver.CefSharpController
                 }
             }));
         }
-        string base_xpath = null;
+        string base_xpath = null; 
         
         public RouteControl()
         {
             InitializeComponent();
+
+            //xml.TextChanged+=del
 
             save.Click += delegate {
                 Microsoft.Win32.SaveFileDialog d = new Microsoft.Win32.SaveFileDialog();
@@ -203,8 +216,10 @@ namespace Cliver.CefSharpController
             MainWindow.This.Browser.ExecuteJavaScript(
                 CefSharpBrowser.Define__getElementsByXPath()
                 + CefSharpBrowser.Define__createXPathForElement() + @"
-if(document.__onElementSelected)
+if(document.__onElementSelected){
+    document.__clickedElement = null;
     return;
+}
 document.__onElementSelected = function(event){
     try{
         if ( event.preventDefault ) event.preventDefault();

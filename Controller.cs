@@ -203,6 +203,7 @@ namespace Cliver.CefSharpController
                 public string Name;
                 public string Xpath;
                 public string Attribute;
+                //public bool StripHtml;
             }
 
             public List<InputItem> InputItems = new List<InputItem>();
@@ -242,7 +243,15 @@ namespace Cliver.CefSharpController
 
                 foreach (OutputField f in OutputFields)
                 {
-                    ii.OutputValues.Add(get_value(base_xpath + f.Xpath, f.Attribute));
+                    string v = null;
+                    if (f.Attribute == Route.OutputField.INNER_TEXT)
+                    {
+                        v = get_value(base_xpath + f.Xpath, Route.OutputField.INNER_HTML);
+                        v = FieldPreparation.Html.Normalize(v);
+                    }
+                    else
+                        v = get_value(base_xpath + f.Xpath, f.Attribute);
+                    ii.OutputValues.Add(v);
                 }
             }
 
@@ -316,7 +325,7 @@ return xs;
 var es =  document.__getElementsByXPath('" + xpath + @"');
 var vs = '';
 for(var i = 0; i < es.length; i++){    
-    vs += '\r\n' + " + (attribute == "INNER_HTML" ? @"es[i].innerText" : @"es[i].getAttribute('" + attribute + @"')") + @";
+    vs += '\r\n' + " + (attribute == Route.OutputField.INNER_HTML ? @"es[i].innerText" : @"es[i].getAttribute('" + attribute + @"')") + @";
 }
 return vs;
             ");

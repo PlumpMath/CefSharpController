@@ -13,7 +13,10 @@
                 <ComboBoxItem Name="ListToData">List Page and Data Page are diffrent</ComboBoxItem>
                 <ComboBoxItem Name="DataInList">List Page and Data Page are the same</ComboBoxItem>
             </ComboBox>
-        <Label Height="auto" Width="auto" >Next Page List Xpath:</Label>
+            <StackPanel Orientation="Horizontal">
+                <Label Height="auto" Width="auto" >Start Page Urls:</Label>
+                                <Button Name="input_file">Load From File</Button>
+            </StackPanel>
             <TextBox x:Name="StartUrl" Height="auto" Width="auto"  x:FieldModifier="public"  TextWrapping="Wrap" AcceptsReturn="True"/>
             <Button Name="ok">Ok</Button>
         </StackPanel>

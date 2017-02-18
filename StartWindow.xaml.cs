@@ -31,6 +31,8 @@ namespace Cliver.CefSharpController
 
             RouteType.SelectionChanged += delegate
             {
+                if (!string.IsNullOrWhiteSpace(StartUrl.Text))
+                    return;
                 switch (RouteType.SelectedIndex)
                 {
                     case 0:
@@ -40,6 +42,18 @@ namespace Cliver.CefSharpController
                         StartUrl.Text = "https://www.google.com/search?q=js+get+all+elements";
                         break;
                 }
+            };
+
+            input_file.Click += delegate
+            {
+                Microsoft.Win32.OpenFileDialog d = new Microsoft.Win32.OpenFileDialog();
+                d.DefaultExt = ".csv";
+                d.Filter = "CSV Files (*.csv)|*.csv|TXT Files (*.txt)|*.txt|All Files (*.*)|*.*";
+                if (d.ShowDialog() != true)
+                    return;
+
+                string[] us = System.IO.File.ReadAllLines(d.FileName);
+                StartUrl.Text = string.Join("\r\n", us);
             };
         }
     }

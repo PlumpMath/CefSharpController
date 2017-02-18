@@ -139,6 +139,9 @@ namespace Cliver.CefSharpController
                 a = xd.CreateAttribute("attribute");
                 a.Value = of.Attribute;
                 xf.Attributes.Append(a);
+                //a = xd.CreateAttribute("strip_html");
+                //a.Value = of.StripHtml.ToString();
+                //xf.Attributes.Append(a);
             }
         }
 
@@ -147,6 +150,10 @@ namespace Cliver.CefSharpController
             public string Name;
             public string Xpath;
             public string Attribute;
+            //public bool StripHtml;
+
+            public const string INNER_HTML = "INNER_HTML";
+            public const string INNER_TEXT = "INNER_TEXT";
         }
 
         public List<OutputField> OutputFields
