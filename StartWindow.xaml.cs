@@ -47,6 +47,10 @@ namespace Cliver.CefSharpController
                     case 1:
                         StartUrl.Text = "https://www.google.com/search?q=js+get+all+elements";
                         break;
+                    case 2:
+                        StartUrl.Text = "https://translate.pentairpool.com/en/products";
+                        //StartUrl.Text = "http://boston.craigslist.org/search/ata";
+                        break;
                 }
             };
 

@@ -12,6 +12,7 @@
             <ComboBox Name="RouteType" x:FieldModifier="public" >
                 <ComboBoxItem Name="ListToData">List Page and Data Page are diffrent</ComboBoxItem>
                 <ComboBoxItem Name="DataInList">List Page and Data Page are the same</ComboBoxItem>
+                <ComboBoxItem Name="Universal">Universal</ComboBoxItem>
             </ComboBox>
             <StackPanel Orientation="Horizontal">
                 <Label Height="auto" Width="auto" >Start Page Urls:</Label>

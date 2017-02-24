@@ -41,13 +41,13 @@ namespace Cliver.CefSharpController
                         MainWindow.This.Browser.HighlightElements(xpath);
                         if (step.SelectedIndex == 0)
                         {
-                            route.SetOutputUrlCollection("Start", new Route.OutputUrlCollection { Queue = "ListNextPage", Xpath = xpath });
+                            route.SetOutputUrlCollection(StartStepItemQueue.Name, new Route.OutputUrlCollection { Queue = "ListNextPage", Xpath = xpath });
                             route.SetOutputUrlCollection("ListNextPage", new Route.OutputUrlCollection { Queue = "ListNextPage", Xpath = xpath });
                         }
                         else if (step.SelectedIndex == 1)
                         {//SetProductPages
                             string x = find_product_links_xpath(xpath);
-                            route.SetOutputUrlCollection("Start", new Route.OutputUrlCollection { Queue = "Product0", Xpath = x });
+                            route.SetOutputUrlCollection(StartStepItemQueue.Name, new Route.OutputUrlCollection { Queue = "Product0", Xpath = x });
                             route.SetOutputUrlCollection("ListNextPage", new Route.OutputUrlCollection { Queue = "Product0", Xpath = x });
                             MainWindow.This.Browser.HighlightElements(x);
                         }
@@ -72,13 +72,13 @@ namespace Cliver.CefSharpController
                         MainWindow.This.Browser.HighlightElements(xpath);
                         if (step.SelectedIndex == 0)
                         {
-                            route.SetOutputUrlCollection("Start", new Route.OutputUrlCollection { Queue = "ListNextPage", Xpath = xpath });
+                            route.SetOutputUrlCollection(StartStepItemQueue.Name, new Route.OutputUrlCollection { Queue = "ListNextPage", Xpath = xpath });
                             route.SetOutputUrlCollection("ListNextPage", new Route.OutputUrlCollection { Queue = "ListNextPage", Xpath = xpath });
                         }
                         else if (step.SelectedIndex == 1)
                         {//SetProductBlocks
                             string x = find_product_blocks_xpath(xpath);
-                            route.SetOutputElementCollection("Start", new Route.OutputElementCollection { Queue = "Product0", Xpath = x });
+                            route.SetOutputElementCollection(StartStepItemQueue.Name, new Route.OutputElementCollection { Queue = "Product0", Xpath = x });
                             route.SetOutputElementCollection("ListNextPage", new Route.OutputElementCollection { Queue = "Product0", Xpath = x });
                             MainWindow.This.Browser.HighlightElements(x);
                             base_xpath = xpath;
@@ -106,13 +106,71 @@ namespace Cliver.CefSharpController
                         }
                         xml.Text = route.Xml;
                         break;
+                    case RouteType.UNIVERSAL:
+                        MainWindow.This.Browser.HighlightElements(xpath);
+                        StepItem si = ((StepItem)step.SelectedItem);
+                        if (si.Step == StepItem.Steps.ListNext)
+                        {
+                            StepItemQueue nq = find_next_queue_in_steps(si, true);
+                            if (nq == null)
+                                nq = new StepItemQueue(si.Queue, true);
+                            route.SetOutputUrlCollection(si.Queue.Name, new Route.OutputUrlCollection { Queue = nq.Name, Xpath = xpath });
+                            route.SetOutputUrlCollection(nq.Name, new Route.OutputUrlCollection { Queue = nq.Name, Xpath = xpath });
+                        }
+                        else if (si.Step == StepItem.Steps.Children)
+                        {
+                            string x = find_product_links_xpath(xpath);
+
+                            StepItemQueue nq = find_next_queue_in_steps(si, false);
+                            if (nq == null)
+                            {
+                                nq = new StepItemQueue(si.Queue, false);
+                                step.Items.Add(new StepItem(StepItem.Steps.ListNext, nq));
+                                step.Items.Add(new StepItem(StepItem.Steps.Data, nq));
+                                step.Items.Add(new StepItem(StepItem.Steps.Children, nq));
+                            }
+                            route.SetOutputUrlCollection(si.Queue.Name, new Route.OutputUrlCollection { Queue = nq.Name, Xpath = x });
+                            StepItemQueue lnq = find_next_queue_in_steps(si, true);
+                            if (lnq != null)
+                                route.SetOutputUrlCollection(lnq.Name, new Route.OutputUrlCollection { Queue = nq.Name, Xpath = xpath });
+
+                            MainWindow.This.Browser.HighlightElements(x);
+                        }
+                        else if (si.Step == StepItem.Steps.Data)
+                        {
+                            ProductFieldWindow w = new ProductFieldWindow(xpath);
+                            if (w.ShowDialog() == true)
+                            {
+                                foreach (ProductFieldWindow.Item i in w.Items)
+                                    if (i.Get)
+                                        route.SetOutputField(si.Queue.Name, new Route.OutputField { Name = w.Name.Text + "." + i.Attribute, Xpath = xpath, Attribute = i.Attribute });
+                            }
+                        }
+                        else
+                            throw new Exception("No such option: " + si.Step);
+                        xml.Text = route.Xml;
+                        break;
                     default:
                         throw new Exception("No such option: " + route_type);
                 }
             }));
         }
-        string base_xpath = null; 
-        
+        string base_xpath = null;
+        StepItemQueue find_next_queue_in_steps(StepItem si, bool list_next)
+        {
+            foreach (StepItem i in step.Items)
+                if (i.Queue.Level > si.Queue.Level && i.Step == si.Step && i.Queue.NextList == list_next)
+                    return i.Queue;
+            return null;
+        }
+        //StepItem find_step_in_steps(StepItem.Steps s, StepItemQueue q)
+        //{
+        //    foreach (StepItem i in step.Items)
+        //        if (i.Queue == q && i.Step == s)
+        //            return i;
+        //    return null;
+        //}
+
         public RouteControl()
         {
             InitializeComponent();
@@ -151,11 +209,11 @@ namespace Cliver.CefSharpController
                     string[] urls = d.StartUrl.Text.Split('\n');
                     foreach (string url in urls)
                     {
-                        route.AddInputItem("Start", new Route.InputUrl { Value = url.Trim() });
+                        route.AddInputItem(StartStepItemQueue.Name, new Route.InputUrl { Value = url.Trim() });
                         xml.Text = route.Xml;
                     }
                     MainWindow.This.Browser.Load(urls[0], false);
-
+                    
                     step.Items.Clear();
                     switch (d.RouteType.SelectedIndex)
                     {
@@ -172,11 +230,14 @@ namespace Cliver.CefSharpController
                             step.Items.Add("SetProductBlocks");
                             step.Items.Add("SetProduct");
                             break;
-                        //case 2:
-                        //    step.Items.Add("SetProductPages");
-                        //    step.Items.Add("SetProduct0");
-                        //    step.Items.Add("SetOneMoreProductPage");
-                        //    break;
+                        case 2:
+                            route_type = RouteType.UNIVERSAL;
+                            step.DisplayMemberPath = "Text";
+                            step.SelectedValuePath = "Value";
+                            step.Items.Add(new StepItem(StepItem.Steps.ListNext, StartStepItemQueue));
+                            step.Items.Add(new StepItem(StepItem.Steps.Data, StartStepItemQueue));
+                            step.Items.Add(new StepItem(StepItem.Steps.Children, StartStepItemQueue));
+                            break;
                         default:
                             throw new Exception("No such option: " + d.RouteType.SelectedIndex);
                     }
@@ -199,6 +260,10 @@ namespace Cliver.CefSharpController
                         MainWindow.This.Browser.HighlightElementsOnHover();
                         listen_clicks();
                         break;
+                    case RouteType.UNIVERSAL:
+                        MainWindow.This.Browser.HighlightElementsOnHover();
+                        listen_clicks();
+                        break;
                     default:
                         throw new Exception("No such option: " + route_type);
                 };
@@ -213,10 +278,56 @@ namespace Cliver.CefSharpController
         enum RouteType
         {
             DATA_SEPARATED_FROM_LIST,
-            DATA_IS_IN_LIST
+            DATA_IS_IN_LIST, 
+            UNIVERSAL
         }
         Route route;
-        
+
+        public class StepItem
+        {
+            public enum Steps
+            {
+                ListNext,
+                Data,
+                Children
+            }
+
+            public string Text { get; private set; }
+            public readonly StepItemQueue Queue;
+            public readonly Steps Step;
+            //public bool Set = false;
+
+            public StepItem(Steps step, StepItemQueue queue)
+            {
+                Step = step;
+                Queue = queue;
+                Text = Step.ToString() + Queue.Level;
+            }
+        }
+
+        public class StepItemQueue
+        {
+            public readonly string Name;
+            public const string BaseName = "Queue";
+            public readonly int Level;
+            public readonly bool NextList;
+            public readonly StepItemQueue ParentQueue;
+
+            public StepItemQueue(StepItemQueue parent_queue, bool next_list)
+            {
+                ParentQueue = parent_queue;
+                NextList = next_list;
+                Level = 0;
+                for (StepItemQueue siq = this.ParentQueue; siq != null; siq = siq.ParentQueue)
+                    Level++;
+                Name = BaseName + Level;
+                if (next_list)
+                    Name += "NextList";
+            }
+        }
+
+        StepItemQueue StartStepItemQueue = new StepItemQueue(null, false);
+
         void listen_clicks()
         {
             MainWindow.This.Browser.ExecuteJavaScript(
