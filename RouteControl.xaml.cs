@@ -162,20 +162,6 @@ namespace Cliver.CefSharpController
             }));
         }
         string base_xpath = null;
-        //StepItemQueue find_child_queue_in_steps(StepItem si, bool list_next)
-        //{
-        //    foreach (StepItem i in step.Items)
-        //        if (i.Queue.Level > si.Queue.Level && i.Queue.NextList == list_next)
-        //            return i.Queue;
-        //    return null;
-        //}
-        //StepItem find_step_in_steps(StepItem.Steps s, StepItemQueue q)
-        //{
-        //    foreach (StepItem i in step.Items)
-        //        if (i.Queue == q && i.Step == s)
-        //            return i;
-        //    return null;
-        //}        
         Route.Queue find_child_queue(string queue_name, bool list_next)
         {
             bool children = false;
@@ -325,7 +311,6 @@ namespace Cliver.CefSharpController
 
         public class Queue
         {
-            //public readonly string Name;
             public const string BaseName = "Queue";
             public const string NextListSuffix = "_NextList";
             public const string StartQueueName = BaseName + "0";
@@ -334,26 +319,7 @@ namespace Cliver.CefSharpController
             {
                 return int.Parse(Regex.Replace(queue_name, @"[^\d]+", ""));
             }
-
-            //public readonly int Level;
-            //public readonly bool NextList;
-            //public readonly StepItemQueue ParentQueue;
-
-            //public StepItemQueue(StepItemQueue parent_queue, bool next_list)
-            //{
-            //    ParentQueue = parent_queue;
-            //    NextList = next_list;
-            //    Level = 0;
-            //    for (StepItemQueue siq = this.ParentQueue; siq != null; siq = siq.ParentQueue)
-            //        Level++;
-            //    if (next_list)
-            //        Name = parent_queue.Name + NextListSuffix;
-            //    else
-            //        Name = BaseName + Level;
-            //}
         }
-
-        //StepItemQueue StartStepItemQueue = new StepItemQueue(null, false);
 
         void listen_clicks()
         {
