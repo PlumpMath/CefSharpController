@@ -69,101 +69,113 @@ namespace Cliver.CefSharpController
             }
         }
 
-        public void SetOutputUrlCollection(string queue_name, OutputUrlCollection url_collection)
+        public void SetOutput(string queue_name, Output output)
         {
-            XmlNode xo = get_queue_node(queue_name, QueueNodes.Output);
-            XmlNode xu = xo.SelectSingleNode("UrlCollection[@queue='" + url_collection.Queue + "']");
-            if (xu == null)
+            XmlNode xo = get_queue_child_node(queue_name, QueueNodes.Outputs);
+            if (output is Output.UrlCollection)
             {
-                xu = xd.CreateElement("UrlCollection");
-                xo.AppendChild(xu);
-                XmlAttribute a = xd.CreateAttribute("queue");
-                a.Value = url_collection.Queue;
-                xu.Attributes.Append(a);
-            }
-            {
-                XmlAttribute a = xd.CreateAttribute("xpath");
-                a.Value = url_collection.Xpath;
-                xu.Attributes.Append(a);
-            }
-        }
+                Output.UrlCollection ucs = (Output.UrlCollection)output;
+                XmlNode xu = xo.SelectSingleNode(ucs.Tag + "[@queue='" + ucs.Queue + "']");
+                if (xu == null)
+                {
+                    xu = xd.CreateElement(ucs.Tag);
+                    xo.AppendChild(xu);
+                    XmlAttribute a = xd.CreateAttribute("queue");
+                    a.Value = ucs.Queue;
+                    xu.Attributes.Append(a);
 
-        public class OutputUrlCollection
-        {
-            public string Queue;
-            public string Xpath;
-        }
+                    get_queue_node(ucs.Queue);//create the accepting queue
+                }
+                {
+                    XmlAttribute a = xd.CreateAttribute("xpath");
+                    a.Value = ucs.Xpath;
+                    xu.Attributes.Append(a);
 
-        public void SetOutputElementCollection(string queue_name, OutputElementCollection url_collection)
-        {
-            XmlNode xo = get_queue_node(queue_name, QueueNodes.Output);
-            XmlNode xu = xo.SelectSingleNode("ElementCollection[@queue='" + url_collection.Queue + "']");
-            if (xu == null)
-            {
-                xu = xd.CreateElement("ElementCollection");
-                xo.AppendChild(xu);
-                XmlAttribute a = xd.CreateAttribute("queue");
-                a.Value = url_collection.Queue;
-                xu.Attributes.Append(a);
+                    a = xd.CreateAttribute("add_manner");
+                    a.Value = ucs.AddManner.ToString();
+                    xu.Attributes.Append(a);
+                }
             }
+            else if (output is Output.ElementCollection)
             {
-                XmlAttribute a = xd.CreateAttribute("xpath");
-                a.Value = url_collection.Xpath;
-                xu.Attributes.Append(a);
-            }
-        }
+                Output.ElementCollection ucs = (Output.ElementCollection)output;
+                XmlNode xu = xo.SelectSingleNode(ucs.Tag + "[@queue='" + ucs.Queue + "']");
+                if (xu == null)
+                {
+                    xu = xd.CreateElement(ucs.Tag);
+                    xo.AppendChild(xu);
+                    XmlAttribute a = xd.CreateAttribute("queue");
+                    a.Value = ucs.Queue;
+                    xu.Attributes.Append(a);
 
-        public class OutputElementCollection
-        {
-            public string Queue;
-            public string Xpath;
-        }
-
-        public void SetOutputField(string queue_name, OutputField of)
-        {
-            XmlNode xo = get_queue_node(queue_name, QueueNodes.Output);
-            XmlNode xf = xo.SelectSingleNode("Field[@name='" + of.Name + "']");
-            if (xf == null)
-            {
-                xf = xd.CreateElement("Field");
-                xo.AppendChild(xf);
-                XmlAttribute a = xd.CreateAttribute("name");
-                a.Value = of.Name;
-                xf.Attributes.Append(a);
+                    get_queue_node(ucs.Queue);//create the accepting queue
+                }
+                {
+                    XmlAttribute a = xd.CreateAttribute("xpath");
+                    a.Value = ucs.Xpath;
+                    xu.Attributes.Append(a);
+                }
             }
+            else if (output is Output.Field)
             {
-                XmlAttribute a = xd.CreateAttribute("xpath");
-                a.Value = of.Xpath;
-                xf.Attributes.Append(a);
-                a = xd.CreateAttribute("attribute");
-                a.Value = of.Attribute;
-                xf.Attributes.Append(a);
-                //a = xd.CreateAttribute("strip_html");
-                //a.Value = of.StripHtml.ToString();
-                //xf.Attributes.Append(a);
+                Output.Field d = (Output.Field)output;
+                XmlNode xn = xo.SelectSingleNode(d.Tag + "[@xpath='" + d.Xpath + "']");
+                if (xn == null)
+                {
+                    xn = xd.CreateElement(d.Tag);
+                    xo.AppendChild(xn);
+                    XmlAttribute a = xd.CreateAttribute("xpath");
+                    a.Value = d.Xpath;
+                    xn.Attributes.Append(a);
+                }
+                {
+                    XmlAttribute a = xd.CreateAttribute("attribute");
+                    a.Value = d.Attribute;
+                    xn.Attributes.Append(a);
+
+                    a = xd.CreateAttribute("name");
+                    a.Value = d.Name;
+                    xn.Attributes.Append(a);
+                }
             }
         }
 
-        public class OutputField
+        abstract public class Output
         {
-            public string Name;
-            public string Xpath;
-            public string Attribute;
-            //public bool StripHtml;
-
-            public const string INNER_HTML = "INNER_HTML";
-            public const string INNER_TEXT = "INNER_TEXT";
-        }
-
-        public List<OutputField> OutputFields
-        {
-            get
+            public string Tag
             {
-                List<OutputField> ps = new List<OutputField>();
-                foreach (XmlNode xq in xd.SelectNodes("Route/Queue"))
-                    foreach (XmlNode xn in xq.SelectNodes("Field"))
-                        ps.Add(new OutputField { Name = xn.Attributes["name"].Value, Xpath = xn.Attributes["xpath"].Value, Attribute = xn.Attributes["attribute"].Value });
-                return ps;
+                get
+                {
+                    return this.GetType().Name;
+                }
+            }
+
+            public class UrlCollection : Output
+            {
+                public string Queue;
+                public string Xpath;
+                public AddManners AddManner = AddManners.AppendToEnd;
+                public enum AddManners
+                {
+                    AppendToEnd,
+                    InsertToHead
+                }
+            }
+
+            public class ElementCollection : Output
+            {
+                public string Queue;
+                public string Xpath;
+            }
+
+            public class Field : Output
+            {
+                public string Name;
+                public string Xpath;
+                public string Attribute;
+
+                public const string INNER_HTML = "INNER_HTML";
+                public const string INNER_TEXT = "INNER_TEXT";
             }
         }
 
@@ -176,7 +188,7 @@ namespace Cliver.CefSharpController
 
         public void AddAction(string queue_name, Action action)
         {
-            XmlNode xin = get_queue_node(queue_name, QueueNodes.Actions);
+            XmlNode xin = get_queue_child_node(queue_name, QueueNodes.Actions);
             XmlNode xi = xd.CreateElement(action.Tag);
             xin.AppendChild(xi);
 
@@ -247,7 +259,7 @@ namespace Cliver.CefSharpController
 
         public void AddInputItem(string queue_name, InputItem ii)
         {
-            XmlNode xin = get_queue_node(queue_name, QueueNodes.Input);
+            XmlNode xin = get_queue_child_node(queue_name, QueueNodes.InputItems);
             XmlNode xi = xd.CreateElement(ii.Tag);
             xin.AppendChild(xi);
             XmlAttribute a = xd.CreateAttribute("value");
@@ -303,7 +315,7 @@ namespace Cliver.CefSharpController
             return xq;
         }
 
-        XmlNode get_queue_node(string queue_name, QueueNodes node)
+        XmlNode get_queue_child_node(string queue_name, QueueNodes node)
         {
             XmlNode xq = get_queue_node(queue_name);
             string node_tag = node.ToString();
@@ -318,9 +330,9 @@ namespace Cliver.CefSharpController
 
         public enum QueueNodes
         {
-            Input,
+            InputItems,
             Actions,
-            Output
+            Outputs
         }
 
         public List<Queue> GetQueues()
@@ -330,7 +342,7 @@ namespace Cliver.CefSharpController
             {
                 List<InputItem> iis = new List<InputItem>();
                 {
-                    XmlNode xi = xq.SelectSingleNode("Input");
+                    XmlNode xi = xq.SelectSingleNode(QueueNodes.InputItems.ToString());
                     if (xi != null)
                     {
                         foreach (XmlNode x in xi.SelectNodes("*"))
@@ -352,7 +364,7 @@ namespace Cliver.CefSharpController
 
                 List<Action> as_ = new List<Action>();
                 {
-                    XmlNode xa = xq.SelectSingleNode("Actions");
+                    XmlNode xa = xq.SelectSingleNode(QueueNodes.Actions.ToString());
                     if (xa != null)
                     {
                         foreach (XmlNode x in xa.SelectNodes("*"))
@@ -375,31 +387,33 @@ namespace Cliver.CefSharpController
                     }
                 }
 
-                XmlNode xo = xq.SelectSingleNode("Output");
-
-                List<OutputUrlCollection> ucs = new List<OutputUrlCollection>();
-                if (xo != null)
-                    foreach (XmlNode x in xo.SelectNodes("UrlCollection"))
-                        ucs.Add(new OutputUrlCollection { Queue = x.Attributes["queue"].Value, Xpath = x.Attributes["xpath"].Value });
-
-                List<OutputElementCollection> ecs = new List<OutputElementCollection>();
-                if (xo != null)
-                    foreach (XmlNode x in xo.SelectNodes("ElementCollection"))
-                        ecs.Add(new OutputElementCollection { Queue = x.Attributes["queue"].Value, Xpath = x.Attributes["xpath"].Value });
-
-                List<OutputField> fs = new List<OutputField>();
-                if (xo != null)
-                    foreach (XmlNode x in xo.SelectNodes("Field"))
-                        fs.Add(new OutputField { Attribute = x.Attributes["attribute"].Value, Xpath = x.Attributes["xpath"].Value, Name = x.Attributes["name"].Value });
+                List<Output> os = new List<Output>();
+                {
+                    XmlNode xo = xq.SelectSingleNode(QueueNodes.Outputs.ToString());
+                    if (xo != null)
+                    {
+                        foreach (XmlNode x in xo.ChildNodes)
+                        {
+                            Output o;
+                            if (x.Name == "UrlCollection")
+                                o = new Output.UrlCollection { Queue = x.Attributes["queue"].Value, Xpath = x.Attributes["xpath"].Value, AddManner = (Output.UrlCollection.AddManners)Enum.Parse(typeof(Output.UrlCollection.AddManners), x.Attributes["add_manner"].Value) };
+                            else if (x.Name == "ElementCollection")
+                                o = new Output.ElementCollection { Queue = x.Attributes["queue"].Value, Xpath = x.Attributes["xpath"].Value };
+                            else if (x.Name == "Field")
+                                o = new Output.Field { Attribute = x.Attributes["attribute"].Value, Xpath = x.Attributes["xpath"].Value, Name = x.Attributes["name"].Value };
+                            else
+                                throw new Exception("Unknown type: " + x.Name);
+                            os.Add(o);
+                        }
+                    }
+                }
 
                 Queue q = new Queue
                 {
                     Name = xq.Attributes["name"].Value,
                     InputItems = iis, 
                     Actions = as_,
-                    OutputFields = fs,
-                    OutputUrlCollections = ucs,
-                    OutputElementCollections = ecs
+                    Outputs = os
                 };
                 qs.Add(q);
             }
@@ -410,9 +424,7 @@ namespace Cliver.CefSharpController
             public string Name;
             public List<InputItem> InputItems = new List<InputItem>();
             public List<Action> Actions = new List<Action>();
-            public List<OutputUrlCollection> OutputUrlCollections = new List<OutputUrlCollection>();
-            public List<OutputElementCollection> OutputElementCollections = new List<OutputElementCollection>();
-            public List<OutputField> OutputFields = new List<OutputField>();
+            public List<Output> Outputs = new List<Output>();
         }
     }
 }

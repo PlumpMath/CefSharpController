@@ -41,19 +41,19 @@ namespace Cliver.CefSharpController
                         MainWindow.This.Browser.HighlightElements(xpath);
                         if (step.SelectedIndex == 0)
                         {
-                            route.SetOutputUrlCollection(Queue.StartQueueName, new Route.OutputUrlCollection { Queue = "ListNextPage", Xpath = xpath });
-                            route.SetOutputUrlCollection("ListNextPage", new Route.OutputUrlCollection { Queue = "ListNextPage", Xpath = xpath });
+                            route.SetOutput(Queue.StartQueueName, new Route.Output.UrlCollection { Queue = "ListNextPage", Xpath = xpath });
+                            route.SetOutput("ListNextPage", new Route.Output.UrlCollection { Queue = "ListNextPage", Xpath = xpath });
                         }
                         else if (step.SelectedIndex == 1)
                         {//SetProductPages
                             string x = find_product_links_xpath(xpath);
-                            route.SetOutputUrlCollection(Queue.StartQueueName, new Route.OutputUrlCollection { Queue = "Product0", Xpath = x });
-                            route.SetOutputUrlCollection("ListNextPage", new Route.OutputUrlCollection { Queue = "Product0", Xpath = x });
+                            route.SetOutput(Queue.StartQueueName, new Route.Output.UrlCollection { Queue = "Product0", Xpath = x });
+                            route.SetOutput("ListNextPage", new Route.Output.UrlCollection { Queue = "Product0", Xpath = x });
                             MainWindow.This.Browser.HighlightElements(x);
                         }
                         else if (step.SelectedIndex == step.Items.Count - 1)
                         {
-                            route.SetOutputUrlCollection("Product" + (step.Items.Count - 4), new Route.OutputUrlCollection { Queue = "Product" + (step.Items.Count - 3), Xpath = xpath });
+                            route.SetOutput("Product" + (step.Items.Count - 4), new Route.Output.UrlCollection { Queue = "Product" + (step.Items.Count - 3), Xpath = xpath });
                             step.Items.Insert(step.Items.Count - 1, "SetProduct" + (step.Items.Count - 3));
                         }
                         else
@@ -63,7 +63,7 @@ namespace Cliver.CefSharpController
                             {
                                 foreach (ProductFieldWindow.Item i in w.Items)
                                     if (i.Get)
-                                        route.SetOutputField("Product" + (step.SelectedIndex - 2), new Route.OutputField { Name = w.Name.Text + "." + i.Attribute, Xpath = xpath, Attribute = i.Attribute });
+                                        route.SetOutput("Product" + (step.SelectedIndex - 2), new Route.Output.Field { Name = w.Name.Text + "." + i.Attribute, Xpath = xpath, Attribute = i.Attribute });
                             }
                         }
                         xml.Text = route.Xml;
@@ -72,14 +72,14 @@ namespace Cliver.CefSharpController
                         MainWindow.This.Browser.HighlightElements(xpath);
                         if (step.SelectedIndex == 0)
                         {
-                            route.SetOutputUrlCollection(Queue.StartQueueName, new Route.OutputUrlCollection { Queue = "ListNextPage", Xpath = xpath });
-                            route.SetOutputUrlCollection("ListNextPage", new Route.OutputUrlCollection { Queue = "ListNextPage", Xpath = xpath });
+                            route.SetOutput(Queue.StartQueueName, new Route.Output.UrlCollection { Queue = "ListNextPage", Xpath = xpath });
+                            route.SetOutput("ListNextPage", new Route.Output.UrlCollection { Queue = "ListNextPage", Xpath = xpath });
                         }
                         else if (step.SelectedIndex == 1)
                         {//SetProductBlocks
                             string x = find_product_blocks_xpath(xpath);
-                            route.SetOutputElementCollection(Queue.StartQueueName, new Route.OutputElementCollection { Queue = "Product0", Xpath = x });
-                            route.SetOutputElementCollection("ListNextPage", new Route.OutputElementCollection { Queue = "Product0", Xpath = x });
+                            route.SetOutput(Queue.StartQueueName, new Route.Output.ElementCollection { Queue = "Product0", Xpath = x });
+                            route.SetOutput("ListNextPage", new Route.Output.ElementCollection { Queue = "Product0", Xpath = x });
                             MainWindow.This.Browser.HighlightElements(x);
                             base_xpath = xpath;
                         }
@@ -101,7 +101,7 @@ namespace Cliver.CefSharpController
                             {
                                 foreach (ProductFieldWindow.Item i in w.Items)
                                     if (i.Get)
-                                        route.SetOutputField("Product0", new Route.OutputField { Name = w.Name.Text + "." + i.Attribute, Xpath = xpath.Substring(base_xpath.Length, xpath.Length - base_xpath.Length), Attribute = i.Attribute });
+                                        route.SetOutput("Product0", new Route.Output.Field { Name = w.Name.Text + "." + i.Attribute, Xpath = xpath.Substring(base_xpath.Length, xpath.Length - base_xpath.Length), Attribute = i.Attribute });
                             }
                         }
                         xml.Text = route.Xml;
@@ -111,34 +111,32 @@ namespace Cliver.CefSharpController
                         StepItem si = ((StepItem)step.SelectedItem);
                         if (si.Step == StepItem.Steps.ListNext)
                         {
-                            string output_queue_name;
-                            Route.Queue nq = find_child_queue(si.QueueName, true);
-                            if (nq == null)
-                                output_queue_name = si.QueueName + Queue.NextListSuffix;
-                            else
-                                output_queue_name = nq.Name;
-                            route.SetOutputUrlCollection(si.QueueName, new Route.OutputUrlCollection { Queue = output_queue_name, Xpath = xpath });
-                            route.SetOutputUrlCollection(output_queue_name, new Route.OutputUrlCollection { Queue = output_queue_name, Xpath = xpath });
+                            route.SetOutput(si.QueueName, new Route.Output.UrlCollection { Queue = si.QueueName, Xpath = xpath, AddManner = Route.Output.UrlCollection.AddManners.InsertToHead });
                         }
                         else if (si.Step == StepItem.Steps.Children)
                         {
                             string x = find_product_links_xpath(xpath);
 
-                            string output_queue_name;
-                            Route.Queue nq = find_child_queue(si.QueueName, false);
-                            if (nq == null)
+                            string output_queue_name = null;
+                            bool passed = false;
+                            foreach (Route.Queue q in route.GetQueues())
+                            {
+                                if (passed)
+                                {
+                                    output_queue_name = q.Name;
+                                    break;
+                                }
+                                if (q.Name == si.QueueName)
+                                    passed = true;
+                            }
+                            if (output_queue_name == null)
                             {
                                 output_queue_name = Queue.BaseName + (Queue.GetLevel(si.QueueName) + 1);
                                 step.Items.Add(new StepItem(StepItem.Steps.ListNext, output_queue_name));
                                 step.Items.Add(new StepItem(StepItem.Steps.Data, output_queue_name));
                                 step.Items.Add(new StepItem(StepItem.Steps.Children, output_queue_name));
                             }
-                            else
-                                output_queue_name = nq.Name;
-                            route.SetOutputUrlCollection(si.QueueName, new Route.OutputUrlCollection { Queue = output_queue_name, Xpath = x });
-                            Route.Queue lnq = find_child_queue(si.QueueName, true);
-                            if (lnq != null)
-                                route.SetOutputUrlCollection(lnq.Name, new Route.OutputUrlCollection { Queue = output_queue_name, Xpath = xpath });
+                            route.SetOutput(si.QueueName, new Route.Output.UrlCollection { Queue = output_queue_name, Xpath = x });
 
                             MainWindow.This.Browser.HighlightElements(x);
                         }
@@ -149,7 +147,7 @@ namespace Cliver.CefSharpController
                             {
                                 foreach (ProductFieldWindow.Item i in w.Items)
                                     if (i.Get)
-                                        route.SetOutputField(si.QueueName, new Route.OutputField { Name = w.Name.Text + "." + i.Attribute, Xpath = xpath, Attribute = i.Attribute });
+                                        route.SetOutput(si.QueueName, new Route.Output.Field { Name = w.Name.Text + "." + i.Attribute, Xpath = xpath, Attribute = i.Attribute });
                             }
                         }
                         else if (si.Step == StepItem.Steps.Submit)
@@ -181,19 +179,6 @@ namespace Cliver.CefSharpController
             }));
         }
         string base_xpath = null;
-        Route.Queue find_child_queue(string queue_name, bool list_next)
-        {
-            bool children = false;
-            foreach (Route.Queue q in route.GetQueues())
-                if (children)
-                {
-                    if (q.Name == queue_name + (list_next ? Queue.NextListSuffix : ""))
-                        return q;
-                }
-                else if (q.Name == queue_name)
-                    children = true;
-            return null;
-        }
 
         public RouteControl()
         {
@@ -338,7 +323,6 @@ namespace Cliver.CefSharpController
         public class Queue
         {
             public const string BaseName = "Queue";
-            public const string NextListSuffix = "_NextList";
             public const string StartQueueName = BaseName + "0";
 
             public static int GetLevel(string queue_name)

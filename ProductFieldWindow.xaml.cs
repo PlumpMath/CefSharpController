@@ -145,7 +145,7 @@ namespace Cliver.CefSharpController
                 //items.Add(i);
                 items.Add(new Item() { Get = false, Attribute = a, Value = (string)ans2av[a] });
             }
-            items.Insert(0, new Item() { Get = true, Attribute = Route.OutputField.INNER_TEXT, Value = FieldPreparation.Html.Normalize((string)ans2av[Route.OutputField.INNER_HTML]) });
+            items.Insert(0, new Item() { Get = true, Attribute = Route.Output.Field.INNER_TEXT, Value = FieldPreparation.Html.Normalize((string)ans2av[Route.Output.Field.INNER_HTML]) });
 
             attributes.ItemsSource = items;
 
@@ -185,7 +185,7 @@ for (var i = 0; i < as.length; i++) {
     }
     ans2av[as[i].name] = c;
 }
-ans2av['" + Route.OutputField.INNER_HTML + @"'] = es[0].innerHTML;
+ans2av['" + Route.Output.Field.INNER_HTML + @"'] = es[0].innerHTML;
 return ans2av;
             ");
             return ans2av;
