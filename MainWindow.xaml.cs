@@ -51,24 +51,41 @@ namespace Cliver.CefSharpController
               };
 
             back.Click += delegate
-            { browser.Back(); };
+            {
+                browser.Back();
+            };
 
             forward.Click += delegate
-            { browser.Forward(); };
+            {
+                browser.Forward();
+            };
 
             stop.Click += delegate
-            { browser.Stop(); };
+            {
+                browser.Stop();
+            };
 
             reload.Click += delegate
-            { browser.Reload(); };
+            {
+                browser.Reload();
+            };
 
             url.KeyUp += (object sender, KeyEventArgs e) =>
-        {
-            if (e.Key == Key.Enter)
-                browser.Load(url.Text);
-        };
+            {
+                if (e.Key == Key.Enter)
+                    browser.Load(url.Text);
+            };
+
+            load_images.Click += set_load_images;
+            load_images.IsChecked = true;
+            set_load_images(null, null);
         }
-        
+
+        void set_load_images(object sender, RoutedEventArgs e)
+        {
+            Browser.LoadImages = load_images.IsChecked == true;
+        }
+
         public static MainWindow This { get; private set; }
 
         readonly public CefSharpBrowser Browser;

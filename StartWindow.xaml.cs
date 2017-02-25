@@ -49,7 +49,7 @@ namespace Cliver.CefSharpController
                         break;
                     case 2:
                         StartUrl.Text = "https://translate.pentairpool.com/en/products";
-                        StartUrl.Text = "http://boston.craigslist.org/search/ata";
+                        //StartUrl.Text = "http://boston.craigslist.org/search/ata";
                         break;
                 }
             };
