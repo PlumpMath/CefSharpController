@@ -66,14 +66,14 @@ namespace Cliver.CefSharpController
         {
             if (e.IsLoading)
                 Log.Main.Inform("Loading: " + Url);
-            //completed = !e.IsLoading;
+            completed = !e.IsLoading;
         }
-        //bool completed = false;
+        bool completed = false;
 
         public void WaitForCompletion(int minimal_sleep_in_mss = 500)
         {
             Thread.Sleep(minimal_sleep_in_mss);
-            while (browser.IsLoading)
+            while (!completed)
             {
                 DoEvents();
                 Thread.Sleep(50);

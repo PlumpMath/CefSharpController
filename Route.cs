@@ -329,21 +329,48 @@ namespace Cliver.CefSharpController
             foreach (XmlNode xq in xd.SelectNodes("Route/Queue"))
             {
                 List<InputItem> iis = new List<InputItem>();
-                XmlNode xi = xq.SelectSingleNode("Input");
-                if (xi != null)
                 {
-                    foreach (XmlNode x in xi.SelectNodes("*"))
+                    XmlNode xi = xq.SelectSingleNode("Input");
+                    if (xi != null)
                     {
-                        switch (x.Name)
-                        {                        
-                            case "Url":
-                                iis.Add(new InputItem.Url { Value = x.Attributes["value"].Value });
-                                break;
-                            case "Element":
-                                iis.Add(new InputItem.Element { Value = x.Attributes["value"].Value });
-                                break;
-                            default:
-                                throw new Exception("Unknown option!");
+                        foreach (XmlNode x in xi.SelectNodes("*"))
+                        {
+                            switch (x.Name)
+                            {
+                                case "Url":
+                                    iis.Add(new InputItem.Url { Value = x.Attributes["value"].Value });
+                                    break;
+                                case "Element":
+                                    iis.Add(new InputItem.Element { Value = x.Attributes["value"].Value });
+                                    break;
+                                default:
+                                    throw new Exception("Unknown option!");
+                            }
+                        }
+                    }
+                }
+
+                List<Action> as_ = new List<Action>();
+                {
+                    XmlNode xa = xq.SelectSingleNode("Actions");
+                    if (xa != null)
+                    {
+                        foreach (XmlNode x in xa.SelectNodes("*"))
+                        {
+                            switch (x.Name)
+                            {
+                                case "Set":
+                                    as_.Add(new Action.Set { Xpath = x.Attributes["xpath"].Value, Attribute = x.Attributes["attribute"].Value, Value = x.Attributes["value"].Value });
+                                    break;
+                                case "Click":
+                                    as_.Add(new Action.Click { Xpath = x.Attributes["xpath"].Value });
+                                    break;
+                                case "WaitDocumentLoaded":
+                                    as_.Add(new Action.WaitDocumentLoaded { MinimalSleepMss = int.Parse(x.Attributes["minimal_sleep_mss"].Value) });
+                                    break;
+                                default:
+                                    throw new Exception("Unknown option!");
+                            }
                         }
                     }
                 }
@@ -368,10 +395,11 @@ namespace Cliver.CefSharpController
                 Queue q = new Queue
                 {
                     Name = xq.Attributes["name"].Value,
+                    InputItems = iis, 
+                    Actions = as_,
                     OutputFields = fs,
                     OutputUrlCollections = ucs,
-                    OutputElementCollections = ecs,
-                    InputItems = iis
+                    OutputElementCollections = ecs
                 };
                 qs.Add(q);
             }
@@ -381,6 +409,7 @@ namespace Cliver.CefSharpController
         {
             public string Name;
             public List<InputItem> InputItems = new List<InputItem>();
+            public List<Action> Actions = new List<Action>();
             public List<OutputUrlCollection> OutputUrlCollections = new List<OutputUrlCollection>();
             public List<OutputElementCollection> OutputElementCollections = new List<OutputElementCollection>();
             public List<OutputField> OutputFields = new List<OutputField>();

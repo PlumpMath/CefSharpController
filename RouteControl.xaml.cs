@@ -202,6 +202,11 @@ namespace Cliver.CefSharpController
             //xml.TextChanged+=del
 
             save.Click += delegate {
+                if (!Controller.Check(route))
+                {
+                    if (!Message.YesNo("The current route is uncompleted. Would you like to save it anyway?"))
+                        return;
+                }
                 Microsoft.Win32.SaveFileDialog d = new Microsoft.Win32.SaveFileDialog();
                 d.FileName = "route"; 
                 d.DefaultExt = ".xml";

@@ -22,6 +22,20 @@ namespace Cliver.CefSharpController
 {
     public class Controller
     {
+        static public bool Check(Route route)
+        {
+            try
+            {
+                new Controller(route);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Message.Error2(e);
+                return false;
+            }
+        }
+
         Controller(Route route)
         {
             List<Route.Queue> rqs = route.GetQueues();
@@ -40,12 +54,35 @@ namespace Cliver.CefSharpController
                         throw new Exception("Unknown type: " + x.GetType());
                 }
 
+                List<Queue.Action> as_ = new List<Queue.Action>();
+                foreach (Route.Action x in rq.Actions)
+                {
+                    if (x is Route.Action.Set)
+                    {
+                        var a = (Route.Action.Set)x;
+                        as_.Add(new Queue.Action.Set { Xpath = a.Xpath, Attribute = a.Attribute, Value = a.Value });
+                    }
+                    else if (x is Route.Action.Click)
+                    {
+                        var a = (Route.Action.Click)x;
+                        as_.Add(new Queue.Action.Click { Xpath = a.Xpath });
+                    }
+                    else if (x is Route.Action.WaitDocumentLoaded)
+                    {
+                        var a = (Route.Action.WaitDocumentLoaded)x;
+                        as_.Add(new Queue.Action.WaitDocumentLoaded { MinimalSleepMss = a.MinimalSleepMss });
+                    }
+                    else
+                        throw new Exception("Unknown type: " + x.GetType());
+                }
+
                 List<Queue.OutputField> ofs = new List<Queue.OutputField>();
                 foreach (Route.OutputField x in rq.OutputFields)
                     ofs.Add(new Queue.OutputField { Name = x.Name, Xpath = x.Xpath, Attribute = x.Attribute });
 
                 q.Name = rq.Name;
                 q.InputItems = iis;
+                q.Actions = as_;
                 q.OutputFields = ofs;
                 queues.Add(q);
             }
