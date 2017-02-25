@@ -41,13 +41,13 @@ namespace Cliver.CefSharpController
                         MainWindow.This.Browser.HighlightElements(xpath);
                         if (step.SelectedIndex == 0)
                         {
-                            route.SetOutputUrlCollection(StartStepItemQueue.Name, new Route.OutputUrlCollection { Queue = "ListNextPage", Xpath = xpath });
+                            route.SetOutputUrlCollection(Queue.StartQueueName, new Route.OutputUrlCollection { Queue = "ListNextPage", Xpath = xpath });
                             route.SetOutputUrlCollection("ListNextPage", new Route.OutputUrlCollection { Queue = "ListNextPage", Xpath = xpath });
                         }
                         else if (step.SelectedIndex == 1)
                         {//SetProductPages
                             string x = find_product_links_xpath(xpath);
-                            route.SetOutputUrlCollection(StartStepItemQueue.Name, new Route.OutputUrlCollection { Queue = "Product0", Xpath = x });
+                            route.SetOutputUrlCollection(Queue.StartQueueName, new Route.OutputUrlCollection { Queue = "Product0", Xpath = x });
                             route.SetOutputUrlCollection("ListNextPage", new Route.OutputUrlCollection { Queue = "Product0", Xpath = x });
                             MainWindow.This.Browser.HighlightElements(x);
                         }
@@ -72,20 +72,20 @@ namespace Cliver.CefSharpController
                         MainWindow.This.Browser.HighlightElements(xpath);
                         if (step.SelectedIndex == 0)
                         {
-                            route.SetOutputUrlCollection(StartStepItemQueue.Name, new Route.OutputUrlCollection { Queue = "ListNextPage", Xpath = xpath });
+                            route.SetOutputUrlCollection(Queue.StartQueueName, new Route.OutputUrlCollection { Queue = "ListNextPage", Xpath = xpath });
                             route.SetOutputUrlCollection("ListNextPage", new Route.OutputUrlCollection { Queue = "ListNextPage", Xpath = xpath });
                         }
                         else if (step.SelectedIndex == 1)
                         {//SetProductBlocks
                             string x = find_product_blocks_xpath(xpath);
-                            route.SetOutputElementCollection(StartStepItemQueue.Name, new Route.OutputElementCollection { Queue = "Product0", Xpath = x });
+                            route.SetOutputElementCollection(Queue.StartQueueName, new Route.OutputElementCollection { Queue = "Product0", Xpath = x });
                             route.SetOutputElementCollection("ListNextPage", new Route.OutputElementCollection { Queue = "Product0", Xpath = x });
                             MainWindow.This.Browser.HighlightElements(x);
                             base_xpath = xpath;
                         }
                         else
                         {//SetProduct
-                            if (base_xpath==null)
+                            if (base_xpath == null)
                             {
                                 Message.Error("No product block was set.");
                                 return;
@@ -111,28 +111,34 @@ namespace Cliver.CefSharpController
                         StepItem si = ((StepItem)step.SelectedItem);
                         if (si.Step == StepItem.Steps.ListNext)
                         {
-                            StepItemQueue nq = find_next_queue_in_steps(si, true);
+                            string output_queue_name;
+                            Route.Queue nq = find_child_queue(si.QueueName, true);
                             if (nq == null)
-                                nq = new StepItemQueue(si.Queue, true);
-                            route.SetOutputUrlCollection(si.Queue.Name, new Route.OutputUrlCollection { Queue = nq.Name, Xpath = xpath });
-                            route.SetOutputUrlCollection(nq.Name, new Route.OutputUrlCollection { Queue = nq.Name, Xpath = xpath });
+                                output_queue_name = si.QueueName + Queue.NextListSuffix;
+                            else
+                                output_queue_name = nq.Name;
+                            route.SetOutputUrlCollection(si.QueueName, new Route.OutputUrlCollection { Queue = output_queue_name, Xpath = xpath });
+                            route.SetOutputUrlCollection(output_queue_name, new Route.OutputUrlCollection { Queue = output_queue_name, Xpath = xpath });
                         }
                         else if (si.Step == StepItem.Steps.Children)
                         {
                             string x = find_product_links_xpath(xpath);
 
-                            StepItemQueue nq = find_next_queue_in_steps(si, false);
+                            string output_queue_name;
+                            Route.Queue nq = find_child_queue(si.QueueName, false);
                             if (nq == null)
                             {
-                                nq = new StepItemQueue(si.Queue, false);
-                                step.Items.Add(new StepItem(StepItem.Steps.ListNext, nq));
-                                step.Items.Add(new StepItem(StepItem.Steps.Data, nq));
-                                step.Items.Add(new StepItem(StepItem.Steps.Children, nq));
+                                output_queue_name = Queue.BaseName + (Queue.GetLevel(si.QueueName) + 1);
+                                step.Items.Add(new StepItem(StepItem.Steps.ListNext, output_queue_name));
+                                step.Items.Add(new StepItem(StepItem.Steps.Data, output_queue_name));
+                                step.Items.Add(new StepItem(StepItem.Steps.Children, output_queue_name));
                             }
-                            route.SetOutputUrlCollection(si.Queue.Name, new Route.OutputUrlCollection { Queue = nq.Name, Xpath = x });
-                            StepItemQueue lnq = find_next_queue_in_steps(si, true);
+                            else
+                                output_queue_name = nq.Name;
+                            route.SetOutputUrlCollection(si.QueueName, new Route.OutputUrlCollection { Queue = output_queue_name, Xpath = x });
+                            Route.Queue lnq = find_child_queue(si.QueueName, true);
                             if (lnq != null)
-                                route.SetOutputUrlCollection(lnq.Name, new Route.OutputUrlCollection { Queue = nq.Name, Xpath = xpath });
+                                route.SetOutputUrlCollection(lnq.Name, new Route.OutputUrlCollection { Queue = output_queue_name, Xpath = xpath });
 
                             MainWindow.This.Browser.HighlightElements(x);
                         }
@@ -143,7 +149,7 @@ namespace Cliver.CefSharpController
                             {
                                 foreach (ProductFieldWindow.Item i in w.Items)
                                     if (i.Get)
-                                        route.SetOutputField(si.Queue.Name, new Route.OutputField { Name = w.Name.Text + "." + i.Attribute, Xpath = xpath, Attribute = i.Attribute });
+                                        route.SetOutputField(si.QueueName, new Route.OutputField { Name = w.Name.Text + "." + i.Attribute, Xpath = xpath, Attribute = i.Attribute });
                             }
                         }
                         else
@@ -156,20 +162,33 @@ namespace Cliver.CefSharpController
             }));
         }
         string base_xpath = null;
-        StepItemQueue find_next_queue_in_steps(StepItem si, bool list_next)
-        {
-            foreach (StepItem i in step.Items)
-                if (i.Queue.Level > si.Queue.Level && i.Step == si.Step && i.Queue.NextList == list_next)
-                    return i.Queue;
-            return null;
-        }
+        //StepItemQueue find_child_queue_in_steps(StepItem si, bool list_next)
+        //{
+        //    foreach (StepItem i in step.Items)
+        //        if (i.Queue.Level > si.Queue.Level && i.Queue.NextList == list_next)
+        //            return i.Queue;
+        //    return null;
+        //}
         //StepItem find_step_in_steps(StepItem.Steps s, StepItemQueue q)
         //{
         //    foreach (StepItem i in step.Items)
         //        if (i.Queue == q && i.Step == s)
         //            return i;
         //    return null;
-        //}
+        //}        
+        Route.Queue find_child_queue(string queue_name, bool list_next)
+        {
+            bool children = false;
+            foreach (Route.Queue q in route.GetQueues())
+                if (children)
+                {
+                    if (q.Name == queue_name + (list_next ? Queue.NextListSuffix : ""))
+                        return q;
+                }
+                else if (q.Name == queue_name)
+                    children = true;
+            return null;
+        }
 
         public RouteControl()
         {
@@ -209,7 +228,7 @@ namespace Cliver.CefSharpController
                     string[] urls = d.StartUrl.Text.Split('\n');
                     foreach (string url in urls)
                     {
-                        route.AddInputItem(StartStepItemQueue.Name, new Route.InputUrl { Value = url.Trim() });
+                        route.AddInputItem(Queue.StartQueueName, new Route.InputUrl { Value = url.Trim() });
                         xml.Text = route.Xml;
                     }
                     MainWindow.This.Browser.Load(urls[0], false);
@@ -234,9 +253,9 @@ namespace Cliver.CefSharpController
                             route_type = RouteType.UNIVERSAL;
                             step.DisplayMemberPath = "Text";
                             step.SelectedValuePath = "Value";
-                            step.Items.Add(new StepItem(StepItem.Steps.ListNext, StartStepItemQueue));
-                            step.Items.Add(new StepItem(StepItem.Steps.Data, StartStepItemQueue));
-                            step.Items.Add(new StepItem(StepItem.Steps.Children, StartStepItemQueue));
+                            step.Items.Add(new StepItem(StepItem.Steps.ListNext, Queue.StartQueueName));
+                            step.Items.Add(new StepItem(StepItem.Steps.Data, Queue.StartQueueName));
+                            step.Items.Add(new StepItem(StepItem.Steps.Children, Queue.StartQueueName));
                             break;
                         default:
                             throw new Exception("No such option: " + d.RouteType.SelectedIndex);
@@ -293,40 +312,48 @@ namespace Cliver.CefSharpController
             }
 
             public string Text { get; private set; }
-            public readonly StepItemQueue Queue;
+            public readonly string QueueName;
             public readonly Steps Step;
-            //public bool Set = false;
 
-            public StepItem(Steps step, StepItemQueue queue)
+            public StepItem(Steps step, string queue_name)
             {
                 Step = step;
-                Queue = queue;
-                Text = Step.ToString() + Queue.Level;
+                QueueName = queue_name;
+                Text = Step.ToString() + Queue.GetLevel(queue_name);
             }
         }
 
-        public class StepItemQueue
+        public class Queue
         {
-            public readonly string Name;
+            //public readonly string Name;
             public const string BaseName = "Queue";
-            public readonly int Level;
-            public readonly bool NextList;
-            public readonly StepItemQueue ParentQueue;
+            public const string NextListSuffix = "_NextList";
+            public const string StartQueueName = BaseName + "0";
 
-            public StepItemQueue(StepItemQueue parent_queue, bool next_list)
+            public static int GetLevel(string queue_name)
             {
-                ParentQueue = parent_queue;
-                NextList = next_list;
-                Level = 0;
-                for (StepItemQueue siq = this.ParentQueue; siq != null; siq = siq.ParentQueue)
-                    Level++;
-                Name = BaseName + Level;
-                if (next_list)
-                    Name += "NextList";
+                return int.Parse(Regex.Replace(queue_name, @"[^\d]+", ""));
             }
+
+            //public readonly int Level;
+            //public readonly bool NextList;
+            //public readonly StepItemQueue ParentQueue;
+
+            //public StepItemQueue(StepItemQueue parent_queue, bool next_list)
+            //{
+            //    ParentQueue = parent_queue;
+            //    NextList = next_list;
+            //    Level = 0;
+            //    for (StepItemQueue siq = this.ParentQueue; siq != null; siq = siq.ParentQueue)
+            //        Level++;
+            //    if (next_list)
+            //        Name = parent_queue.Name + NextListSuffix;
+            //    else
+            //        Name = BaseName + Level;
+            //}
         }
 
-        StepItemQueue StartStepItemQueue = new StepItemQueue(null, false);
+        //StepItemQueue StartStepItemQueue = new StepItemQueue(null, false);
 
         void listen_clicks()
         {

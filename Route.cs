@@ -255,15 +255,6 @@ namespace Cliver.CefSharpController
             return xo;
         }
 
-        public class Queue
-        {
-            public string Name;
-            public List<InputItem> InputItems = new List<InputItem>();
-            public List<OutputUrlCollection> OutputUrlCollections = new List<OutputUrlCollection>();
-            public List<OutputElementCollection> OutputElementCollections = new List<OutputElementCollection>();
-            public List<OutputField> OutputFields = new List<OutputField>();
-        }
-
         public List<Queue> GetQueues()
         {
             List<Queue> qs = new List<Queue>();
@@ -275,7 +266,7 @@ namespace Cliver.CefSharpController
                 {
                     foreach (XmlNode x in xi.SelectNodes("*"))
                     {
-                        switch( (InputItem.Types)Enum.Parse(typeof(InputItem.Types), x.Name))
+                        switch ((InputItem.Types)Enum.Parse(typeof(InputItem.Types), x.Name))
                         {
                             case InputItem.Types.Url:
                                 iis.Add(new InputUrl { Value = x.Attributes["value"].Value });
@@ -292,16 +283,19 @@ namespace Cliver.CefSharpController
                 XmlNode xo = xq.SelectSingleNode("Output");
 
                 List<OutputUrlCollection> ucs = new List<OutputUrlCollection>();
-                foreach (XmlNode x in xo.SelectNodes("UrlCollection"))
-                    ucs.Add(new OutputUrlCollection { Queue = x.Attributes["queue"].Value, Xpath = x.Attributes["xpath"].Value });
+                if (xo != null)
+                    foreach (XmlNode x in xo.SelectNodes("UrlCollection"))
+                        ucs.Add(new OutputUrlCollection { Queue = x.Attributes["queue"].Value, Xpath = x.Attributes["xpath"].Value });
 
                 List<OutputElementCollection> ecs = new List<OutputElementCollection>();
-                foreach (XmlNode x in xo.SelectNodes("ElementCollection"))
-                    ecs.Add(new OutputElementCollection { Queue = x.Attributes["queue"].Value, Xpath = x.Attributes["xpath"].Value });
+                if (xo != null)
+                    foreach (XmlNode x in xo.SelectNodes("ElementCollection"))
+                        ecs.Add(new OutputElementCollection { Queue = x.Attributes["queue"].Value, Xpath = x.Attributes["xpath"].Value });
 
                 List<OutputField> fs = new List<OutputField>();
-                foreach (XmlNode x in xo.SelectNodes("Field"))
-                    fs.Add(new OutputField { Attribute = x.Attributes["attribute"].Value, Xpath = x.Attributes["xpath"].Value, Name = x.Attributes["name"].Value });
+                if (xo != null)
+                    foreach (XmlNode x in xo.SelectNodes("Field"))
+                        fs.Add(new OutputField { Attribute = x.Attributes["attribute"].Value, Xpath = x.Attributes["xpath"].Value, Name = x.Attributes["name"].Value });
 
                 Queue q = new Queue
                 {
@@ -314,6 +308,14 @@ namespace Cliver.CefSharpController
                 qs.Add(q);
             }
             return qs;
+        }
+        public class Queue
+        {
+            public string Name;
+            public List<InputItem> InputItems = new List<InputItem>();
+            public List<OutputUrlCollection> OutputUrlCollections = new List<OutputUrlCollection>();
+            public List<OutputElementCollection> OutputElementCollections = new List<OutputElementCollection>();
+            public List<OutputField> OutputFields = new List<OutputField>();
         }
     }
 }
