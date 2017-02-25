@@ -197,7 +197,7 @@ namespace Cliver.CefSharpController
 
                     override public void Perform()
                     {
-                        MainWindow.This.Browser.Set(Xpath, Attribute, Value);
+                        MainWindow.This.Browser.SetValue(Xpath, Value);
                     }
                 }
 

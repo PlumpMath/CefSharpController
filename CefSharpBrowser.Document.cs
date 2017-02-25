@@ -135,7 +135,7 @@ if(!document.__createXPathForElement){
             ";
         }
 
-        public void Set(string xpath, string attribute, string value)
+        public void SetAttribute(string xpath, string attribute, string value)
         {
             ExecuteJavaScript(
                 CefSharpBrowser.Define__getElementsByXPath() + @"
@@ -154,10 +154,29 @@ for(var i = 0; i < es.length; i++){
             ");
         }
 
-        public List<string> Get(string xpath, string attribute)
+        public void SetValue(string xpath, string value)
         {
-           return (List<string>)ExecuteJavaScript(
+            ExecuteJavaScript(
                 CefSharpBrowser.Define__getElementsByXPath() + @"
+var es =  document.__getElementsByXPath('" + xpath + @"');
+//if(es.length > 1)
+//    alert('Found more than 1 element!');
+//if(es.length < 1)
+//    alert('no element found:' + '" + xpath + @"');
+for(var i = 0; i < es.length; i++){
+    var e = es[i];
+    //while(e && e.tagName != 'INPUT')
+    //    e = e.parentNode;
+    //if(e)
+        e.value = '" + value + @"';
+}
+            ");
+        }
+
+        public List<string> GetAttribute(string xpath, string attribute)
+        {
+            var os = (List<object>)ExecuteJavaScript(
+                 CefSharpBrowser.Define__getElementsByXPath() + @"
 var es =  document.__getElementsByXPath('" + xpath + @"');
 //if(es.length > 1)
 //    alert('Found more than 1 element!');
@@ -169,6 +188,31 @@ for(var i = 0; i < es.length; i++){
 }
 return vs;
             ");
+            List<string> vs = new List<string>();
+            foreach (string s in os)
+                vs.Add(s);
+            return vs;
+        }
+
+        public List<string> GetValue(string xpath)
+        {
+            var os = (List<object>)ExecuteJavaScript(
+                 CefSharpBrowser.Define__getElementsByXPath() + @"
+var es =  document.__getElementsByXPath('" + xpath + @"');
+//if(es.length > 1)
+//    alert('Found more than 1 element!');
+//if(es.length < 1)
+//    alert('no element found:' + '" + xpath + @"');
+var vs = [];
+for(var i = 0; i < es.length; i++){
+    vs.push(es[i].value);
+}
+return vs;
+            ");
+            List<string> vs = new List<string>();
+            foreach (string s in os)
+                vs.Add(s);
+            return vs;
         }
 
         public void Click(string xpath)

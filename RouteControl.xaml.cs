@@ -154,25 +154,22 @@ namespace Cliver.CefSharpController
                         }
                         else if (si.Step == StepItem.Steps.Submit)
                         {
-                            if (last_input_xpath != null)
-                                route.AddAction(si.QueueName, new Route.Action.Set { Xpath = xpath, Attribute = "value", Value = MainWindow.This.Browser.Get(xpath, "value")[0] });
+                            if (!Regex.IsMatch(xpath, @"/input(\[\d+\])?$", RegexOptions.IgnoreCase))
+                                return;
 
-                            if (complete_submit.IsChecked == true)
+                            string type = MainWindow.This.Browser.GetAttribute(xpath, "type")[0];
+                            if (Regex.IsMatch(type, @"text|email|password", RegexOptions.IgnoreCase))
+                                route.AddAction(si.QueueName, new Route.Action.Set { Xpath = xpath, Attribute = "value", Value = MainWindow.This.Browser.GetValue(xpath)[0] });
+                            else if (Regex.IsMatch(type, @"button|submit", RegexOptions.IgnoreCase))
                             {
-                                last_input_xpath = null;
                                 route.AddAction(si.QueueName, new Route.Action.Click { Xpath = xpath });
                                 route.AddAction(si.QueueName, new Route.Action.WaitDocumentLoaded { MinimalSleepMss = 500 });
 
                                 MainWindow.This.Browser.Click(xpath);
                                 //MainWindow.This.Browser.WaitForCompletion();
-                                complete_submit.Visibility = Visibility.Collapsed;
-                                step.Visibility = Visibility.Visible;
                             }
                             else
-                            {
-                                if(Regex.IsMatch(xpath, @"/input(\[\d+\])?$", RegexOptions.IgnoreCase))
-                                    last_input_xpath = xpath;
-                            }
+                                Message.Error("Unknown type: " + type);
                         }
                         else
                             throw new Exception("No such option: " + si.Step);
@@ -184,7 +181,6 @@ namespace Cliver.CefSharpController
             }));
         }
         string base_xpath = null;
-        string last_input_xpath = null;
         Route.Queue find_child_queue(string queue_name, bool list_next)
         {
             bool children = false;
@@ -290,13 +286,6 @@ namespace Cliver.CefSharpController
                         listen_clicks();
                         break;
                     case RouteType.UNIVERSAL:
-                        if (((StepItem)step.SelectedItem).Step == StepItem.Steps.Submit)
-                        {
-                            complete_submit.IsChecked = false;
-                            complete_submit.Visibility = Visibility.Visible;
-                            step.Visibility = Visibility.Collapsed;
-                        }
-
                         MainWindow.This.Browser.HighlightElementsOnHover();
                         listen_clicks();
                         break;
