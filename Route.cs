@@ -71,7 +71,7 @@ namespace Cliver.CefSharpController
 
         public void SetOutputUrlCollection(string queue_name, OutputUrlCollection url_collection)
         {
-            XmlNode xo = get_output_node(queue_name);
+            XmlNode xo = get_queue_node(queue_name, QueueNodes.Output);
             XmlNode xu = xo.SelectSingleNode("UrlCollection[@queue='" + url_collection.Queue + "']");
             if (xu == null)
             {
@@ -96,7 +96,7 @@ namespace Cliver.CefSharpController
 
         public void SetOutputElementCollection(string queue_name, OutputElementCollection url_collection)
         {
-            XmlNode xo = get_output_node(queue_name);
+            XmlNode xo = get_queue_node(queue_name, QueueNodes.Output);
             XmlNode xu = xo.SelectSingleNode("ElementCollection[@queue='" + url_collection.Queue + "']");
             if (xu == null)
             {
@@ -121,7 +121,7 @@ namespace Cliver.CefSharpController
 
         public void SetOutputField(string queue_name, OutputField of)
         {
-            XmlNode xo = get_output_node(queue_name);
+            XmlNode xo = get_queue_node(queue_name, QueueNodes.Output);
             XmlNode xf = xo.SelectSingleNode("Field[@name='" + of.Name + "']");
             if (xf == null)
             {
@@ -174,17 +174,81 @@ namespace Cliver.CefSharpController
             xd.Save(file);
         }
 
+        public void AddAction(string queue_name, Action action)
+        {
+            XmlNode xin = get_queue_node(queue_name, QueueNodes.Actions);
+            XmlNode xi = xd.CreateElement(action.Tag);
+            xin.AppendChild(xi);
+
+            if (action is Action.Set)
+            {
+                Action.Set s = (Action.Set)action;
+                XmlAttribute a = xd.CreateAttribute("xpath");
+                if (string.IsNullOrEmpty(s.Xpath))
+                    throw new Exception("Xpath is empty");
+                a.Value = s.Xpath;
+                xi.Attributes.Append(a);
+
+                a = xd.CreateAttribute("attribute");
+                a.Value = s.Attribute;
+                xi.Attributes.Append(a);
+
+                a = xd.CreateAttribute("value");
+                a.Value = s.Value;
+                xi.Attributes.Append(a);
+            }
+            else if (action is Action.Click)
+            {
+                Action.Click c = (Action.Click)action;
+                XmlAttribute a = xd.CreateAttribute("xpath");
+                if (string.IsNullOrEmpty(c.Xpath))
+                    throw new Exception("Xpath is empty");
+                a.Value = c.Xpath;
+                xi.Attributes.Append(a);
+            }
+            else if (action is Action.WaitDocumentLoaded)
+            {
+                Action.WaitDocumentLoaded w = (Action.WaitDocumentLoaded)action;
+                XmlAttribute a = xd.CreateAttribute("minimal_sleep_mss");
+                a.Value = w.MinimalSleepMss.ToString();
+                xi.Attributes.Append(a);
+            }
+            else
+                throw new Exception("Unknown type: " + action.GetType());
+        }
+
+        public abstract class Action
+        {
+            public string Tag
+            {
+                get
+                {
+                    return this.GetType().Name;
+                }
+            }
+
+            public class Set : Action
+            {
+                public string Xpath;
+                public string Value;
+                public string Attribute;
+            }
+
+            public class Click : Action
+            {
+                public string Xpath;
+            }
+
+            public class WaitDocumentLoaded : Action
+            {
+                public int MinimalSleepMss;
+            }
+        }
+
         public void AddInputItem(string queue_name, InputItem ii)
         {
-            XmlNode xin = get_input_node(queue_name);
-            InputElement.Types tag;
-            if (ii is InputUrl)
-                tag = InputItem.Types.Url;
-            else if (ii is InputElement)
-                tag = InputItem.Types.Element;
-            else
-                throw new Exception("Unknown type: " + ii.GetType());
-            XmlNode xi = xd.CreateElement(tag.ToString());
+            XmlNode xin = get_queue_node(queue_name, QueueNodes.Input);
+            XmlNode xi = xd.CreateElement(ii.Tag);
             xin.AppendChild(xi);
             XmlAttribute a = xd.CreateAttribute("value");
             if (string.IsNullOrEmpty(ii.Value))
@@ -195,20 +259,28 @@ namespace Cliver.CefSharpController
 
         public abstract class InputItem
         {
-            public string Value;
-            public enum Types
+            public string Tag
             {
-                Url,
-                Element
+                get
+                {
+                    return this.GetType().Name;
+                }
             }
-        }
 
-        public class InputUrl : InputItem
-        {
-        }
+            public string Value;
+            //public enum Types
+            //{
+            //    Url,
+            //    Element
+            //}
 
-        public class InputElement : InputItem
-        {
+            public class Url : InputItem
+            {
+            }
+
+            public class Element : InputItem
+            {
+            }
         }
 
         XmlNode get_queue_node(string queue_name)
@@ -231,28 +303,24 @@ namespace Cliver.CefSharpController
             return xq;
         }
 
-        XmlNode get_input_node(string queue_name)
+        XmlNode get_queue_node(string queue_name, QueueNodes node)
         {
             XmlNode xq = get_queue_node(queue_name);
-            XmlNode xi = xq.SelectSingleNode("Input");
+            string node_tag = node.ToString();
+            XmlNode xi = xq.SelectSingleNode(node_tag);
             if (xi == null)
             {
-                xi = xd.CreateElement("Input");
+                xi = xd.CreateElement(node_tag);
                 xq.AppendChild(xi);
             }
             return xi;
         }
 
-        XmlNode get_output_node(string queue_name)
+        public enum QueueNodes
         {
-            XmlNode xq = get_queue_node(queue_name);
-            XmlNode xo = xq.SelectSingleNode("Output");
-            if (xo == null)
-            {
-                xo = xd.CreateElement("Output");
-                xq.AppendChild(xo);
-            }
-            return xo;
+            Input,
+            Actions,
+            Output
         }
 
         public List<Queue> GetQueues()
@@ -266,13 +334,13 @@ namespace Cliver.CefSharpController
                 {
                     foreach (XmlNode x in xi.SelectNodes("*"))
                     {
-                        switch ((InputItem.Types)Enum.Parse(typeof(InputItem.Types), x.Name))
-                        {
-                            case InputItem.Types.Url:
-                                iis.Add(new InputUrl { Value = x.Attributes["value"].Value });
+                        switch (x.Name)
+                        {                        
+                            case "Url":
+                                iis.Add(new InputItem.Url { Value = x.Attributes["value"].Value });
                                 break;
-                            case InputItem.Types.Element:
-                                iis.Add(new InputElement { Value = x.Attributes["value"].Value });
+                            case "Element":
+                                iis.Add(new InputItem.Element { Value = x.Attributes["value"].Value });
                                 break;
                             default:
                                 throw new Exception("Unknown option!");
@@ -377,5 +445,42 @@ namespace Cliver.CefSharpController
             <Field name="postingbody.class" xpath="/html/body/section/section/section/section" attribute="class" />
         </Output>
     </Queue>
-</Route>     
+</Route>
+
+#3
+<Route name="test.xml">
+    <Queue name="Start">
+        <Input>
+            <Url value=""/>
+        </Input>
+        <Actions>
+            <Set xpath="/html/body/section/form/div[3]/div[3]/span[2]/input[3]" value="" />
+            <Click xpath="/html/body/section/form/div[3]/div[3]/span[2]/input[4]" />
+            <WaitDocumentLoaded minimal_sleep_mss="500" />
+        </Actions>
+        <Output>
+            <UrlCollection xpath="/html/body/section/form/div[3]/div[3]/span[2]/a[3]" queue="NextPageList"/>
+            <UrlCollection xpath="/html/body/section/form/div[4]/ul/li[*]/p/a" queue="Product"/>
+        </Output>
+    </Queue>
+    <Queue name="ListNextPage">
+        <Output>
+            <UrlCollection xpath="/html/body/section/form/div[3]/div[3]/span[2]/a[3]" queue="NextPageList"/>
+            <UrlCollection xpath="/html/body/section/form/div[4]/ul/li[*]/p/a" queue="Product"/>
+        </Output>
+    </Queue>
+    <Queue name="Product">
+        <Output>
+            <Field name="postingbody." xpath="/html/body/section/section/section/section" attribute="" />
+            <Field name="postingbody.class" xpath="/html/body/section/section/section/section" attribute="class" />
+            <UrlCollection xpath="" queue="Product2"/>
+        </Output>
+    </Queue>
+    <Queue name="Product2">
+        <Output>
+            <Field name="postingbody." xpath="/html/body/section/section/section/section" attribute="" />
+            <Field name="postingbody.class" xpath="/html/body/section/section/section/section" attribute="class" />
+        </Output>
+    </Queue>
+</Route>         
 */

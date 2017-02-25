@@ -32,9 +32,9 @@ namespace Cliver.CefSharpController
                 List<Queue.InputItem> iis = new List<Queue.InputItem>();
                 foreach (Route.InputItem x in rq.InputItems)
                 {
-                    if (x is Route.InputUrl)
+                    if (x is Route.InputItem.Url)
                         iis.Add(new Queue.InputUrl { Value = x.Value, ParentItem = null, Queue = q });
-                    else if (x is Route.InputElement)
+                    else if (x is Route.InputItem.Element)
                         iis.Add(new Queue.InputElement { Value = x.Value, ParentItem = null, Queue = q });
                     else
                         throw new Exception("Unknown type: " + x.GetType());
@@ -184,6 +184,43 @@ namespace Cliver.CefSharpController
             public class InputElement : InputItem
             {
             }
+            
+          abstract  public class Action
+            {
+                abstract public void Perform();
+
+                public class Set : Action
+                {
+                    public string Xpath;
+                    public string Value;
+                    public string Attribute;
+
+                    override public void Perform()
+                    {
+                        MainWindow.This.Browser.Set(Xpath, Attribute, Value);
+                    }
+                }
+
+                public class Click : Action
+                {
+                    public string Xpath;
+
+                    override public void Perform()
+                    {
+                        MainWindow.This.Browser.Click(Xpath);
+                    }
+                }
+
+                public class WaitDocumentLoaded : Action
+                {
+                    public int MinimalSleepMss;
+
+                    override public void Perform()
+                    {
+                        MainWindow.This.Browser.WaitForCompletion();
+                    }
+                }
+            }
 
             public class OutputUrlCollection
             {
@@ -206,6 +243,7 @@ namespace Cliver.CefSharpController
             }
 
             public List<InputItem> InputItems = new List<InputItem>();
+            public List<Action> Actions = new List<Action>();
             public List<OutputUrlCollection> OutputUrlCollections = new List<OutputUrlCollection>();
             public List<OutputElementCollection> OutputElementCollections = new List<OutputElementCollection>();
             public List<OutputField> OutputFields = new List<OutputField>();
@@ -223,7 +261,10 @@ namespace Cliver.CefSharpController
                 }
                 else
                     throw new Exception("Unknown type: " + ii.GetType());
-                
+
+                foreach (Action a in Actions)
+                    a.Perform();
+
                 string url = MainWindow.This.Browser.Url;
                 foreach (OutputUrlCollection uc in OutputUrlCollections)
                 {

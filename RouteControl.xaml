@@ -15,6 +15,7 @@
                 <ComboBoxItem Name="SetProductPages">SetProductPages</ComboBoxItem>
                 <ComboBoxItem Name="SetProduct">SetProduct</ComboBoxItem>
             </ComboBox>
+            <CheckBox  DockPanel.Dock="Top" Name="complete_submit" Visibility="Collapsed">Complete Submit</CheckBox>
             <Button  DockPanel.Dock="Top" Name="save">Save</Button>
             <Button  DockPanel.Dock="Top" Name="run">Run</Button>
             <Label  DockPanel.Dock="Top" Height="auto" Width="auto" >Xml:</Label>

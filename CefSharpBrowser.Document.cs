@@ -135,25 +135,53 @@ if(!document.__createXPathForElement){
             ";
         }
 
-        //        static public  void Click(string xpath)
-        //        {
-        //            CefSharpRoutines.Execute(MainWindow.Browser, @"
-        //                    document.__getElementsByXPath = function(path) {
-        //                        var evaluator = new XPathEvaluator();
-        //                        var result = evaluator.evaluate(path, document.documentElement, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
-        //                        var es = [];
-        //                        for(var thisNode = result.iterateNext(); thisNode; thisNode = result.iterateNext()){
-        //                            es.push(thisNode);
-        //                        }
-        //                        return es;
-        //                    };
+        public void Set(string xpath, string attribute, string value)
+        {
+            ExecuteJavaScript(
+                CefSharpBrowser.Define__getElementsByXPath() + @"
+var es =  document.__getElementsByXPath('" + xpath + @"');
+//if(es.length > 1)
+//    alert('Found more than 1 element!');
+//if(es.length < 1)
+//    alert('no element found:' + '" + xpath + @"');
+for(var i = 0; i < es.length; i++){
+    var e = es[i];
+    //while(e && e.tagName != 'INPUT')
+    //    e = e.parentNode;
+    //if(e)
+        e['" + attribute + @"'] = '" + value + @"';
+}
+            ");
+        }
 
-        //            var es =  document.__getElementsByXPath('" + xpath + @"');
-        //if(es.length < 1)
-        //    alert('no element found:' + '" + xpath + @"');
-        //else
-        //    es[0].click();
-        //            ");
-        //        }
+        public List<string> Get(string xpath, string attribute)
+        {
+           return (List<string>)ExecuteJavaScript(
+                CefSharpBrowser.Define__getElementsByXPath() + @"
+var es =  document.__getElementsByXPath('" + xpath + @"');
+//if(es.length > 1)
+//    alert('Found more than 1 element!');
+//if(es.length < 1)
+//    alert('no element found:' + '" + xpath + @"');
+var vs = [];
+for(var i = 0; i < es.length; i++){
+    vs.push(es[i].getAttribute('" + attribute + @"'));
+}
+return vs;
+            ");
+        }
+
+        public void Click(string xpath)
+        {
+            ExecuteJavaScript(
+                CefSharpBrowser.Define__getElementsByXPath() + @"
+var es =  document.__getElementsByXPath('" + xpath + @"');
+if(es.length < 1)
+    alert('no element found:' + '" + xpath + @"');
+for(var i = 0; i < es.length; i++){
+    es[i].click();
+}
+            ");
+        }
     }
 }

@@ -152,6 +152,28 @@ namespace Cliver.CefSharpController
                                         route.SetOutputField(si.QueueName, new Route.OutputField { Name = w.Name.Text + "." + i.Attribute, Xpath = xpath, Attribute = i.Attribute });
                             }
                         }
+                        else if (si.Step == StepItem.Steps.Submit)
+                        {
+                            if (last_input_xpath != null)
+                                route.AddAction(si.QueueName, new Route.Action.Set { Xpath = xpath, Attribute = "value", Value = MainWindow.This.Browser.Get(xpath, "value")[0] });
+
+                            if (complete_submit.IsChecked == true)
+                            {
+                                last_input_xpath = null;
+                                route.AddAction(si.QueueName, new Route.Action.Click { Xpath = xpath });
+                                route.AddAction(si.QueueName, new Route.Action.WaitDocumentLoaded { MinimalSleepMss = 500 });
+
+                                MainWindow.This.Browser.Click(xpath);
+                                //MainWindow.This.Browser.WaitForCompletion();
+                                complete_submit.Visibility = Visibility.Collapsed;
+                                step.Visibility = Visibility.Visible;
+                            }
+                            else
+                            {
+                                if(Regex.IsMatch(xpath, @"/input(\[\d+\])?$", RegexOptions.IgnoreCase))
+                                    last_input_xpath = xpath;
+                            }
+                        }
                         else
                             throw new Exception("No such option: " + si.Step);
                         xml.Text = route.Xml;
@@ -162,6 +184,7 @@ namespace Cliver.CefSharpController
             }));
         }
         string base_xpath = null;
+        string last_input_xpath = null;
         Route.Queue find_child_queue(string queue_name, bool list_next)
         {
             bool children = false;
@@ -214,7 +237,7 @@ namespace Cliver.CefSharpController
                     string[] urls = d.StartUrl.Text.Split('\n');
                     foreach (string url in urls)
                     {
-                        route.AddInputItem(Queue.StartQueueName, new Route.InputUrl { Value = url.Trim() });
+                        route.AddInputItem(Queue.StartQueueName, new Route.InputItem.Url { Value = url.Trim() });
                         xml.Text = route.Xml;
                     }
                     MainWindow.This.Browser.Load(urls[0], false);
@@ -239,6 +262,7 @@ namespace Cliver.CefSharpController
                             route_type = RouteType.UNIVERSAL;
                             step.DisplayMemberPath = "Text";
                             step.SelectedValuePath = "Value";
+                            step.Items.Add(new StepItem(StepItem.Steps.Submit, Queue.StartQueueName));
                             step.Items.Add(new StepItem(StepItem.Steps.ListNext, Queue.StartQueueName));
                             step.Items.Add(new StepItem(StepItem.Steps.Data, Queue.StartQueueName));
                             step.Items.Add(new StepItem(StepItem.Steps.Children, Queue.StartQueueName));
@@ -266,6 +290,13 @@ namespace Cliver.CefSharpController
                         listen_clicks();
                         break;
                     case RouteType.UNIVERSAL:
+                        if (((StepItem)step.SelectedItem).Step == StepItem.Steps.Submit)
+                        {
+                            complete_submit.IsChecked = false;
+                            complete_submit.Visibility = Visibility.Visible;
+                            step.Visibility = Visibility.Collapsed;
+                        }
+
                         MainWindow.This.Browser.HighlightElementsOnHover();
                         listen_clicks();
                         break;
@@ -292,6 +323,7 @@ namespace Cliver.CefSharpController
         {
             public enum Steps
             {
+                Submit,
                 ListNext,
                 Data,
                 Children
