@@ -273,7 +273,7 @@ namespace Cliver.CefSharpController
                 {
                     public Queue Queue;
                     public string Xpath;
-                    public Route.Output.UrlCollection.AddManners AddManner = Route.Output.UrlCollection.AddManners.AppendToEnd;
+                    public Route.Output.UrlCollection.AddManners AddManner = Route.Output.UrlCollection.AddManners.FIFO;
                 }
 
                 public class ElementCollection : Output
@@ -322,10 +322,10 @@ namespace Cliver.CefSharpController
                             var i = new Controller.Queue.InputItem.Url { Value = l, Queue = uc.Queue, ParentItem = ii };
                             switch (uc.AddManner)
                             {
-                                case Route.Output.UrlCollection.AddManners.AppendToEnd:
+                                case Route.Output.UrlCollection.AddManners.FIFO:
                                     uc.Queue.InputItems.Add(i);
                                     break;
-                                case Route.Output.UrlCollection.AddManners.InsertToHead:
+                                case Route.Output.UrlCollection.AddManners.LIFO:
                                     uc.Queue.InputItems.Insert(0, i);
                                     break;
                                 default:

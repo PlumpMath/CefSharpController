@@ -51,7 +51,7 @@ namespace Cliver.CefSharpController
                         //StartUrl.Text = "https://translate.pentairpool.com/en/products";
                         StartUrl.Text = "http://boston.craigslist.org/search/ata";
                         //StartUrl.Text = "https://www.amazon.com/ap/signin?_encoding=UTF8&openid.assoc_handle=usflex&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.mode=checkid_setup&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&openid.ns.pape=http%3A%2F%2Fspecs.openid.net%2Fextensions%2Fpape%2F1.0&openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.com%2Fb%2Fref%3Dnav_signin%3F_encoding%3DUTF8%26node%3D5782443011%26pf_rd_m%3DATVPDKIKX0DER%26pf_rd_s%3Dmerchandised-search-4%26pf_rd_r%3DH32HQDT2T42FCMTBY75X%26pf_rd_t%3D101%26pf_rd_p%3D5cdf0554-3673-50da-a889-915a59a075a0%26pf_rd_i%3D16318651";
-                        //StartUrl.Text = "https://www.chainreactioncycles.com/signin?targetpage=/myaccount";
+                        StartUrl.Text = "https://accounts.craigslist.org/login/";
                         break;
                 }
             };

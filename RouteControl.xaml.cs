@@ -111,7 +111,7 @@ namespace Cliver.CefSharpController
                         StepItem si = ((StepItem)step.SelectedItem);
                         if (si.Step == StepItem.Steps.ListNext)
                         {
-                            route.SetOutput(si.QueueName, new Route.Output.UrlCollection { Queue = si.QueueName, Xpath = xpath, AddManner = Route.Output.UrlCollection.AddManners.InsertToHead });
+                            route.SetOutput(si.QueueName, new Route.Output.UrlCollection { Queue = si.QueueName, Xpath = xpath, AddManner = Route.Output.UrlCollection.AddManners.LIFO });
                         }
                         else if (si.Step == StepItem.Steps.Children)
                         {
@@ -152,7 +152,7 @@ namespace Cliver.CefSharpController
                         }
                         else if (si.Step == StepItem.Steps.Submit)
                         {
-                            if (!Regex.IsMatch(xpath, @"/input(\[\d+\])?$", RegexOptions.IgnoreCase))
+                            if (!Regex.IsMatch(xpath, @"/(input|button)(\[\d+\])?$", RegexOptions.IgnoreCase))
                                 return;
 
                             string type = MainWindow.This.Browser.GetAttribute(xpath, "type")[0];

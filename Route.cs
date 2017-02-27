@@ -154,11 +154,11 @@ namespace Cliver.CefSharpController
             {
                 public string Queue;
                 public string Xpath;
-                public AddManners AddManner = AddManners.AppendToEnd;
+                public AddManners AddManner = AddManners.FIFO;
                 public enum AddManners
                 {
-                    AppendToEnd,
-                    InsertToHead
+                    FIFO,
+                    LIFO
                 }
             }
 
