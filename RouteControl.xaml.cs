@@ -152,22 +152,37 @@ namespace Cliver.CefSharpController
                         }
                         else if (si.Step == StepItem.Steps.Submit)
                         {
-                            if (!Regex.IsMatch(xpath, @"/(input|button)(\[\d+\])?$", RegexOptions.IgnoreCase))
+                            string action = null;
+                            if (Regex.IsMatch(xpath, @"/input(\[\d+\])?$", RegexOptions.IgnoreCase))
+                            {
+                                string type = MainWindow.This.Browser.GetAttribute(xpath, "type")[0];
+                                if (Regex.IsMatch(type, @"text|email|password", RegexOptions.IgnoreCase))
+                                    action = "set";
+                                else
+                                    action = "click";
+                            }
+                            else if (Regex.IsMatch(xpath, @"/textarea(\[\d+\])?$", RegexOptions.IgnoreCase))
+                                action = "set";
+                            else if (Regex.IsMatch(xpath, @"/button(\[\d+\])?$", RegexOptions.IgnoreCase))
+                                action = "click";
+                            else
                                 return;
 
-                            string type = MainWindow.This.Browser.GetAttribute(xpath, "type")[0];
-                            if (Regex.IsMatch(type, @"text|email|password", RegexOptions.IgnoreCase))
-                                route.AddAction(si.QueueName, new Route.Action.Set { Xpath = xpath, Attribute = "value", Value = MainWindow.This.Browser.GetValue(xpath)[0] });
-                            else if (Regex.IsMatch(type, @"button|submit", RegexOptions.IgnoreCase))
+                            switch (action)
                             {
-                                route.AddAction(si.QueueName, new Route.Action.Click { Xpath = xpath });
-                                route.AddAction(si.QueueName, new Route.Action.WaitDocumentLoaded { MinimalSleepMss = 500 });
+                                case "set":
+                                    route.AddAction(si.QueueName, new Route.Action.Set { Xpath = xpath, Attribute = "value", Value = MainWindow.This.Browser.GetValue(xpath)[0] });
+                                    break;
+                                case "click":
+                                    route.AddAction(si.QueueName, new Route.Action.Click { Xpath = xpath });
+                                    route.AddAction(si.QueueName, new Route.Action.WaitDocumentLoaded { MinimalSleepMss = 500 });
 
-                                MainWindow.This.Browser.Click(xpath);
-                                //MainWindow.This.Browser.WaitForCompletion();
+                                    MainWindow.This.Browser.Click(xpath);
+                                    //MainWindow.This.Browser.WaitForCompletion();
+                                    break;
+                                default:
+                                    throw new Exception("Undefined action: " + action);
                             }
-                            else
-                                Message.Error("Unknown type: " + type);
                         }
                         else
                             throw new Exception("No such option: " + si.Step);

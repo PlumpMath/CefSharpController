@@ -24,7 +24,7 @@ using System.Xml;
     - allow repeating right-click when picking up data field
     - recognize if an output is url or element 
 
-     
+
 */
 
 namespace Cliver.CefSharpController
