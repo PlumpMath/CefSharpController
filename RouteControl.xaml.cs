@@ -111,7 +111,7 @@ namespace Cliver.CefSharpController
                         StepItem si = ((StepItem)step.SelectedItem);
                         if (si.Step == StepItem.Steps.ListNext)
                         {
-                            route.SetOutput(si.QueueName, new Route.Output.UrlCollection { Queue = si.QueueName, Xpath = xpath, AddManner = Route.Output.UrlCollection.AddManners.LIFO });
+                            route.SetOutput(si.QueueName, new Route.Output.UrlCollection { Queue = si.QueueName, Xpath = xpath, QueuingManner = Route.Output.UrlCollection.QueuingManners.LIFO });
                         }
                         else if (si.Step == StepItem.Steps.Children)
                         {

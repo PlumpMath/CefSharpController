@@ -17,6 +17,15 @@ using System.Linq;
 using System.Threading;
 using System.Xml;
 
+/*TBD
+
+    - prevent looping (not load old urls);
+    - click instead of load (keep the previous document if reused)
+    - 
+
+     
+*/
+
 namespace Cliver.CefSharpController
 {
     public class Route
@@ -87,12 +96,12 @@ namespace Cliver.CefSharpController
                     get_queue_node(ucs.Queue);//create the accepting queue
                 }
                 {
-                    XmlAttribute a = xd.CreateAttribute("xpath");
-                    a.Value = ucs.Xpath;
+                    XmlAttribute a = xd.CreateAttribute("queue_manner");
+                    a.Value = ucs.QueuingManner.ToString();
                     xu.Attributes.Append(a);
 
-                    a = xd.CreateAttribute("add_manner");
-                    a.Value = ucs.AddManner.ToString();
+                    a = xd.CreateAttribute("xpath");
+                    a.Value = ucs.Xpath;
                     xu.Attributes.Append(a);
                 }
             }
@@ -154,8 +163,8 @@ namespace Cliver.CefSharpController
             {
                 public string Queue;
                 public string Xpath;
-                public AddManners AddManner = AddManners.FIFO;
-                public enum AddManners
+                public QueuingManners QueuingManner = QueuingManners.FIFO;
+                public enum QueuingManners
                 {
                     FIFO,
                     LIFO
@@ -396,7 +405,7 @@ namespace Cliver.CefSharpController
                         {
                             Output o;
                             if (x.Name == "UrlCollection")
-                                o = new Output.UrlCollection { Queue = x.Attributes["queue"].Value, Xpath = x.Attributes["xpath"].Value, AddManner = (Output.UrlCollection.AddManners)Enum.Parse(typeof(Output.UrlCollection.AddManners), x.Attributes["add_manner"].Value) };
+                                o = new Output.UrlCollection { Queue = x.Attributes["queue"].Value, Xpath = x.Attributes["xpath"].Value, QueuingManner = (Output.UrlCollection.QueuingManners)Enum.Parse(typeof(Output.UrlCollection.QueuingManners), x.Attributes["queuing_manner"].Value) };
                             else if (x.Name == "ElementCollection")
                                 o = new Output.ElementCollection { Queue = x.Attributes["queue"].Value, Xpath = x.Attributes["xpath"].Value };
                             else if (x.Name == "Field")

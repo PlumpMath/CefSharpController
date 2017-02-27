@@ -89,7 +89,7 @@ namespace Cliver.CefSharpController
                     if (x is Route.Output.UrlCollection)
                     {
                         var a = (Route.Output.UrlCollection)x;
-                        os.Add(new Queue.Output.UrlCollection { Queue = queues.Where(z => z.Name == a.Queue).First(), Xpath = a.Xpath, AddManner = a.AddManner });
+                        os.Add(new Queue.Output.UrlCollection { Queue = queues.Where(z => z.Name == a.Queue).First(), Xpath = a.Xpath, QueuingManner = a.QueuingManner });
                     }
                     else if (x is Route.Output.ElementCollection)
                     {
@@ -273,7 +273,7 @@ namespace Cliver.CefSharpController
                 {
                     public Queue Queue;
                     public string Xpath;
-                    public Route.Output.UrlCollection.AddManners AddManner = Route.Output.UrlCollection.AddManners.FIFO;
+                    public Route.Output.UrlCollection.QueuingManners QueuingManner = Route.Output.UrlCollection.QueuingManners.FIFO;
                 }
 
                 public class ElementCollection : Output
@@ -320,16 +320,16 @@ namespace Cliver.CefSharpController
                         foreach (string l in get_links(base_xpath + uc.Xpath))
                         {
                             var i = new Controller.Queue.InputItem.Url { Value = l, Queue = uc.Queue, ParentItem = ii };
-                            switch (uc.AddManner)
+                            switch (uc.QueuingManner)
                             {
-                                case Route.Output.UrlCollection.AddManners.FIFO:
+                                case Route.Output.UrlCollection.QueuingManners.FIFO:
                                     uc.Queue.InputItems.Add(i);
                                     break;
-                                case Route.Output.UrlCollection.AddManners.LIFO:
+                                case Route.Output.UrlCollection.QueuingManners.LIFO:
                                     uc.Queue.InputItems.Insert(0, i);
                                     break;
                                 default:
-                                    throw new Exception("Unknown option: " + uc.AddManner);
+                                    throw new Exception("Unknown option: " + uc.QueuingManner);
                             }
                         }
                     }
