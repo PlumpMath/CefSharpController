@@ -22,7 +22,7 @@ using System.Xml;
     - prevent looping (not load old urls);
     - click instead of load (keep the previous document if reused)
     - allow repeating right-click when picking up data field
-    - recognize if an output is url or element 
+    - recognize if an output is url or element
 
 
 */
