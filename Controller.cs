@@ -331,13 +331,17 @@ namespace Cliver.CefSharpController
                                 default:
                                     throw new Exception("Unknown option: " + uc.QueuingManner);
                             }
+                            Log.Main.Write("Added url to " + uc.Queue.Name + ": " + l);
                         }
                     }
                     if (o is Output.ElementCollection)
                     {
                         Output.ElementCollection ec = (Output.ElementCollection)o;
                         foreach (string x in get_single_element_xpaths(base_xpath + ec.Xpath))
+                        {
                             ec.Queue.InputItems.Add(new Controller.Queue.InputItem.Element { Value = x, Queue = ec.Queue, ParentItem = ii });
+                            Log.Main.Write("Added element to " + ec.Queue.Name + ": " + x);
+                        }
                     }
                     if (o is Output.Field)
                     {
@@ -381,7 +385,7 @@ return ls;
 
                 if (ls.Count > 3)
                 {
-                    Log.Warning("While debugging only first 3 links are taken of actual " + ls.Count);
+                    Log.Main.Warning("While debugging only first 3 links are taken of actual " + ls.Count);
                     ls.RemoveRange(3, ls.Count - 3);
                 }
                 return ls;

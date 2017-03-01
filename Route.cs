@@ -97,7 +97,7 @@ namespace Cliver.CefSharpController
                     get_queue_node(ucs.Queue);//create the accepting queue
                 }
                 {
-                    XmlAttribute a = xd.CreateAttribute("queue_manner");
+                    XmlAttribute a = xd.CreateAttribute("queuing_manner");
                     a.Value = ucs.QueuingManner.ToString();
                     xu.Attributes.Append(a);
 
