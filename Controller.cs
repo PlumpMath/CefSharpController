@@ -26,7 +26,7 @@ namespace Cliver.CefSharpController
         {
             try
             {
-                new Controller(route);
+                get_queues(route);
                 return true;
             }
             catch (Exception e)
@@ -38,6 +38,21 @@ namespace Cliver.CefSharpController
 
         Controller(Route route)
         {
+            queues = get_queues(route);
+
+            tw = new StreamWriter(Log.MainSession.Path + "\\output_" + route.Name + ".csv");
+            List<string> hs = new List<string>();
+            foreach (Queue q in queues)
+                hs.InsertRange(0, q.Outputs.Where(o => o is Queue.Output.Field).Select(f => ((Queue.Output.Field)f).Name));
+            hs.Insert(0, "Url");
+            tw.WriteLine(FieldPreparation.GetCsvLine(hs, FieldPreparation.FieldSeparator.COMMA));
+        }
+        TextWriter tw = null;
+
+        static List<Queue> get_queues(Route route)
+        {
+            List<Queue> queues = new List<Queue>();
+
             List<Route.Queue> rqs = route.GetQueues();
             foreach (Route.Queue rq in rqs)
             {
@@ -75,7 +90,7 @@ namespace Cliver.CefSharpController
                     else
                         throw new Exception("Unknown type: " + x.GetType());
                 }
-                
+
                 q.Name = rq.Name;
                 q.InputItems = iis;
                 q.Actions = as_;
@@ -103,21 +118,15 @@ namespace Cliver.CefSharpController
                     }
                     else
                         throw new Exception("Unknown type: " + x.GetType());
-                }                
+                }
 
                 Queue q = queues.Where(z => z.Name == rq.Name).First();
                 q.Outputs = os;
             }
             queues.Reverse();
 
-            tw = new StreamWriter(Log.MainSession.Path + "\\output_" + route.Name + ".csv");
-            List<string> hs = new List<string>();
-            foreach (Queue q in queues)
-                hs.InsertRange(0, q.Outputs.Where(o=>o is Queue.Output.Field).Select(f => ((Queue.Output.Field)f).Name));
-            hs.Insert(0, "Url");
-            tw.WriteLine(FieldPreparation.GetCsvLine(hs, FieldPreparation.FieldSeparator.COMMA));
+            return queues;
         }
-        TextWriter tw = null;
 
         public static void Start(Route route)
         {
@@ -229,8 +238,8 @@ namespace Cliver.CefSharpController
                 {
                 }
             }
-            
-          abstract  public class Action
+
+            abstract public class Action
             {
                 abstract public void Perform();
 
@@ -394,7 +403,7 @@ return ls;
             List<string> get_single_element_xpaths(string xpath)
             {
                 var os = (List<object>)MainWindow.This.Browser.ExecuteJavaScript(
-                    CefSharpBrowser.Define__getElementsByXPath() + 
+                    CefSharpBrowser.Define__getElementsByXPath() +
                     CefSharpBrowser.Define__createXPathForElement() + @"
 var es =  document.__getElementsByXPath('" + xpath + @"');
 var xs = [];

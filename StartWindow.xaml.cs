@@ -53,6 +53,7 @@ namespace Cliver.CefSharpController
                         StartUrl.Text = "https://accounts.craigslist.org/login/";
                         StartUrl.Text = "https://www.chainreactioncycles.com/signin?targetpage=/myaccount";
                         StartUrl.Text = "https://translate.pentairpool.com/en/products";
+                        StartUrl.Text = "http://network.ubotstudio.com/forum/";
                         break;
                 }
             };
