@@ -58,10 +58,10 @@ namespace Cliver.CefSharpController
                         }
                         else
                         {//SetProduct
-                            ProductFieldWindow w = new ProductFieldWindow(xpath);
+                            DataFieldWindow w = new DataFieldWindow(xpath);
                             if (w.ShowDialog() == true)
                             {
-                                foreach (ProductFieldWindow.Item i in w.Items)
+                                foreach (DataFieldWindow.Item i in w.Items)
                                     if (i.Get)
                                         route.SetOutput("Product" + (step.SelectedIndex - 2), new Route.Output.Field { Name = w.Name.Text + "." + i.Attribute, Xpath = xpath, Attribute = i.Attribute });
                             }
@@ -96,10 +96,10 @@ namespace Cliver.CefSharpController
                                 Message.Error("Your selection must be inside the product block you picked up previously.");
                                 return;
                             }
-                            ProductFieldWindow w = new ProductFieldWindow(xpath);
+                            DataFieldWindow w = new DataFieldWindow(xpath);
                             if (w.ShowDialog() == true)
                             {
-                                foreach (ProductFieldWindow.Item i in w.Items)
+                                foreach (DataFieldWindow.Item i in w.Items)
                                     if (i.Get)
                                         route.SetOutput("Product0", new Route.Output.Field { Name = w.Name.Text + "." + i.Attribute, Xpath = xpath.Substring(base_xpath.Length, xpath.Length - base_xpath.Length), Attribute = i.Attribute });
                             }
@@ -142,10 +142,10 @@ namespace Cliver.CefSharpController
                         }
                         else if (si.Step == StepItem.Steps.Data)
                         {
-                            ProductFieldWindow w = new ProductFieldWindow(xpath);
+                            DataFieldWindow w = new DataFieldWindow(xpath);
                             if (w.ShowDialog() == true)
                             {
-                                foreach (ProductFieldWindow.Item i in w.Items)
+                                foreach (DataFieldWindow.Item i in w.Items)
                                     if (i.Get)
                                         route.SetOutput(si.QueueName, new Route.Output.Field { Name = w.Name.Text + "." + i.Attribute, Xpath = xpath, Attribute = i.Attribute });
                             }
@@ -201,16 +201,17 @@ namespace Cliver.CefSharpController
 
             //xml.TextChanged+=del
 
-            save.Click += delegate {
+            save.Click += delegate
+            {
                 if (!Controller.Check(route))
                 {
                     if (!Message.YesNo("The current route is uncompleted. Would you like to save it anyway?"))
                         return;
                 }
                 Microsoft.Win32.SaveFileDialog d = new Microsoft.Win32.SaveFileDialog();
-                d.FileName = "route"; 
+                d.FileName = "route";
                 d.DefaultExt = ".xml";
-                d.Filter = "Routes (.xml)|*.xml"; 
+                d.Filter = "Routes (.xml)|*.xml";
                 if (d.ShowDialog() == true)
                     route.Save(d.FileName);
             };
@@ -242,7 +243,7 @@ namespace Cliver.CefSharpController
                         xml.Text = route.Xml;
                     }
                     MainWindow.This.Browser.Load(urls[0], false);
-                    
+
                     step.Items.Clear();
                     switch (d.RouteType.SelectedIndex)
                     {
@@ -284,7 +285,7 @@ namespace Cliver.CefSharpController
                 {
                     case RouteType.DATA_SEPARATED_FROM_LIST:
                         MainWindow.This.Browser.HighlightElementsOnHover();
-                        listen_clicks();                        
+                        listen_clicks();
                         break;
                     case RouteType.DATA_IS_IN_LIST:
                         MainWindow.This.Browser.HighlightElementsOnHover();
@@ -308,7 +309,7 @@ namespace Cliver.CefSharpController
         enum RouteType
         {
             DATA_SEPARATED_FROM_LIST,
-            DATA_IS_IN_LIST, 
+            DATA_IS_IN_LIST,
             UNIVERSAL
         }
         Route route;
@@ -425,6 +426,14 @@ document.addEventListener('contextmenu', document.__onElementSelected, false);
                 }
             }
             return general_xpath;
+        }
+
+        public delegate void OnOutputFieldAdded(string name, string value);
+        public event OnOutputFieldAdded OutputFieldAdded;
+        public void RemoveOutputField(string name)
+        {
+            route.RemoveOutputField(name);
+            xml.Text = route.Xml;
         }
     }
 }

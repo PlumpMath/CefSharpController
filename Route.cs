@@ -29,7 +29,7 @@ using System.Xml;
 
 namespace Cliver.CefSharpController
 {
-    public class Route
+    public partial class Route
     {
         public Route(string file)
         {

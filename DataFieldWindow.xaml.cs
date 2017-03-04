@@ -21,11 +21,11 @@ using System.Windows.Shapes;
 namespace Cliver.CefSharpController
 {
     /// <summary>
-    /// Interaction logic for ProductFieldWindow.xaml
+    /// Interaction logic for DataFieldWindow.xaml
     /// </summary>
-    public partial class ProductFieldWindow : Window
+    public partial class DataFieldWindow : Window
     {
-        public ProductFieldWindow(string xpath)
+        public DataFieldWindow(string xpath)
         {
             InitializeComponent();
 
@@ -38,7 +38,7 @@ namespace Cliver.CefSharpController
             //      set_by_xpath();
             //  };
 
-            Ok.Click += delegate 
+            Ok.Click += delegate
             {
                 if (string.IsNullOrWhiteSpace(Name.Text))
                 {
@@ -49,7 +49,7 @@ namespace Cliver.CefSharpController
                 Close();
             };
 
-            Xpath.TextChanged += delegate 
+            Xpath.TextChanged += delegate
             {
                 set_by_xpath();
             };
@@ -111,10 +111,10 @@ namespace Cliver.CefSharpController
             //    }
             //};
         }
-        
+
         readonly List<Item> items = new List<Item>();
 
-      public  List<Item> Items
+        public List<Item> Items
         {
             get
             {
