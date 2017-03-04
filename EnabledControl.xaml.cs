@@ -23,18 +23,20 @@ namespace Cliver.CefSharpController
         public EnabledControl()
         {
             InitializeComponent();
-
+            
             output.Click += delegate
             {
                 if (Controller.Running)
                 {
-                    OutputWindow.This.Show();
                     DataFieldsWindow.This.Hide();
+                    OutputWindow.This.Show();
+                    OutputWindow.This.Activate();
                 }
                 else
                 {
-                    DataFieldsWindow.This.Show();
                     OutputWindow.This.Hide();
+                    DataFieldsWindow.This.Show();
+                    DataFieldsWindow.This.Activate();
                 }
             };
 

@@ -23,6 +23,12 @@ namespace Cliver.CefSharpController
         {
             InitializeComponent();
 
+            this.Closing += delegate (object sender, System.ComponentModel.CancelEventArgs e)
+            {
+                e.Cancel = true;
+                this.Hide();
+            };
+
             Controller.WriteLine += Controller_WriteLine;
         }
 

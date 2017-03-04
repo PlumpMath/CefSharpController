@@ -68,6 +68,16 @@ namespace Cliver.CefSharpController
 
         public void OutputFieldAdded(string queue_name, string field_name, string field_value)
         {
+            for (int i = fields.Items.Count - 1; i >= 0; i--)
+            {
+                Field f = (Field)fields.Items[i];
+                if (f.Queue == queue_name && f.Name == field_name)
+                {
+                    f.Value = field_value;
+                    fields.Items.Refresh();
+                    return;
+                }
+            }
             fields.Items.Add(new Field { Queue = queue_name, Name = field_name, Value = field_value });
         }
 
