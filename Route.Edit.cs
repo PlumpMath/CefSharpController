@@ -17,7 +17,6 @@ using System.Linq;
 using System.Threading;
 using System.Xml;
 
-
 namespace Cliver.CefSharpController
 {
     public partial class Route

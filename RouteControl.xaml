@@ -20,15 +20,17 @@
             </ComboBox>
             <Button  DockPanel.Dock="Top" Name="output">Output</Button>
             <Button  DockPanel.Dock="Top" Name="save">Save</Button>
+            <Button  DockPanel.Dock="Top" Name="undo" IsEnabled="False">Undo</Button>
+            <Button  DockPanel.Dock="Top" Name="redo" IsEnabled="False">Redo</Button>
             <Button  DockPanel.Dock="Top" Name="run">Run</Button>
             <CheckBox DockPanel.Dock="Top" Name="debug_mode" IsChecked="True">
                 Debug Mode
             </CheckBox>
-            <CheckBox DockPanel.Dock="Top" Name="pause" IsChecked="True">
+            <CheckBox DockPanel.Dock="Top" Name="pause" IsChecked="False">
                 Pause
             </CheckBox>
-            <Label  DockPanel.Dock="Top" Height="auto" Width="auto" >Xml:</Label>
-            <TextBox  DockPanel.Dock="Top" Name="xml" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" MaxHeight="700" Height="auto" MinHeight="227" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></TextBox>
+            <Label DockPanel.Dock="Top" Height="auto" Width="auto" >Xml:</Label>
+            <TextBox DockPanel.Dock="Top" Name="xml" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" MaxHeight="700" Height="auto" MinHeight="227" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></TextBox>
            </DockPanel>
     </Grid>
 </UserControl>

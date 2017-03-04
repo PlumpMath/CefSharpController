@@ -148,7 +148,7 @@ namespace Cliver.CefSharpController
                                     {
                                         Route.Output.Field f = new Route.Output.Field { Name = w.Name.Text + "." + i.Attribute, Xpath = xpath, Attribute = i.Attribute };
                                         route.SetOutput(si.QueueName, f);
-                                        OutputFieldAdded?.Invoke(si.QueueName, f.Name, i.Value);
+                                        dfw.OutputFieldAdded(si.QueueName, f.Name, i.Value);
                                     }
                             }
                         }
@@ -199,7 +199,7 @@ namespace Cliver.CefSharpController
         public RouteControl()
         {
             InitializeComponent();
-            
+
             save.Click += delegate
             {
                 if (!Controller.Check(route))
@@ -233,11 +233,41 @@ namespace Cliver.CefSharpController
                     var d = new StartWindow();
                     if (d.ShowDialog() != true)
                         return;
-                    route = new CefSharpController.Route();
+
+                    Log.CloseAll();
+                    Log.MainSession.Close();
+                    Log.Initialize(Log.Mode.SESSIONS);
+
+                    route = new Route();
+                    dfw.SetRoute(route);
+
+                    undo_route_xmls = new List<string>();
+                    current_undo_route_xml_index = 0;
+                    add2undo_stack = true;
+                    undo.IsEnabled = false;
+                    redo.IsEnabled = false;
                     route.Changed += delegate (Route r)
                       {
-                          this.Dispatcher.Invoke((Action)(() => { xml.Text = route.Xml; }));                          
+                          this.Dispatcher.Invoke((Action)(() =>
+                          {
+                              if (Settings.Default.UndoRouteStackSize > 0)
+                              {
+                                  xml.Text = route.Xml;
+                                  if (add2undo_stack && !string.IsNullOrEmpty(xml.Text))
+                                  {
+                                      if (undo_route_xmls.Count >= Settings.Default.UndoRouteStackSize)
+                                          undo_route_xmls.RemoveAt(undo_route_xmls.Count - 1);
+                                      undo_route_xmls.RemoveRange(0, current_undo_route_xml_index);
+                                      undo_route_xmls.Insert(0, xml.Text);
+                                      current_undo_route_xml_index = 0;
+                                  }
+                                  add2undo_stack = true;
+                                  undo.IsEnabled = current_undo_route_xml_index < undo_route_xmls.Count - 1;
+                                  redo.IsEnabled = current_undo_route_xml_index > 0;
+                              }
+                          }));
                       };
+
                     string[] urls = d.StartUrl.Text.Split('\n');
                     foreach (string url in urls)
                     {
@@ -306,7 +336,7 @@ namespace Cliver.CefSharpController
                 //state.SelectedIndex = 0;
             };
 
-                 dfw = new DataFieldsWindow(this);
+            dfw = new DataFieldsWindow(this);
             output.Click += delegate
             {
                 dfw.Show();
@@ -331,6 +361,22 @@ namespace Cliver.CefSharpController
             {
                 Controller.Pause = pause.IsChecked == true;
             };
+
+            undo.Click += delegate
+            {
+                if (current_undo_route_xml_index >= undo_route_xmls.Count - 1)
+                    return;
+                add2undo_stack = false;
+                route.Xml = undo_route_xmls[++current_undo_route_xml_index];
+            };
+
+            redo.Click += delegate
+            {
+                if (current_undo_route_xml_index <= 0)
+                    return;
+                add2undo_stack = false;
+                route.Xml = undo_route_xmls[--current_undo_route_xml_index];
+            };
         }
         RouteType route_type;
         enum RouteType
@@ -340,6 +386,10 @@ namespace Cliver.CefSharpController
             UNIVERSAL
         }
         Route route;
+
+        List<string> undo_route_xmls = new List<string>();
+        int current_undo_route_xml_index = 0;
+        bool add2undo_stack = true;
 
         DataFieldsWindow dfw;
 
@@ -455,13 +505,6 @@ document.addEventListener('contextmenu', document.__onElementSelected, false);
                 }
             }
             return general_xpath;
-        }
-
-        public delegate void OnOutputFieldAdded(string queue_name, string field_name, string field_value);
-        public event OnOutputFieldAdded OutputFieldAdded;
-        public void RemoveOutputField(string queue_name, string field_name)
-        {
-            route.RemoveOutputField(queue_name, field_name);
-        }
+        }        
     }
 }

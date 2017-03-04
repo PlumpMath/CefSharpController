@@ -29,11 +29,6 @@ namespace Cliver.CefSharpController
                   this.Hide();
               };
 
-            route_control.OutputFieldAdded += delegate (string queue_name, string field_name, string field_value)
-            {
-                fields.Items.Add(new Field { Queue = queue_name, Name = field_name, Value = field_value });
-            };
-
             fields.MouseRightButtonUp += delegate (object sender, MouseButtonEventArgs e)
             {
                 DataGridCell cell = null;
@@ -60,25 +55,40 @@ namespace Cliver.CefSharpController
                 Field f = (Field)row.Item;
                 fields.Items.Remove(f);
                 //fields.Items.Refresh();
-                route_control.RemoveOutputField(f.Queue, f.Name);
+                route?.RemoveOutputField(f.Queue, f.Name);
             };
         }
-
-        //readonly List<Field> items = new List<Field>();
-
-        //public List<Field> Items
-        //{
-        //    get
-        //    {
-        //        return items;
-        //    }
-        //}
+        Route route = null;
 
         public class Field
         {
             public string Queue { get; set; }
             public string Name { get; set; }
             public string Value { get; set; }
+        }
+
+        public void OutputFieldAdded(string queue_name, string field_name, string field_value)
+        {
+            fields.Items.Add(new Field { Queue = queue_name, Name = field_name, Value = field_value });
+        }
+
+        public void SetRoute(Route route)
+        {
+            this.route = route;
+
+            route.Changed += delegate (Route r)
+            {//check if deleted
+                List<Route.Queue> qs = r.GetQueues();
+                for (int i = fields.Items.Count - 1; i >= 0; i--)
+                {
+                    Field f = (Field)fields.Items[i];
+                    Route.Queue q = qs.Where(x => x.Name == f.Queue).FirstOrDefault();
+                    if (q != null)
+                        if (null != q.Outputs.Where(o => o is Route.Output.Field && ((Route.Output.Field)o).Name == f.Name).FirstOrDefault())
+                            continue;
+                    fields.Items.RemoveAt(i);
+                }
+            };
         }
     }
 }
