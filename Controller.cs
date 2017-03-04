@@ -130,14 +130,21 @@ namespace Cliver.CefSharpController
 
         public static void Start(Route route)
         {
-            t = ThreadRoutines.StartTry(() =>
+            t = ThreadRoutines.Start(() =>
              {
-                 Log.CloseAll();
-                 Log.MainSession.Close();
-                 Log.Initialize(Log.Mode.SESSIONS, null, true, 10, route.Name);
+                 try
+                 {
+                    if( Log.IsMainSessionOpen)
+                         Log.MainSession.Close();
+                     Log.Initialize(Log.Mode.SESSIONS, null, true, 10, route.Name);
 
-                 c = new Controller(route);
-                 c.Start();
+                     c = new Controller(route);
+                     c.Start();
+                 }
+                 finally
+                 {
+                     //Log.MainSession.Close(route.Name);
+                 }
              });
         }
         static Controller c;

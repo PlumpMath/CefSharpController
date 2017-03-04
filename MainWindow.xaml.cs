@@ -47,12 +47,21 @@ namespace Cliver.CefSharpController
 
             Dispatcher.ShutdownStarted += delegate (object sender, EventArgs e)
             {
+                try
+                {
+                    DataFieldsWindow.This.Close();
+                }
+                catch { }
+                try
+                {
+                    OutputWindow.This.Close();
+                }
+                catch { }
             };
 
             Closing += delegate
               {
                   browser.Stop();
-                  browser.Dispose();
                   Application.Current.Shutdown();
               };
 

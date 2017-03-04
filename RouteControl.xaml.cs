@@ -235,8 +235,8 @@ namespace Cliver.CefSharpController
                     if (d.ShowDialog() != true)
                         return;
 
-                    Log.CloseAll();
-                    Log.MainSession.Close();
+                    if (Log.IsMainSessionOpen)
+                        Log.MainSession.Close();
                     Log.Initialize(Log.Mode.SESSIONS);
 
                     route = new Route();
@@ -339,7 +339,6 @@ namespace Cliver.CefSharpController
 
             Dispatcher.ShutdownStarted += delegate (object sender, EventArgs e)
             {
-                DataFieldsWindow.This.Close();
             };
 
             undo.Click += delegate
