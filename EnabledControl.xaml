@@ -1,0 +1,23 @@
+﻿<UserControl x:Class="Cliver.CefSharpController.EnabledControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Cliver.CefSharpController"
+             mc:Ignorable="d" Height="auto" Width="auto">
+
+    <Grid>
+        <DockPanel Width="100">
+            <CheckBox DockPanel.Dock="Top" Name="hide_browser">
+                Hide Browser
+            </CheckBox>
+            <Button  DockPanel.Dock="Top" Name="output">Output</Button>
+            <CheckBox DockPanel.Dock="Top" Name="debug_mode" IsChecked="True">
+                Debug Mode
+            </CheckBox>
+            <CheckBox DockPanel.Dock="Top" Name="pause" IsChecked="False">
+                Pause
+            </CheckBox>
+            </DockPanel>
+    </Grid>
+</UserControl>

@@ -16,7 +16,10 @@
             <ColumnDefinition Width="auto"></ColumnDefinition>
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <local:RouteControl Grid.Column="0" Grid.RowSpan="2" x:Name="route" VerticalAlignment="Stretch" />
+        <StackPanel Grid.Column="0" Grid.RowSpan="2" >
+        <local:EnabledControl x:Name="enabled_control"/>
+        <local:RouteControl x:Name="route" VerticalAlignment="Stretch" />
+        </StackPanel>
         <DockPanel Name="browser_controls" Grid.Column="1" Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Stretch" >
             <CheckBox Name="load_images">
                 Images

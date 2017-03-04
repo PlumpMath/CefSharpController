@@ -46,5 +46,17 @@ namespace Cliver.CefSharpController {
                 this["UndoRouteStackSize"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("5")]
+        public int OutputWindowStackSize {
+            get {
+                return ((int)(this["OutputWindowStackSize"]));
+            }
+            set {
+                this["OutputWindowStackSize"] = value;
+            }
+        }
     }
 }

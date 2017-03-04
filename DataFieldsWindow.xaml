@@ -5,23 +5,25 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Cliver.CefSharpController"
         mc:Ignorable="d"
-        Title="DataWindow"  Height="auto" Width="auto" SizeToContent="WidthAndHeight">
+        Title="DataWindow"  Height="auto" Width="auto">
     <Grid>
-        <StackPanel>
-            <DataGrid CanUserAddRows="False" AutoGenerateColumns="False" Height="auto" HorizontalAlignment="Left" Name="fields" VerticalAlignment="Top" Width="auto">
-                <DataGrid.Columns >
-                    <DataGridTextColumn IsReadOnly="True"  Header="Queue" Binding="{Binding Queue}" MinWidth="50" />
-                    <DataGridTextColumn IsReadOnly="True"  Header="Name" Binding="{Binding Name}" MinWidth="50" />
-                    <DataGridTextColumn IsReadOnly="True"  Header="Value" Binding="{Binding Value}" MinWidth="50" >
-                        <DataGridTextColumn.ElementStyle>
-                            <Style>
-                                <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
-                            </Style>
-                        </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
-                </DataGrid.Columns>
-            </DataGrid>
-        </StackPanel>
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <DataGrid CanUserAddRows="False" AutoGenerateColumns="False" Height="auto" HorizontalAlignment="Left" Name="fields" VerticalAlignment="Top" Width="auto">
+                    <DataGrid.Columns >
+                        <DataGridTextColumn IsReadOnly="True"  Header="Queue" Binding="{Binding Queue}" MinWidth="50" />
+                        <DataGridTextColumn IsReadOnly="True"  Header="Name" Binding="{Binding Name}" MinWidth="50" />
+                        <DataGridTextColumn IsReadOnly="True"  Header="Value" Binding="{Binding Value}" MinWidth="50" >
+                            <DataGridTextColumn.ElementStyle>
+                                <Style>
+                                    <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Window>
 

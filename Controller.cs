@@ -41,13 +41,13 @@ namespace Cliver.CefSharpController
             queues = get_queues(route);
 
             tw = new StreamWriter(Log.MainSession.Path + "\\output_" + route.Name + ".csv");
-            List<string> hs = new List<string>();
             foreach (Queue q in queues)
-                hs.InsertRange(0, q.Outputs.Where(o => o is Queue.Output.Field).Select(f => ((Queue.Output.Field)f).Name));
-            hs.Insert(0, "Url");
-            tw.WriteLine(FieldPreparation.GetCsvLine(hs, FieldPreparation.FieldSeparator.COMMA));
+                headers.InsertRange(0, q.Outputs.Where(o => o is Queue.Output.Field).Select(f => ((Queue.Output.Field)f).Name));
+            headers.Insert(0, "Url");
+            tw.WriteLine(FieldPreparation.GetCsvLine(headers, FieldPreparation.FieldSeparator.COMMA));
         }
-        TextWriter tw = null;
+        readonly TextWriter tw = null;
+        readonly List<string> headers = new List<string>();
 
         static List<Queue> get_queues(Route route)
         {
@@ -145,6 +145,14 @@ namespace Cliver.CefSharpController
         static public bool DebugMode;
         static public bool Pause;
 
+        public static bool Running
+        {
+            get
+            {
+                return (t != null && t.IsAlive);
+            }
+        }
+
         public static void Stop()
         {
             if (c != null)
@@ -205,10 +213,14 @@ namespace Cliver.CefSharpController
                     vs.Insert(0, url);
                     tw.WriteLine(FieldPreparation.GetCsvLine(vs, FieldPreparation.FieldSeparator.COMMA, true));
                     tw.Flush();
+                    WriteLine?.Invoke(headers, vs);
                 }
             }
         }
         bool run = false;
+
+        public delegate void OnWriteLine(List<string> headers, List<string> values);
+        public static event OnWriteLine WriteLine = null;
 
         Queue.InputItem get_next_item()
         {

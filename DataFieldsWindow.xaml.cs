@@ -14,12 +14,11 @@ using System.Windows.Shapes;
 
 namespace Cliver.CefSharpController
 {
-    /// <summary>
-    /// Interaction logic for DataWindow.xaml
-    /// </summary>
     public partial class DataFieldsWindow : Window
     {
-        public DataFieldsWindow(RouteControl route_control)
+        public readonly static DataFieldsWindow This = new DataFieldsWindow();
+
+        DataFieldsWindow()
         {
             InitializeComponent();
 
@@ -77,7 +76,8 @@ namespace Cliver.CefSharpController
             this.route = route;
 
             route.Changed += delegate (Route r)
-            {//check if deleted
+            {
+                //check if deleted
                 List<Route.Queue> qs = r.GetQueues();
                 for (int i = fields.Items.Count - 1; i >= 0; i--)
                 {
@@ -88,6 +88,24 @@ namespace Cliver.CefSharpController
                             continue;
                     fields.Items.RemoveAt(i);
                 }
+
+                //check if added
+                foreach (Route.Queue q in qs)
+                    foreach (Route.Output.Field rf in q.Outputs.Where(o => o is Route.Output.Field))
+                    {
+                        bool found = false;
+                        for (int i = fields.Items.Count - 1; i >= 0; i--)
+                        {
+                            Field f = (Field)fields.Items[i];
+                            if (f.Queue == q.Name && f.Name == rf.Name)
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found)
+                            fields.Items.Add(new Field { Queue = q.Name, Name = rf.Name, Value = "" });
+                    }
             };
         }
     }

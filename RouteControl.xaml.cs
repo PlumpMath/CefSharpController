@@ -148,7 +148,7 @@ namespace Cliver.CefSharpController
                                     {
                                         Route.Output.Field f = new Route.Output.Field { Name = w.Name.Text + "." + i.Attribute, Xpath = xpath, Attribute = i.Attribute };
                                         route.SetOutput(si.QueueName, f);
-                                        dfw.OutputFieldAdded(si.QueueName, f.Name, i.Value);
+                                        DataFieldsWindow.This.OutputFieldAdded(si.QueueName, f.Name, i.Value);
                                     }
                             }
                         }
@@ -222,6 +222,7 @@ namespace Cliver.CefSharpController
                 d.Filter = "XML Files (*.xml)|*.xml|All Files (*.*)|*.*";
                 if (d.ShowDialog() != true)
                     return;
+                OutputWindow.This.Clear();
                 Route r = new Route(d.FileName);
                 Controller.Start(r);
             };
@@ -239,7 +240,7 @@ namespace Cliver.CefSharpController
                     Log.Initialize(Log.Mode.SESSIONS);
 
                     route = new Route();
-                    dfw.SetRoute(route);
+                    DataFieldsWindow.This.SetRoute(route);
 
                     undo_route_xmls = new List<string>();
                     current_undo_route_xml_index = 0;
@@ -336,30 +337,9 @@ namespace Cliver.CefSharpController
                 //state.SelectedIndex = 0;
             };
 
-            dfw = new DataFieldsWindow(this);
-            output.Click += delegate
-            {
-                dfw.Show();
-            };
-
             Dispatcher.ShutdownStarted += delegate (object sender, EventArgs e)
             {
-                dfw.Close();
-            };
-
-            hide_browser.Click += delegate
-            {
-                MainWindow.This.ShowBrowser(hide_browser.IsChecked != true);
-            };
-
-            debug_mode.Click += delegate
-            {
-                Controller.DebugMode = debug_mode.IsChecked == true;
-            };
-
-            pause.Click += delegate
-            {
-                Controller.Pause = pause.IsChecked == true;
+                DataFieldsWindow.This.Close();
             };
 
             undo.Click += delegate
@@ -390,8 +370,6 @@ namespace Cliver.CefSharpController
         List<string> undo_route_xmls = new List<string>();
         int current_undo_route_xml_index = 0;
         bool add2undo_stack = true;
-
-        DataFieldsWindow dfw;
 
         public class StepItem
         {

@@ -105,8 +105,11 @@
     <Compile Include="DataFieldsWindow.xaml.cs">
       <DependentUpon>DataFieldsWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DataWindow.xaml.cs">
-      <DependentUpon>DataWindow.xaml</DependentUpon>
+    <Compile Include="EnabledControl.xaml.cs">
+      <DependentUpon>EnabledControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="OutputWindow.xaml.cs">
+      <DependentUpon>OutputWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="InternetDateTime.cs" />
     <Compile Include="DataFieldWindow.xaml.cs">
@@ -128,7 +131,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="DataWindow.xaml">
+    <Page Include="EnabledControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="OutputWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
