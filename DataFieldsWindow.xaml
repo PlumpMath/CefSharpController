@@ -10,7 +10,8 @@
         <StackPanel>
             <DataGrid CanUserAddRows="False" AutoGenerateColumns="False" Height="auto" HorizontalAlignment="Left" Name="fields" VerticalAlignment="Top" Width="auto">
                 <DataGrid.Columns >
-                    <DataGridTextColumn IsReadOnly="True"  Header="Name" Binding="{Binding Field}" MinWidth="50" />
+                    <DataGridTextColumn IsReadOnly="True"  Header="Queue" Binding="{Binding Queue}" MinWidth="50" />
+                    <DataGridTextColumn IsReadOnly="True"  Header="Name" Binding="{Binding Name}" MinWidth="50" />
                     <DataGridTextColumn IsReadOnly="True"  Header="Value" Binding="{Binding Value}" MinWidth="50" >
                         <DataGridTextColumn.ElementStyle>
                             <Style>
@@ -20,7 +21,6 @@
                     </DataGridTextColumn>
                 </DataGrid.Columns>
             </DataGrid>
-            <Button x:Name="Ok" Content="Ok" Width="100"/>
         </StackPanel>
     </Grid>
 </Window>

@@ -22,10 +22,17 @@ namespace Cliver.CefSharpController
 {
     public partial class Route
     {
-        public void RemoveOutputField(string field_name)
+        public void RemoveOutputField(string queue_name, string field_name)
         {
-            foreach (XmlNode xfn in xd.SelectNodes("Route/Queue/Output/Field[@name='" + field_name + "']"))
-                xd.RemoveChild(xfn);
+            foreach (XmlNode xfn in xd.SelectNodes("Route/Queue[@name='" + queue_name + "']/Outputs/Field[@name='" + field_name + "']"))
+                xfn.ParentNode.RemoveChild(xfn);
+            Changed?.Invoke(this);
         }
+
+        //public delegate void OnOutputFieldAdded(string name, string value);
+        //public event OnOutputFieldAdded OutputFieldAdded;
+
+        public delegate void OnChanged(Route route);
+        public event OnChanged Changed;
     }
 }

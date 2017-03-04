@@ -23,6 +23,7 @@ using System.Xml;
     - click instead of load (keep the previous document if reused)
     - allow repeating right-click when picking up data field
     - recognize if an output is url or element
+    - check Output.Field name unigueness
 
 
 */
@@ -46,6 +47,7 @@ namespace Cliver.CefSharpController
             set
             {
                 xd.LoadXml(value);
+                Changed?.Invoke(this);
             }
             get
             {
@@ -76,6 +78,7 @@ namespace Cliver.CefSharpController
                 XmlAttribute a = xd.CreateAttribute("name");
                 a.Value = value;
                 xn.Attributes.Append(a);
+                Changed?.Invoke(this);
             }
         }
 
@@ -128,26 +131,30 @@ namespace Cliver.CefSharpController
             }
             else if (output is Output.Field)
             {
-                Output.Field d = (Output.Field)output;
-                XmlNode xn = xo.SelectSingleNode(d.Tag + "[@xpath='" + d.Xpath + "']");
+                Output.Field f = (Output.Field)output;
+                XmlNode xn = xo.SelectSingleNode(f.Tag + "[@name='" + f.Name + "']");
                 if (xn == null)
                 {
-                    xn = xd.CreateElement(d.Tag);
+                    xn = xd.CreateElement(f.Tag);
                     xo.AppendChild(xn);
-                    XmlAttribute a = xd.CreateAttribute("xpath");
-                    a.Value = d.Xpath;
+
+                    XmlAttribute a = xd.CreateAttribute("name");
+                    a.Value = f.Name;
                     xn.Attributes.Append(a);
                 }
                 {
                     XmlAttribute a = xd.CreateAttribute("attribute");
-                    a.Value = d.Attribute;
+                    a.Value = f.Attribute;
                     xn.Attributes.Append(a);
 
-                    a = xd.CreateAttribute("name");
-                    a.Value = d.Name;
+                    a = xd.CreateAttribute("xpath");
+                    a.Value = f.Xpath;
                     xn.Attributes.Append(a);
                 }
             }
+            else
+                throw new Exception("Unknown type: " + output.GetType());
+            Changed?.Invoke(this);
         }
 
         abstract public class Output
@@ -237,6 +244,7 @@ namespace Cliver.CefSharpController
             }
             else
                 throw new Exception("Unknown type: " + action.GetType());
+            Changed?.Invoke(this);
         }
 
         public abstract class Action
@@ -277,6 +285,7 @@ namespace Cliver.CefSharpController
                 throw new Exception("Value is empty");
             a.Value = ii.Value;
             xi.Attributes.Append(a);
+            Changed?.Invoke(this);
         }
 
         public abstract class InputItem

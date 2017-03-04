@@ -45,9 +45,15 @@ namespace Cliver.CefSharpController
                 url.Dispatcher.BeginInvoke((Action)(() => { url.Text = browser.Address; }));
             };
 
+            Dispatcher.ShutdownStarted += delegate (object sender, EventArgs e)
+            {
+            };
+
             Closing += delegate
               {
                   browser.Stop();
+                  browser.Dispose();
+                  Application.Current.Shutdown();
               };
 
             back.Click += delegate

@@ -66,7 +66,6 @@ namespace Cliver.CefSharpController
                                         route.SetOutput("Product" + (step.SelectedIndex - 2), new Route.Output.Field { Name = w.Name.Text + "." + i.Attribute, Xpath = xpath, Attribute = i.Attribute });
                             }
                         }
-                        xml.Text = route.Xml;
                         break;
                     case RouteType.DATA_IS_IN_LIST:
                         MainWindow.This.Browser.HighlightElements(xpath);
@@ -104,7 +103,6 @@ namespace Cliver.CefSharpController
                                         route.SetOutput("Product0", new Route.Output.Field { Name = w.Name.Text + "." + i.Attribute, Xpath = xpath.Substring(base_xpath.Length, xpath.Length - base_xpath.Length), Attribute = i.Attribute });
                             }
                         }
-                        xml.Text = route.Xml;
                         break;
                     case RouteType.UNIVERSAL:
                         MainWindow.This.Browser.HighlightElements(xpath);
@@ -147,7 +145,11 @@ namespace Cliver.CefSharpController
                             {
                                 foreach (DataFieldWindow.Item i in w.Items)
                                     if (i.Get)
-                                        route.SetOutput(si.QueueName, new Route.Output.Field { Name = w.Name.Text + "." + i.Attribute, Xpath = xpath, Attribute = i.Attribute });
+                                    {
+                                        Route.Output.Field f = new Route.Output.Field { Name = w.Name.Text + "." + i.Attribute, Xpath = xpath, Attribute = i.Attribute };
+                                        route.SetOutput(si.QueueName, f);
+                                        OutputFieldAdded?.Invoke(si.QueueName, f.Name, i.Value);
+                                    }
                             }
                         }
                         else if (si.Step == StepItem.Steps.Submit)
@@ -186,7 +188,6 @@ namespace Cliver.CefSharpController
                         }
                         else
                             throw new Exception("No such option: " + si.Step);
-                        xml.Text = route.Xml;
                         break;
                     default:
                         throw new Exception("No such option: " + route_type);
@@ -198,9 +199,7 @@ namespace Cliver.CefSharpController
         public RouteControl()
         {
             InitializeComponent();
-
-            //xml.TextChanged+=del
-
+            
             save.Click += delegate
             {
                 if (!Controller.Check(route))
@@ -224,7 +223,6 @@ namespace Cliver.CefSharpController
                 if (d.ShowDialog() != true)
                     return;
                 Route r = new Route(d.FileName);
-                xml.Text = r.Xml;
                 Controller.Start(r);
             };
 
@@ -236,11 +234,14 @@ namespace Cliver.CefSharpController
                     if (d.ShowDialog() != true)
                         return;
                     route = new CefSharpController.Route();
+                    route.Changed += delegate (Route r)
+                      {
+                          this.Dispatcher.Invoke((Action)(() => { xml.Text = route.Xml; }));                          
+                      };
                     string[] urls = d.StartUrl.Text.Split('\n');
                     foreach (string url in urls)
                     {
                         route.AddInputItem(Queue.StartQueueName, new Route.InputItem.Url { Value = url.Trim() });
-                        xml.Text = route.Xml;
                     }
                     MainWindow.This.Browser.Load(urls[0], false);
 
@@ -304,6 +305,17 @@ namespace Cliver.CefSharpController
             {
                 //state.SelectedIndex = 0;
             };
+
+                 dfw = new DataFieldsWindow(this);
+            output.Click += delegate
+            {
+                dfw.Show();
+            };
+
+            Dispatcher.ShutdownStarted += delegate (object sender, EventArgs e)
+            {
+                dfw.Close();
+            };
         }
         RouteType route_type;
         enum RouteType
@@ -313,6 +325,8 @@ namespace Cliver.CefSharpController
             UNIVERSAL
         }
         Route route;
+
+        DataFieldsWindow dfw;
 
         public class StepItem
         {
@@ -428,12 +442,11 @@ document.addEventListener('contextmenu', document.__onElementSelected, false);
             return general_xpath;
         }
 
-        public delegate void OnOutputFieldAdded(string name, string value);
+        public delegate void OnOutputFieldAdded(string queue_name, string field_name, string field_value);
         public event OnOutputFieldAdded OutputFieldAdded;
-        public void RemoveOutputField(string name)
+        public void RemoveOutputField(string queue_name, string field_name)
         {
-            route.RemoveOutputField(name);
-            xml.Text = route.Xml;
+            route.RemoveOutputField(queue_name, field_name);
         }
     }
 }

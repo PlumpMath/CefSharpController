@@ -22,10 +22,16 @@ namespace Cliver.CefSharpController
         public DataWindow(Route route)
         {
             InitializeComponent();
-                        
-            List<string> hs = new List<string>();
-            foreach (Route.Queue q in route.GetQueues())
-                hs.InsertRange(0, q.Outputs.Where(o => o is Route.Output.Field).Select(f => ((Route.Output.Field)f).Name));
+
+            //route.XmlChanged += delegate (Route r)
+            //{
+            //    List<string> hs = new List<string>();
+            //    foreach (Route.Queue q in r.GetQueues())
+            //    {
+            //        var f = (Route.Output.Field)q.Outputs.Where(o => o is Route.Output.Field);
+            //        fields.Items.Add(new Field { Name = f.Name, Value = value });
+            //    }
+            //};
 
             fields.MouseRightButtonUp += delegate (object sender, MouseButtonEventArgs e)
             {

@@ -23,9 +23,15 @@ namespace Cliver.CefSharpController
         {
             InitializeComponent();
 
-            route_control.OutputFieldAdded += delegate(string name, string value)
+            this.Closing += delegate (object sender, System.ComponentModel.CancelEventArgs e)
+              {
+                  e.Cancel = true;
+                  this.Hide();
+              };
+
+            route_control.OutputFieldAdded += delegate (string queue_name, string field_name, string field_value)
             {
-                fields.Items.Add(new Field { Name = name, Value = value });
+                fields.Items.Add(new Field { Queue = queue_name, Name = field_name, Value = field_value });
             };
 
             fields.MouseRightButtonUp += delegate (object sender, MouseButtonEventArgs e)
@@ -44,14 +50,17 @@ namespace Cliver.CefSharpController
                 if (cell == null || row == null)
                     return;
 
+                row.IsSelected = true;
+
                 if (!Message.YesNo("Remove this field?"))
                     return;
 
                 //Items.Remove((Field)row.Item);
                 //fields.ItemsSource = items;
-                fields.Items.Remove((Field)row.Item);
+                Field f = (Field)row.Item;
+                fields.Items.Remove(f);
                 //fields.Items.Refresh();
-                route_control.RemoveOutputField(((Field)row.Item).Name);
+                route_control.RemoveOutputField(f.Queue, f.Name);
             };
         }
 
@@ -67,13 +76,9 @@ namespace Cliver.CefSharpController
 
         public class Field
         {
+            public string Queue { get; set; }
             public string Name { get; set; }
             public string Value { get; set; }
-        }
-
-        public void Add(Field field)
-        {
-            fields.Items.Add(field);
         }
     }
 }
