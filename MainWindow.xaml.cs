@@ -92,6 +92,13 @@ namespace Cliver.CefSharpController
             Browser.LoadImages = load_images.IsChecked == true;
         }
 
+        public void ShowBrowser(bool show)
+        {
+            Visibility v = show ? Visibility.Visible : Visibility.Collapsed;
+            browser.Visibility = v;
+            browser_controls.Visibility = v;
+        }
+
         public static MainWindow This { get; private set; }
 
         readonly public CefSharpBrowser Browser;

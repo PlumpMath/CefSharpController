@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Cliver.CefSharpController"
         xmlns:cefSharp="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="350" Width="auto"  SizeToContent="WidthAndHeight">
     <Grid Name="grid">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"></RowDefinition>
@@ -17,7 +17,7 @@
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <local:RouteControl Grid.Column="0" Grid.RowSpan="2" x:Name="route" VerticalAlignment="Stretch" />
-        <DockPanel Grid.Column="1" Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Stretch" >
+        <DockPanel Name="browser_controls" Grid.Column="1" Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Stretch" >
             <CheckBox Name="load_images">
                 Images
             </CheckBox>

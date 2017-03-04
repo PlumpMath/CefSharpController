@@ -316,6 +316,21 @@ namespace Cliver.CefSharpController
             {
                 dfw.Close();
             };
+
+            hide_browser.Click += delegate
+            {
+                MainWindow.This.ShowBrowser(hide_browser.IsChecked != true);
+            };
+
+            debug_mode.Click += delegate
+            {
+                Controller.DebugMode = debug_mode.IsChecked == true;
+            };
+
+            pause.Click += delegate
+            {
+                Controller.Pause = pause.IsChecked == true;
+            };
         }
         RouteType route_type;
         enum RouteType

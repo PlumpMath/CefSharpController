@@ -130,7 +130,7 @@ namespace Cliver.CefSharpController
 
         public static void Start(Route route)
         {
-            t = ThreadRoutines.StartTry(() =>
+               t = ThreadRoutines.StartTry(() =>
             {
                 c = new Controller(route);
                 c.Start();
@@ -138,6 +138,8 @@ namespace Cliver.CefSharpController
         }
         static Controller c;
         static Thread t;
+        static public bool DebugMode;
+        static public bool Pause;
 
         public static void Stop()
         {
@@ -206,6 +208,9 @@ namespace Cliver.CefSharpController
 
         Queue.InputItem get_next_item()
         {
+            while (Controller.Pause)
+                Thread.Sleep(300);
+
             foreach (Queue q in queues)
             {
                 if (q.InputItems.Count > 0)
@@ -392,11 +397,13 @@ return ls;
                         ls.Add(GetAbsoluteUrl((string)os[i], parent_url));
                 }
 
-                if (ls.Count > 3)
-                {
-                    Log.Main.Warning("While debugging only first 3 links are taken of actual " + ls.Count);
-                    ls.RemoveRange(3, ls.Count - 3);
-                }
+                if (Controller.DebugMode)
+                    if (ls.Count > 3)
+                    {
+                        Log.Main.Warning("While debugging only first 3 links are taken of actual " + ls.Count);
+                        ls.RemoveRange(3, ls.Count - 3);
+                    }
+
                 return ls;
             }
 
