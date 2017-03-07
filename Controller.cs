@@ -143,7 +143,8 @@ namespace Cliver.CefSharpController
                  }
                  finally
                  {
-                     //Log.MainSession.Close(route.Name);
+                     Log.MainSession.Close();
+                     Log.Initialize(Log.Mode.SESSIONS, null, false);
                  }
              });
         }

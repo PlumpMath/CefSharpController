@@ -49,6 +49,7 @@ namespace Cliver.CefSharpController
             {
                 Controller.DebugMode = debug_mode.IsChecked == true;
             };
+            Controller.DebugMode = debug_mode.IsChecked == true;
 
             pause.Click += delegate
             {

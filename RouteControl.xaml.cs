@@ -235,9 +235,9 @@ namespace Cliver.CefSharpController
                     if (d.ShowDialog() != true)
                         return;
 
-                    if (Log.IsMainSessionOpen)
-                        Log.MainSession.Close();
-                    Log.Initialize(Log.Mode.SESSIONS);
+                    //if (Log.IsMainSessionOpen)
+                    //    Log.MainSession.Close();
+                    //Log.Initialize(Log.Mode.SESSIONS);
 
                     route = new Route();
                     DataFieldsWindow.This.SetRoute(route);
